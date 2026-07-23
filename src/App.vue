@@ -1,24 +1,27 @@
 <script setup>
-import { watch } from 'vue';
-import { useSorter } from './composables/useSorter.js';
-import AlgorithmSelector from './components/AlgorithmSelector.vue';
-import ControlsPanel from './components/ControlsPanel.vue';
-import BarChart from './components/BarChart.vue';
-import StatsDisplay from './components/StatsDisplay.vue';
+import { ref } from 'vue';
+import SortingView from './views/SortingView.vue';
+import SearchView from './views/SearchView.vue';
+import PathfindingView from './views/PathfindingView.vue';
+import BstView from './views/BstView.vue';
+import HeapView from './views/HeapView.vue';
+import GraphView from './views/GraphView.vue';
 import ThemeToggle from './components/ThemeToggle.vue';
 
-const sorter = useSorter();
+// Each category is a fully self-contained view with its own composable/state —
+// switching tabs never mixes state between them, and a view is only mounted
+// (and its timers/generators alive) while its tab is active.
+const categories = [
+  { key: 'sorting', label: 'Sorting', component: SortingView },
+  { key: 'searching', label: 'Searching', component: SearchView },
+  { key: 'pathfinding', label: 'Pathfinding', component: PathfindingView },
+  { key: 'bst', label: 'BST', component: BstView },
+  { key: 'heap', label: 'Heap', component: HeapView },
+  { key: 'graph', label: 'Graph', component: GraphView },
+];
 
-// Changing the size slider (only possible while editable) rebuilds the dataset.
-watch(sorter.size, () => {
-  if (sorter.canEdit.value) sorter.generate();
-});
-
-// Switching algorithms mid-view resets any finished run to a clean state so the
-// bars aren't left painted green from a previous algorithm.
-watch(sorter.algoKey, () => {
-  if (sorter.isDone.value) sorter.reset();
-});
+const activeCategory = ref('sorting');
+const activeComponent = () => categories.find((c) => c.key === activeCategory.value).component;
 </script>
 
 <template>
@@ -36,50 +39,29 @@ watch(sorter.algoKey, () => {
           </div>
           <div>
             <h1 class="text-xl font-bold tracking-tight sm:text-2xl">AlgoViz</h1>
-            <p class="text-xs text-slate-400 sm:text-sm">Interactive sorting algorithm visualizer</p>
+            <p class="text-xs text-slate-400 sm:text-sm">Interactive algorithm visualizer</p>
           </div>
         </div>
         <ThemeToggle />
       </header>
 
-      <!-- Layout: sidebar controls + main visualization -->
-      <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
-        <!-- Left column -->
-        <div class="flex flex-col gap-4">
-          <AlgorithmSelector v-model="sorter.algoKey.value" :disabled="!sorter.canEdit.value" />
-          <ControlsPanel
-            v-model:size="sorter.size.value"
-            v-model:speed="sorter.speed.value"
-            :status="sorter.status.value"
-            :can-edit="sorter.canEdit.value"
-            :is-running="sorter.isRunning.value"
-            :is-paused="sorter.isPaused.value"
-            @generate="sorter.generate()"
-            @run="sorter.run()"
-            @pause="sorter.pause()"
-            @reset="sorter.reset()"
-          />
-        </div>
+      <!-- Category nav -->
+      <nav class="mb-6 flex flex-wrap gap-2">
+        <button
+          v-for="category in categories"
+          :key="category.key"
+          type="button"
+          class="rounded-xl px-4 py-2 text-sm font-semibold transition-all"
+          :class="activeCategory === category.key
+            ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
+            : 'bg-white/70 text-slate-600 hover:bg-slate-100 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-700'"
+          @click="activeCategory = category.key"
+        >
+          {{ category.label }}
+        </button>
+      </nav>
 
-        <!-- Right column -->
-        <div class="flex flex-col gap-4">
-          <StatsDisplay
-            :comparisons="sorter.stats.comparisons"
-            :swaps="sorter.stats.swaps"
-            :steps="sorter.stats.steps"
-            :elapsed-ms="sorter.stats.elapsedMs"
-            :status="sorter.status.value"
-          />
-          <BarChart
-            class="flex-1"
-            :array="sorter.array.value"
-            :comparing="sorter.highlights.comparing"
-            :swapping="sorter.highlights.swapping"
-            :sorted="sorter.highlights.sorted"
-            :max-value="sorter.maxValue.value"
-          />
-        </div>
-      </div>
+      <component :is="activeComponent()" />
 
       <footer class="mt-8 text-center text-xs text-slate-400">
         Built with Vue 3, Vite &amp; Tailwind CSS · each algorithm is a generator yielding step snapshots.
