@@ -4,6 +4,10 @@ import { insertionSort } from './insertionSort.js';
 import { mergeSort } from './mergeSort.js';
 import { quickSort } from './quickSort.js';
 import { heapSort } from './heapSort.js';
+import { shellSort } from './shellSort.js';
+import { combSort } from './combSort.js';
+import { countingSort } from './countingSort.js';
+import { radixSort } from './radixSort.js';
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
@@ -61,6 +65,47 @@ export const algorithms = {
       'Builds a max-heap, then repeatedly moves the largest element to the end and re-heapifies the shrinking heap.',
     complexity: { best: 'O(n log n)', average: 'O(n log n)', worst: 'O(n log n)', space: 'O(1)' },
     stable: false,
+  },
+  shell: {
+    key: 'shell',
+    name: 'Shell Sort',
+    generator: shellSort,
+    description:
+      'Generalizes insertion sort by comparing and swapping elements far apart first, shrinking the gap each pass until a final gap-1 pass leaves the array sorted.',
+    complexity: { best: 'O(n log n)', average: 'O(n^1.5)', worst: 'O(n²)', space: 'O(1)' },
+    stable: false,
+  },
+  comb: {
+    key: 'comb',
+    name: 'Comb Sort',
+    generator: combSort,
+    description:
+      'Improves bubble sort by comparing elements separated by a shrinking gap (÷1.3 each pass) instead of only adjacent ones, clearing small trailing values much faster.',
+    complexity: { best: 'O(n log n)', average: 'O(n²/2ᵖ)', worst: 'O(n²)', space: 'O(1)' },
+    stable: false,
+  },
+  counting: {
+    key: 'counting',
+    name: 'Counting Sort',
+    generator: countingSort,
+    description:
+      'Counts how many times each value occurs, turns those counts into placement offsets, and drops every element straight into its final slot — no comparisons needed.',
+    complexity: { best: 'O(n + k)', average: 'O(n + k)', worst: 'O(n + k)', space: 'O(n + k)' },
+    stable: true,
+  },
+  radix: {
+    key: 'radix',
+    name: 'Radix Sort',
+    generator: radixSort,
+    description:
+      'Sorts integers one decimal digit at a time, least significant first, using a stable counting sort per digit until every digit position has been processed.',
+    complexity: {
+      best: 'O(d·(n + b))',
+      average: 'O(d·(n + b))',
+      worst: 'O(d·(n + b))',
+      space: 'O(n + b)',
+    },
+    stable: true,
   },
 };
 

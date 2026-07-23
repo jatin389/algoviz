@@ -6,7 +6,7 @@ An interactive, single-page app for watching sorting algorithms work step by ste
 
 ## Features
 
-- **Six algorithms** — Bubble, Selection, Insertion, Merge, Quick, and Heap sort, each with a description and Big-O complexity card.
+- **Ten algorithms** — Bubble, Selection, Insertion, Merge, Quick, Heap, Shell, Comb, Counting, and Radix sort, each with a description and Big-O complexity card.
 - **Controls** — array size (10–100) and speed sliders, shuffle, run, pause/resume, and reset.
 - **Color-coded bars** — unsorted, comparing, swapping, and final-position bars, with smooth CSS height/color transitions.
 - **Live stats** — comparisons, swaps, step count, and elapsed time.
@@ -44,6 +44,10 @@ src/
 │   ├── mergeSort.js
 │   ├── quickSort.js
 │   ├── heapSort.js
+│   ├── shellSort.js
+│   ├── combSort.js
+│   ├── countingSort.js
+│   ├── radixSort.js
 │   ├── index.js           # registry: key -> { name, generator, complexity, ... }
 │   └── algorithms.test.js # correctness tests for every generator
 ├── composables/

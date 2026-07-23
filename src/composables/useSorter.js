@@ -42,7 +42,11 @@ export function useSorter() {
   const canEdit = computed(() => status.value === 'idle' || status.value === 'done');
 
   const currentAlgo = computed(() => algorithms[algoKey.value]);
-  const maxValue = computed(() => (array.value.length ? Math.max(...array.value) : 1));
+
+  // The bar scale is fixed per dataset, not recomputed per frame. Non-comparison
+  // sorts (counting/radix) render zero-filled placeholder slots mid-run, which
+  // would otherwise shrink the apparent max before the true max value lands.
+  const maxValue = ref(1);
 
   function randomArray(n) {
     return Array.from({ length: n }, () => Math.floor(Math.random() * 99) + 1);
@@ -67,6 +71,7 @@ export function useSorter() {
     generator = null;
     baseArray = randomArray(size.value);
     array.value = [...baseArray];
+    maxValue.value = Math.max(...baseArray, 1);
     resetHighlights();
     resetStats();
     status.value = 'idle';
