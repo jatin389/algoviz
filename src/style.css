@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App-wide base surface. Colors flip with the `dark` class on <html>. */
+@layer base {
+  html {
+    @apply antialiased;
+  }
+  body {
+    @apply bg-slate-100 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100;
+  }
+}
+
+@layer components {
+  /* A consistent card surface used across panels. */
+  .av-card {
+    @apply rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur
+           dark:border-slate-800 dark:bg-slate-900/70;
+  }
+}
+
+/* Range slider styling — Tailwind can't reach the pseudo-elements cleanly, so
+   we hand-style the track/thumb here for both themes. */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 9999px;
+  background: theme('colors.slate.300');
+  cursor: pointer;
+}
+.dark input[type='range'] {
+  background: theme('colors.slate.700');
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: theme('colors.indigo.500');
+  border: 2px solid theme('colors.white');
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.15s ease;
+}
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  background: theme('colors.indigo.500');
+  border: 2px solid theme('colors.white');
+  cursor: pointer;
+}
+input[type='range']:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
