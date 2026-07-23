@@ -5,3 +5,8 @@ dist-ssr
 .DS_Store
 .vite
 coverage
+
+
+
+# aw
+.aw_docs/cache/aw-memory-intent-state.json
