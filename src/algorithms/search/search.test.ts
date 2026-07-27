@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { SearchStep } from '@/types';
-import { algorithms, algorithmList } from './index';
+import { algorithms } from './index';
 import type { SearchAlgoKey, SearchFn } from './index';
 
 // Drive a generator to completion and return the sequence of snapshots.
@@ -28,7 +28,8 @@ const cases = [
 ];
 
 describe('search algorithm generators', () => {
-  for (const { key, name: algoName, generator } of algorithmList) {
+  for (const key of Object.keys(algorithms) as SearchAlgoKey[]) {
+    const { name: algoName, description, generator } = algorithms[key];
     describe(algoName, () => {
       for (const { name, array, target, found } of cases) {
         it(`handles "${name}" correctly`, () => {
@@ -54,14 +55,16 @@ describe('search algorithm generators', () => {
         }
       });
 
-      it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key as SearchAlgoKey].generator).toBe(generator);
+      it(`registers complete metadata under "${key}"`, () => {
+        expect(algoName).not.toBe('');
+        expect(description).not.toBe('');
+        expect(typeof generator).toBe('function');
       });
     });
   }
 
   it('handles an empty array without throwing', () => {
-    for (const { generator } of algorithmList) {
+    for (const { generator } of Object.values(algorithms)) {
       const steps = runToCompletion(generator, [], 5);
       const last = steps[steps.length - 1];
       expect(last.done).toBe(true);

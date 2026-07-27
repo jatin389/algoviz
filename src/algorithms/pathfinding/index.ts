@@ -9,9 +9,12 @@ export type PathAlgorithm = AlgorithmMeta<PathFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
+//
+// `satisfies` rather than a `: Record<string, ...>` annotation: the annotation
+// would widen `keyof typeof algorithms` to `string`, and the whole point of
+// the property names is that they *are* the algorithm keys.
 export const algorithms = {
   bfs: {
-    key: 'bfs',
     name: 'BFS',
     generator: bfs,
     description:
@@ -24,7 +27,6 @@ export const algorithms = {
     },
   },
   dfs: {
-    key: 'dfs',
     name: 'DFS',
     generator: dfs,
     description:
@@ -37,7 +39,6 @@ export const algorithms = {
     },
   },
   dijkstra: {
-    key: 'dijkstra',
     name: 'Dijkstra',
     generator: dijkstra,
     description:
@@ -50,7 +51,6 @@ export const algorithms = {
     },
   },
   astar: {
-    key: 'astar',
     name: 'A*',
     generator: astar,
     description:
@@ -66,6 +66,3 @@ export const algorithms = {
 
 /** Literal union of the registry keys: 'bfs' | 'dfs' | 'dijkstra' | 'astar' */
 export type PathAlgoKey = keyof typeof algorithms;
-
-// Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList: PathAlgorithm[] = Object.values(algorithms);

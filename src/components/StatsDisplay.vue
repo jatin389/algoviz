@@ -1,13 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
+import type { AlgoStatus } from '@/types';
+import AvPanel from '@/components/ui/AvPanel.vue';
+import AvStatCell from '@/components/ui/AvStatCell.vue';
 
-const props = defineProps({
-  comparisons: { type: Number, required: true },
-  swaps: { type: Number, required: true },
-  steps: { type: Number, required: true },
-  elapsedMs: { type: Number, required: true },
-  status: { type: String, required: true },
-});
+const props = defineProps<{
+  comparisons: number;
+  swaps: number;
+  steps: number;
+  elapsedMs: number;
+  status: AlgoStatus;
+}>();
 
 const elapsedLabel = computed(() => `${(props.elapsedMs / 1000).toFixed(2)}s`);
 
@@ -35,30 +38,18 @@ const cells = computed(() => [
 </script>
 
 <template>
-  <div class="av-card p-4 sm:p-5">
-    <div class="mb-3 flex items-center justify-between">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Stats</h2>
+  <AvPanel title="Stats">
+    <template #header>
       <span
         class="rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors"
         :class="statusClass"
       >
         {{ statusLabel }}
       </span>
-    </div>
+    </template>
 
     <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      <div
-        v-for="cell in cells"
-        :key="cell.label"
-        class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50"
-      >
-        <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100 sm:text-2xl">
-          {{ cell.value }}
-        </div>
-        <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-          {{ cell.label }}
-        </div>
-      </div>
+      <AvStatCell v-for="cell in cells" :key="cell.label" :label="cell.label" :value="cell.value" />
     </div>
-  </div>
+  </AvPanel>
 </template>

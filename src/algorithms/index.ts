@@ -15,9 +15,12 @@ export type SortAlgorithm = AlgorithmMeta<SortFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
+//
+// `satisfies` rather than a `: Record<string, ...>` annotation: the annotation
+// would widen `keyof typeof algorithms` to `string`, and the whole point of
+// the property names is that they *are* the algorithm keys.
 export const algorithms = {
   bubble: {
-    key: 'bubble',
     name: 'Bubble Sort',
     generator: bubbleSort,
     description:
@@ -26,7 +29,6 @@ export const algorithms = {
     stable: true,
   },
   selection: {
-    key: 'selection',
     name: 'Selection Sort',
     generator: selectionSort,
     description:
@@ -35,7 +37,6 @@ export const algorithms = {
     stable: false,
   },
   insertion: {
-    key: 'insertion',
     name: 'Insertion Sort',
     generator: insertionSort,
     description:
@@ -44,7 +45,6 @@ export const algorithms = {
     stable: true,
   },
   merge: {
-    key: 'merge',
     name: 'Merge Sort',
     generator: mergeSort,
     description:
@@ -53,7 +53,6 @@ export const algorithms = {
     stable: true,
   },
   quick: {
-    key: 'quick',
     name: 'Quick Sort',
     generator: quickSort,
     description:
@@ -62,7 +61,6 @@ export const algorithms = {
     stable: false,
   },
   heap: {
-    key: 'heap',
     name: 'Heap Sort',
     generator: heapSort,
     description:
@@ -71,7 +69,6 @@ export const algorithms = {
     stable: false,
   },
   shell: {
-    key: 'shell',
     name: 'Shell Sort',
     generator: shellSort,
     description:
@@ -80,7 +77,6 @@ export const algorithms = {
     stable: false,
   },
   comb: {
-    key: 'comb',
     name: 'Comb Sort',
     generator: combSort,
     description:
@@ -89,7 +85,6 @@ export const algorithms = {
     stable: false,
   },
   counting: {
-    key: 'counting',
     name: 'Counting Sort',
     generator: countingSort,
     description:
@@ -98,7 +93,6 @@ export const algorithms = {
     stable: true,
   },
   radix: {
-    key: 'radix',
     name: 'Radix Sort',
     generator: radixSort,
     description:
@@ -115,6 +109,3 @@ export const algorithms = {
 
 /** Literal union of the registry keys: 'bubble' | 'selection' | ... */
 export type SortAlgoKey = keyof typeof algorithms;
-
-// Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList: SortAlgorithm[] = Object.values(algorithms);

@@ -1,27 +1,17 @@
-<script setup>
-import { ref } from 'vue';
-import SortingView from './views/SortingView.vue';
-import SearchView from './views/SearchView.vue';
-import PathfindingView from './views/PathfindingView.vue';
-import BstView from './views/BstView.vue';
-import HeapView from './views/HeapView.vue';
-import GraphView from './views/GraphView.vue';
+<script setup lang="ts">
+import { RouterLink, RouterView } from 'vue-router';
+import { navRoutes } from '@/router';
 import ThemeToggle from './components/ThemeToggle.vue';
 
-// Each category is a fully self-contained view with its own composable/state —
+// Each route is a fully self-contained view with its own composable/state —
 // switching tabs never mixes state between them, and a view is only mounted
-// (and its timers/generators alive) while its tab is active.
-const categories = [
-  { key: 'sorting', label: 'Sorting', component: SortingView },
-  { key: 'searching', label: 'Searching', component: SearchView },
-  { key: 'pathfinding', label: 'Pathfinding', component: PathfindingView },
-  { key: 'bst', label: 'BST', component: BstView },
-  { key: 'heap', label: 'Heap', component: HeapView },
-  { key: 'graph', label: 'Graph', component: GraphView },
-];
-
-const activeCategory = ref('sorting');
-const activeComponent = () => categories.find((c) => c.key === activeCategory.value).component;
+// (and its timers/generators alive) while its tab is active. <RouterView>
+// without <KeepAlive> preserves that: the previous view unmounts, which is what
+// disposes its timer chain.
+//
+// `navRoutes` comes from the router module rather than `router.getRoutes()`,
+// whose ordering is not guaranteed to match declaration order — and tab order
+// matters here.
 </script>
 
 <template>
@@ -57,23 +47,22 @@ const activeComponent = () => categories.find((c) => c.key === activeCategory.va
 
       <!-- Category nav -->
       <nav class="mb-6 flex flex-wrap gap-2">
-        <button
-          v-for="category in categories"
-          :key="category.key"
-          type="button"
+        <RouterLink
+          v-for="route in navRoutes"
+          :key="route.path"
+          :to="route.path"
           class="rounded-xl px-4 py-2 text-sm font-semibold transition-all"
           :class="
-            activeCategory === category.key
+            $route.path === route.path
               ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
               : 'bg-white/70 text-slate-600 hover:bg-slate-100 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-700'
           "
-          @click="activeCategory = category.key"
         >
-          {{ category.label }}
-        </button>
+          {{ route.meta?.label }}
+        </RouterLink>
       </nav>
 
-      <component :is="activeComponent()" />
+      <RouterView />
 
       <footer class="mt-8 text-center text-xs text-slate-400">
         Built with Vue 3, Vite &amp; Tailwind CSS · each algorithm is a generator yielding step

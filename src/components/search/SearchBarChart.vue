@@ -1,14 +1,20 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
+import AvPanel from '@/components/ui/AvPanel.vue';
 
-const props = defineProps({
-  array: { type: Array, required: true },
-  low: { type: Number, default: null },
-  high: { type: Number, default: null },
-  checking: { type: Number, default: null },
-  foundIndex: { type: Number, default: null },
-  maxValue: { type: Number, default: 1 },
-});
+// low/high/checking/foundIndex mirror the matching SearchStep fields, which are
+// `number | null` because the bounds are cleared once a run terminates.
+const props = withDefaults(
+  defineProps<{
+    array: number[];
+    low?: number | null;
+    high?: number | null;
+    checking?: number | null;
+    foundIndex?: number | null;
+    maxValue?: number;
+  }>(),
+  { low: null, high: null, checking: null, foundIndex: null, maxValue: 1 },
+);
 
 // Show numeric labels only when bars are wide enough to be legible.
 const showLabels = computed(() => props.array.length <= 25);
@@ -24,23 +30,25 @@ const showActiveRange = computed(
 );
 
 // Color precedence: found > checking > active range > default.
-function colorClass(index) {
+function colorClass(index: number) {
   if (props.foundIndex !== null && index === props.foundIndex) return 'bg-emerald-500';
   if (props.checking !== null && index === props.checking) return 'bg-amber-400';
-  if (showActiveRange.value && index >= props.low && index <= props.high) {
+  // `showActiveRange` already proves low/high are non-null, but that narrowing
+  // does not survive the trip through a computed — hence the assertions.
+  if (showActiveRange.value && index >= props.low! && index <= props.high!) {
     return 'bg-indigo-300 dark:bg-indigo-600';
   }
   return 'bg-indigo-500/80 dark:bg-indigo-400/80';
 }
 
-function heightPercent(value) {
+function heightPercent(value: number) {
   // Reserve a little headroom so the tallest bar doesn't touch the ceiling.
   return `${(value / props.maxValue) * 98 + 2}%`;
 }
 </script>
 
 <template>
-  <div class="av-card flex h-full flex-col p-4 sm:p-5">
+  <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Visualization</h2>
       <!-- Color legend -->
@@ -80,5 +88,5 @@ function heightPercent(value) {
         />
       </div>
     </div>
-  </div>
+  </AvPanel>
 </template>

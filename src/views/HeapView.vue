@@ -1,8 +1,37 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
-import { useHeap } from '../composables/useHeap.js';
+import { useHeap } from '@/composables/useHeap';
+import AvPanel from '@/components/ui/AvPanel.vue';
+import AvStatCell from '@/components/ui/AvStatCell.vue';
 import HeapControls from '../components/datastructures/HeapControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
+
+/** The paint states TreeDiagram understands. Mirrors the union in BstView. */
+type NodeState = 'default' | 'visiting' | 'inserted' | 'removing';
+
+/** One positioned node handed to TreeDiagram; `id` is the backing array index. */
+interface DiagramNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  state: NodeState;
+}
+
+/** A parent -> child link, referenced by backing array index. */
+interface DiagramEdge {
+  from: number;
+  to: number;
+}
+
+/** Layout bookkeeping: `depth` is used here and dropped before render. */
+interface LayoutNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  depth: number;
+}
 
 // Self-contained root: no props in, no changes to any other file needed to
 // render this view standalone.
@@ -16,13 +45,13 @@ const Y_MARGIN = 40;
 // The heap array IS a complete binary tree (child i -> 2i+1 / 2i+2), so the
 // same in-order-slot layout technique used for the BST applies directly to
 // indices instead of node references.
-function layoutHeap(a) {
-  const nodes = [];
-  const edges = [];
+function layoutHeap(a: number[]) {
+  const nodes: LayoutNode[] = [];
+  const edges: DiagramEdge[] = [];
   let nextSlot = 0;
   const n = a.length;
 
-  function walk(i, depth) {
+  function walk(i: number, depth: number) {
     if (i >= n) return;
     const left = 2 * i + 1;
     const right = 2 * i + 2;
@@ -46,13 +75,13 @@ const layout = computed(() => layoutHeap(heap.heap.value));
 // does — comparing maps to the amber "visiting" state and an active swap
 // maps to the emerald "inserted" state, since a swap means this pair is
 // settling into its resting position for this step.
-function stateForIndex(i) {
+function stateForIndex(i: number): NodeState {
   if (heap.highlights.comparing.includes(i)) return 'visiting';
   if (heap.highlights.swapping.includes(i)) return 'inserted';
   return 'default';
 }
 
-const nodes = computed(() =>
+const nodes = computed<DiagramNode[]>(() =>
   layout.value.nodes.map((n) => ({
     id: n.id,
     x: n.x,
@@ -94,9 +123,8 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
 
     <!-- Right column -->
     <div class="flex flex-col gap-4">
-      <div class="av-card p-4 sm:p-5">
-        <div class="mb-3 flex items-center justify-between">
-          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Stats</h2>
+      <AvPanel title="Stats">
+        <template #header>
           <span
             class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
             :class="{
@@ -116,32 +144,11 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
                   : 'Idle'
             }}
           </span>
-        </div>
+        </template>
         <div class="grid grid-cols-3 gap-2">
-          <div class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50">
-            <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">
-              {{ heap.stats.comparisons }}
-            </div>
-            <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Comparisons
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50">
-            <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">
-              {{ heap.stats.swaps }}
-            </div>
-            <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Swaps
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50">
-            <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">
-              {{ heap.stats.steps }}
-            </div>
-            <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Steps
-            </div>
-          </div>
+          <AvStatCell label="Comparisons" :value="String(heap.stats.comparisons)" />
+          <AvStatCell label="Swaps" :value="String(heap.stats.swaps)" />
+          <AvStatCell label="Steps" :value="String(heap.stats.steps)" />
         </div>
         <p v-if="heap.lastExtracted.value !== null" class="mt-3 text-center text-xs text-slate-400">
           Last extracted:
@@ -149,9 +156,9 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
             heap.lastExtracted.value
           }}</span>
         </p>
-      </div>
+      </AvPanel>
 
-      <div class="av-card flex min-h-[280px] flex-1 items-center justify-center p-4 sm:p-5">
+      <AvPanel class="flex min-h-[280px] flex-1 items-center justify-center">
         <p v-if="isEmpty" class="text-sm text-slate-400">
           The heap is empty — insert a value to get started.
         </p>
@@ -163,13 +170,10 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
           :view-box-height="viewBoxHeight"
           class="max-h-[55vh]"
         />
-      </div>
+      </AvPanel>
 
       <!-- Raw array — reinforces that a heap IS an array under the hood. -->
-      <div class="av-card p-4 sm:p-5">
-        <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-          Backing Array
-        </h2>
+      <AvPanel title="Backing Array">
         <div v-if="isEmpty" class="text-sm text-slate-400">Empty.</div>
         <div v-else class="flex flex-wrap gap-1.5">
           <div
@@ -194,7 +198,7 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
             </div>
           </div>
         </div>
-      </div>
+      </AvPanel>
     </div>
   </div>
 </template>

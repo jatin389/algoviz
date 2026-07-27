@@ -1,5 +1,17 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { algorithms } from '@/algorithms/search';
+import type { SearchAlgoKey } from '@/algorithms/search';
+import type { AlgoStatus, SearchStep, StepGenerator } from '@/types';
+
+// Mirrors the matching fields on SearchStep, which are `number | null` because
+// the bounds are cleared once a run terminates. Declared explicitly because the
+// all-null initializers below would otherwise infer as plain `null`.
+interface SearchHighlights {
+  low: number | null;
+  high: number | null;
+  mid: number | null;
+  checking: number | null;
+}
 
 /**
  * useSearcher — the animation engine for the search vertical.
@@ -17,21 +29,26 @@ export function useSearcher() {
   // ---- User-configurable inputs ---------------------------------------------
   const size = ref(20); // number of bars (10..50)
   const speed = ref(60); // 1..100, higher = faster
-  const algoKey = ref('binary');
+  const algoKey = ref<SearchAlgoKey>('binary');
   const target = ref(0); // value being searched for
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref('idle'); // idle | running | paused | done
-  const array = ref([]); // current bar values (sorted ascending)
-  const highlights = reactive({ low: null, high: null, mid: null, checking: null });
-  const foundIndex = ref(null); // null until a run concludes with a match
+  const status = ref<AlgoStatus>('idle');
+  const array = ref<number[]>([]); // current bar values (sorted ascending)
+  const highlights = reactive<SearchHighlights>({
+    low: null,
+    high: null,
+    mid: null,
+    checking: null,
+  });
+  const foundIndex = ref<number | null>(null); // null until a run concludes with a match
   const stats = reactive({ comparisons: 0, steps: 0, elapsedMs: 0 });
 
   // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator = null;
-  let timer = null;
+  let generator: StepGenerator<SearchStep> | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   let startTs = 0;
-  let baseArray = []; // the pristine sorted array a run starts from
+  let baseArray: number[] = []; // the pristine sorted array a run starts from
 
   // Map the 1..100 speed slider onto a per-step delay in ms.
   // Higher speed -> smaller delay. Range ~ [4ms, 202ms].
@@ -48,7 +65,7 @@ export function useSearcher() {
   // The bar scale is fixed per dataset, not recomputed per frame.
   const maxValue = ref(1);
 
-  function randomSortedArray(n) {
+  function randomSortedArray(n: number) {
     return Array.from({ length: n }, () => Math.floor(Math.random() * 99) + 1).sort(
       (a, b) => a - b,
     );
@@ -100,7 +117,7 @@ export function useSearcher() {
     pickPresentTarget();
   }
 
-  function applyStep(step) {
+  function applyStep(step: SearchStep) {
     array.value = step.array;
     highlights.low = step.low;
     highlights.high = step.high;
@@ -114,6 +131,9 @@ export function useSearcher() {
 
   function tick() {
     if (status.value !== 'running') return;
+    // Unreachable at runtime — `run()` always assigns the generator before the
+    // first tick — but strict null checks cannot see that.
+    if (!generator) return;
     const { value, done: exhausted } = generator.next();
     if (exhausted || !value) {
       finish();
@@ -181,6 +201,10 @@ export function useSearcher() {
 
   // Seed an initial dataset so the UI has something to show on mount.
   generate();
+
+  // Stop the timer chain if the owning component unmounts mid-run; otherwise
+  // tick() keeps recursing against a detached view forever.
+  onScopeDispose(clearTimer);
 
   return {
     // inputs

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { SortStep } from '@/types';
-import { algorithms, algorithmList } from './index';
+import { algorithms } from './index';
 import type { SortAlgoKey, SortFn } from './index';
 
 // Drive a generator to completion and return the sequence of snapshots.
@@ -24,7 +24,8 @@ const cases = [
 ];
 
 describe('sorting algorithm generators', () => {
-  for (const { key, name: algoName, generator } of algorithmList) {
+  for (const key of Object.keys(algorithms) as SortAlgoKey[]) {
+    const { name: algoName, description, generator } = algorithms[key];
     describe(algoName, () => {
       for (const { name, input } of cases) {
         it(`sorts ${name} correctly`, () => {
@@ -52,14 +53,16 @@ describe('sorting algorithm generators', () => {
         }
       });
 
-      it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key as SortAlgoKey].generator).toBe(generator);
+      it(`registers complete metadata under "${key}"`, () => {
+        expect(algoName).not.toBe('');
+        expect(description).not.toBe('');
+        expect(typeof generator).toBe('function');
       });
     });
   }
 
   it('handles an empty array without throwing', () => {
-    for (const { generator } of algorithmList) {
+    for (const { generator } of Object.values(algorithms)) {
       const steps = runToCompletion(generator, []);
       const last = steps[steps.length - 1];
       expect(last.done).toBe(true);

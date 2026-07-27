@@ -1,13 +1,22 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { generateGraph } from '@/algorithms/graph/graphModel';
 import { algorithms } from '@/algorithms/graph';
+import type { GraphAlgoKey } from '@/algorithms/graph';
+import type { AlgoStatus, GraphModel, GraphStep, NodeId, StepGenerator } from '@/types';
 
 const DEFAULT_NODE_COUNT = 10;
+
+/** The three node buckets the diagram paints; `current` is the node just popped. */
+interface TraversalHighlights {
+  visited: NodeId[];
+  frontier: NodeId[];
+  current: NodeId | null;
+}
 
 /**
  * useGraphTraversal — the animation engine for the graph traversal vertical.
  *
- * Mirrors useSorter.js/useSearcher.js: it owns all playback state and drives a
+ * Mirrors useSorter.ts/useSearcher.ts: it owns all playback state and drives a
  * traversal generator forward one step at a time on a timer. The generators
  * are pure and know nothing about Vue; this composable is the single bridge
  * between traversal snapshots and reactive UI state.
@@ -17,19 +26,19 @@ const DEFAULT_NODE_COUNT = 10;
  */
 export function useGraphTraversal() {
   // ---- User-configurable inputs ---------------------------------------------
-  const graph = ref({ nodes: [], edges: [], adjacency: new Map() });
-  const algoKey = ref('bfs');
-  const startId = ref(null);
+  const graph = ref<GraphModel>({ nodes: [], edges: [], adjacency: new Map() });
+  const algoKey = ref<GraphAlgoKey>('bfs');
+  const startId = ref<NodeId | null>(null);
   const speed = ref(60); // 1..100, higher = faster
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref('idle'); // idle | running | paused | done
-  const highlights = reactive({ visited: [], frontier: [], current: null });
+  const status = ref<AlgoStatus>('idle');
+  const highlights = reactive<TraversalHighlights>({ visited: [], frontier: [], current: null });
   const stats = reactive({ visitedCount: 0, totalNodes: 0, steps: 0, elapsedMs: 0 });
 
   // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator = null;
-  let timer = null;
+  let generator: StepGenerator<GraphStep> | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   let startTs = 0;
 
   // Map the 1..100 speed slider onto a per-step delay in ms.
@@ -70,13 +79,13 @@ export function useGraphTraversal() {
   }
 
   /** Let the user click a node to pick where the traversal starts. */
-  function setStart(id) {
+  function setStart(id: NodeId) {
     if (!canEdit.value) return;
     if (!graph.value.adjacency.has(id)) return;
     startId.value = id;
   }
 
-  function applyStep(step) {
+  function applyStep(step: GraphStep) {
     highlights.visited = step.visited;
     highlights.frontier = step.frontier;
     highlights.current = step.current;
@@ -87,6 +96,9 @@ export function useGraphTraversal() {
 
   function tick() {
     if (status.value !== 'running') return;
+    // Runtime no-op: tick is only reachable once run() has assigned a
+    // generator. It exists so `generator` narrows to non-null below.
+    if (!generator) return;
     const { value, done: exhausted } = generator.next();
     if (exhausted || !value) {
       finish();
@@ -150,6 +162,10 @@ export function useGraphTraversal() {
 
   // Seed an initial graph so the UI has something to show on mount.
   generate();
+
+  // Stop the timer chain if the owning component unmounts mid-run; otherwise
+  // tick() keeps recursing against a detached view forever.
+  onScopeDispose(clearTimer);
 
   return {
     // inputs

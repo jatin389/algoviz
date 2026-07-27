@@ -1,7 +1,8 @@
-<script setup>
+<script setup lang="ts">
 import { watch } from 'vue';
-import { useGraphTraversal } from '../composables/useGraphTraversal.js';
-import GraphAlgorithmSelector from '../components/graph/GraphAlgorithmSelector.vue';
+import { useGraphTraversal } from '@/composables/useGraphTraversal';
+import { algorithms } from '@/algorithms/graph';
+import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import GraphControls from '../components/graph/GraphControls.vue';
 import GraphCanvas from '../components/graph/GraphCanvas.vue';
 import GraphStats from '../components/graph/GraphStats.vue';
@@ -19,8 +20,10 @@ watch(traversal.algoKey, () => {
   <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <GraphAlgorithmSelector
+      <AvAlgorithmSelector
         v-model="traversal.algoKey.value"
+        :algorithms="algorithms"
+        title="Traversal Algorithm"
         :disabled="!traversal.canEdit.value"
       />
       <GraphControls

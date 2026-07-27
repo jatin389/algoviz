@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { GraphFn, GraphAlgoKey } from './index';
-import { algorithms, algorithmList } from './index';
+import { algorithms } from './index';
 import type { GraphStep, NodeId } from '@/types';
 
 // Fixed adjacency fixtures built directly here (not via generateGraph, which
@@ -51,7 +51,8 @@ const disconnectedAdjacency = buildAdjacency(
 const isolatedAdjacency = buildAdjacency([0], []);
 
 describe('graph traversal generators', () => {
-  for (const { key, name, generator } of algorithmList) {
+  for (const key of Object.keys(algorithms) as GraphAlgoKey[]) {
+    const { name, description, generator } = algorithms[key];
     describe(name, () => {
       it('visits every node in a connected ring exactly once', () => {
         const steps = runToCompletion(generator, ringAdjacency, 0);
@@ -116,8 +117,10 @@ describe('graph traversal generators', () => {
         }
       });
 
-      it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key as GraphAlgoKey].generator).toBe(generator);
+      it(`registers complete metadata under "${key}"`, () => {
+        expect(name).not.toBe('');
+        expect(description).not.toBe('');
+        expect(typeof generator).toBe('function');
       });
     });
   }

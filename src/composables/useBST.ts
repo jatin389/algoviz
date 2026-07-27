@@ -1,5 +1,6 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { insertBST, deleteBST } from '@/algorithms/datastructures/bst';
+import type { AlgoStatus, BSTNode, BSTPhase, BSTStep, StepGenerator } from '@/types';
 
 /**
  * useBST — the BST operation-playback engine.
@@ -10,14 +11,15 @@ import { insertBST, deleteBST } from '@/algorithms/datastructures/bst';
  * Same setTimeout/delayMs stepping pattern as useSorter for visual parity.
  */
 export function useBST() {
-  const tree = ref(null);
-  const status = ref('idle'); // idle | running | done
+  const tree = ref<BSTNode | null>(null);
+  const status = ref<AlgoStatus>('idle'); // this engine never pauses: idle | running | done
   const speed = ref(60);
   const stats = reactive({ comparisons: 0, steps: 0 });
-  const visiting = ref(null);
-  const phase = ref(null);
+  /** The *id* of the node under the cursor, not its value. */
+  const visiting = ref<number | null>(null);
+  const phase = ref<BSTPhase | null>(null);
 
-  let timer = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
 
   const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
   const canEdit = computed(() => status.value !== 'running');
@@ -34,7 +36,7 @@ export function useBST() {
     stats.steps = 0;
   }
 
-  function applyStep(step) {
+  function applyStep(step: BSTStep) {
     tree.value = step.tree;
     visiting.value = step.visiting ?? null;
     phase.value = step.phase;
@@ -42,7 +44,7 @@ export function useBST() {
     stats.steps += 1;
   }
 
-  function driveGenerator(generator, onDone) {
+  function driveGenerator(generator: StepGenerator<BSTStep>, onDone?: () => void) {
     resetStats();
     status.value = 'running';
 
@@ -65,13 +67,15 @@ export function useBST() {
     tick();
   }
 
-  function insert(value) {
+  // `value` is raw user input, validated below rather than trusted — hence
+  // `unknown` instead of `number`.
+  function insert(value: unknown) {
     if (!canEdit.value) return;
     if (typeof value !== 'number' || !Number.isFinite(value)) return;
     driveGenerator(insertBST(tree.value, value));
   }
 
-  function remove(value) {
+  function remove(value: unknown) {
     if (!canEdit.value) return;
     if (typeof value !== 'number' || !Number.isFinite(value)) return;
     driveGenerator(deleteBST(tree.value, value));
@@ -87,11 +91,11 @@ export function useBST() {
   }
 
   /** Instantly insert `count` random distinct values without animating. */
-  function seed(count) {
+  function seed(count: number) {
     if (!canEdit.value) return;
     clearTimer();
     const target = Math.min(Math.max(0, Math.floor(count)), 200);
-    const seen = new Set();
+    const seen = new Set<number>();
     let root = tree.value;
     let attempts = 0;
     // Range is wide relative to `target` so distinct-value collisions stay
@@ -101,9 +105,11 @@ export function useBST() {
       const value = Math.floor(Math.random() * 999) + 1;
       if (seen.has(value)) continue;
       seen.add(value);
-      let last;
+      let last: BSTStep | undefined;
       for (const step of insertBST(root, value)) last = step;
-      root = last.tree;
+      // insertBST always yields at least a terminal snapshot, so the loop body
+      // ran; TypeScript just can't prove a for-of body executes.
+      root = last!.tree;
     }
     tree.value = root;
     visiting.value = null;
@@ -111,6 +117,10 @@ export function useBST() {
     resetStats();
     status.value = 'idle';
   }
+
+  // Stop the timer chain if the owning component unmounts mid-run; otherwise
+  // tick() keeps recursing against a detached view forever.
+  onScopeDispose(clearTimer);
 
   return {
     tree,

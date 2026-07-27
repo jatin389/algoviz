@@ -7,9 +7,12 @@ export type SearchAlgorithm = AlgorithmMeta<SearchFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
+//
+// `satisfies` rather than a `: Record<string, ...>` annotation: the annotation
+// would widen `keyof typeof algorithms` to `string`, and the whole point of
+// the property names is that they *are* the algorithm keys.
 export const algorithms = {
   linear: {
-    key: 'linear',
     name: 'Linear Search',
     generator: linearSearch,
     description:
@@ -17,7 +20,6 @@ export const algorithms = {
     complexity: { best: 'O(1)', average: 'O(n)', worst: 'O(n)', space: 'O(1)' },
   },
   binary: {
-    key: 'binary',
     name: 'Binary Search',
     generator: binarySearch,
     description:
@@ -28,6 +30,3 @@ export const algorithms = {
 
 /** Literal union of the registry keys: 'linear' | 'binary' */
 export type SearchAlgoKey = keyof typeof algorithms;
-
-// Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList: SearchAlgorithm[] = Object.values(algorithms);

@@ -1,10 +1,12 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { algorithms } from '@/algorithms/pathfinding';
+import type { PathAlgoKey } from '@/algorithms/pathfinding';
+import type { AlgoStatus, Coord, Grid, PathStep, StepGenerator } from '@/types';
 
 const ROWS = 15;
 const COLS = 25;
 
-const key = (row, col) => `${row},${col}`;
+const key = (row: number, col: number) => `${row},${col}`;
 
 /**
  * usePathfinder — the pathfinding playback engine.
@@ -16,7 +18,7 @@ const key = (row, col) => `${row},${col}`;
  *
  * Walls are owned here, not by the generators — they're static input the user
  * edits between runs, so they never appear in a step snapshot (see
- * algorithms/pathfinding/_utils.js).
+ * algorithms/pathfinding/_utils.ts).
  *
  * Status machine: idle -> running <-> paused -> done, with reset returning to
  * idle. Same as useSorter, walls/start/end may only change while `canEdit`.
@@ -24,21 +26,21 @@ const key = (row, col) => `${row},${col}`;
 export function usePathfinder() {
   // ---- User-configurable inputs ---------------------------------------------
   const speed = ref(60); // 1..100, higher = faster
-  const algoKey = ref('bfs');
-  const walls = reactive(new Set()); // Set<"row,col">
-  const start = reactive({ row: Math.floor(ROWS / 2), col: 0 });
-  const end = reactive({ row: Math.floor(ROWS / 2), col: COLS - 1 });
+  const algoKey = ref<PathAlgoKey>('bfs');
+  const walls = reactive(new Set<string>()); // keys are "row,col"
+  const start = reactive<Coord>({ row: Math.floor(ROWS / 2), col: 0 });
+  const end = reactive<Coord>({ row: Math.floor(ROWS / 2), col: COLS - 1 });
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref('idle'); // idle | running | paused | done
-  const visited = ref([]);
-  const frontier = ref([]);
-  const path = ref([]);
+  const status = ref<AlgoStatus>('idle');
+  const visited = ref<Coord[]>([]);
+  const frontier = ref<Coord[]>([]);
+  const path = ref<Coord[]>([]);
   const stats = reactive({ visitedCount: 0, pathLength: 0, elapsedMs: 0 });
 
   // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator = null;
-  let timer = null;
+  let generator: StepGenerator<PathStep> | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   let startTs = 0;
 
   // Same speed -> delay mapping as useSorter, so both views feel consistent.
@@ -52,17 +54,17 @@ export function usePathfinder() {
 
   const currentAlgo = computed(() => algorithms[algoKey.value]);
 
-  function isStartCell(row, col) {
+  function isStartCell(row: number, col: number) {
     return start.row === row && start.col === col;
   }
 
-  function isEndCell(row, col) {
+  function isEndCell(row: number, col: number) {
     return end.row === row && end.col === col;
   }
 
   /** Materialize the current walls Set into the 0/1 grid generators expect. */
   function buildGrid() {
-    const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+    const grid: Grid = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
     for (const wallKey of walls) {
       const [row, col] = wallKey.split(',').map(Number);
       grid[row][col] = 1;
@@ -82,7 +84,7 @@ export function usePathfinder() {
     stats.elapsedMs = 0;
   }
 
-  function toggleWall(row, col) {
+  function toggleWall(row: number, col: number) {
     if (!canEdit.value) return;
     if (isStartCell(row, col) || isEndCell(row, col)) return;
     const k = key(row, col);
@@ -100,7 +102,7 @@ export function usePathfinder() {
   }
 
   /** Refuse to overwrite the end cell or an existing wall — pick another spot. */
-  function placeStart(row, col) {
+  function placeStart(row: number, col: number) {
     if (!canEdit.value) return;
     if (isEndCell(row, col)) return;
     if (walls.has(key(row, col))) return;
@@ -110,7 +112,7 @@ export function usePathfinder() {
   }
 
   /** Refuse to overwrite the start cell or an existing wall — pick another spot. */
-  function placeEnd(row, col) {
+  function placeEnd(row: number, col: number) {
     if (!canEdit.value) return;
     if (isStartCell(row, col)) return;
     if (walls.has(key(row, col))) return;
@@ -132,7 +134,7 @@ export function usePathfinder() {
     reset();
   }
 
-  function applyStep(step) {
+  function applyStep(step: PathStep) {
     visited.value = step.visited;
     frontier.value = step.frontier;
     path.value = step.path;
@@ -143,6 +145,9 @@ export function usePathfinder() {
 
   function tick() {
     if (status.value !== 'running') return;
+    // Runtime no-op: tick is only reachable once run() has assigned a
+    // generator. It exists so `generator` narrows to non-null below.
+    if (!generator) return;
     const { value, done: exhausted } = generator.next();
     if (exhausted || !value) {
       finish();
@@ -202,6 +207,10 @@ export function usePathfinder() {
       timer = null;
     }
   }
+
+  // Stop the timer chain if the owning component unmounts mid-run; otherwise
+  // tick() keeps recursing against a detached view forever.
+  onScopeDispose(clearTimer);
 
   return {
     // dimensions

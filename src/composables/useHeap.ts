@@ -1,5 +1,12 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { insertHeap, extractRootHeap } from '@/algorithms/datastructures/heap';
+import type { AlgoStatus, HeapStep, StepGenerator } from '@/types';
+
+/** Index buckets the array view paints for the step currently on screen. */
+interface HeapHighlights {
+  comparing: number[];
+  swapping: number[];
+}
 
 /**
  * useHeap — the heap operation-playback engine.
@@ -9,15 +16,15 @@ import { insertHeap, extractRootHeap } from '@/algorithms/datastructures/heap';
  * there until the next command.
  */
 export function useHeap() {
-  const heap = ref([]);
+  const heap = ref<number[]>([]);
   const isMinHeap = ref(true);
-  const status = ref('idle'); // idle | running | done
+  const status = ref<AlgoStatus>('idle'); // this engine never pauses: idle | running | done
   const speed = ref(60);
-  const highlights = reactive({ comparing: [], swapping: [] });
+  const highlights = reactive<HeapHighlights>({ comparing: [], swapping: [] });
   const stats = reactive({ comparisons: 0, swaps: 0, steps: 0 });
-  const lastExtracted = ref(null);
+  const lastExtracted = ref<number | null>(null);
 
-  let timer = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
 
   const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
   const canEdit = computed(() => status.value !== 'running');
@@ -40,7 +47,7 @@ export function useHeap() {
     highlights.swapping = [];
   }
 
-  function applyStep(step) {
+  function applyStep(step: HeapStep) {
     heap.value = step.heap;
     highlights.comparing = step.comparing;
     highlights.swapping = step.swapping;
@@ -49,7 +56,7 @@ export function useHeap() {
     stats.steps += 1;
   }
 
-  function driveGenerator(generator, onDone) {
+  function driveGenerator(generator: StepGenerator<HeapStep>, onDone?: () => void) {
     resetStats();
     resetHighlights();
     status.value = 'running';
@@ -63,7 +70,11 @@ export function useHeap() {
       }
       applyStep(value);
       if (value.done) {
-        if ('extracted' in value) lastExtracted.value = value.extracted;
+        // `extracted` is optional (insert steps omit it), and an `in` check
+        // proves the key is present but does not remove `undefined` from the
+        // declared type — hence the cast rather than a `??` fallback, which
+        // would change what gets stored.
+        if ('extracted' in value) lastExtracted.value = value.extracted as number | null;
         resetHighlights();
         status.value = 'done';
         onDone?.();
@@ -75,7 +86,9 @@ export function useHeap() {
     tick();
   }
 
-  function insert(value) {
+  // `value` is raw user input, validated below rather than trusted — hence
+  // `unknown` instead of `number`.
+  function insert(value: unknown) {
     if (!canEdit.value) return;
     if (typeof value !== 'number' || !Number.isFinite(value)) return;
     driveGenerator(insertHeap(heap.value, value, isMinHeap.value));
@@ -101,22 +114,28 @@ export function useHeap() {
   }
 
   /** Instantly insert `count` random values without animating. */
-  function seed(count) {
+  function seed(count: number) {
     if (!canEdit.value) return;
     clearTimer();
     const target = Math.min(Math.max(0, Math.floor(count)), 200);
     let a = heap.value;
     for (let i = 0; i < target; i++) {
       const value = Math.floor(Math.random() * 99) + 1;
-      let last;
+      let last: HeapStep | undefined;
       for (const step of insertHeap(a, value, isMinHeap.value)) last = step;
-      a = last.heap;
+      // insertHeap always yields at least a terminal snapshot, so the loop body
+      // ran; TypeScript just can't prove a for-of body executes.
+      a = last!.heap;
     }
     heap.value = a;
     resetHighlights();
     resetStats();
     status.value = 'idle';
   }
+
+  // Stop the timer chain if the owning component unmounts mid-run; otherwise
+  // tick() keeps recursing against a detached view forever.
+  onScopeDispose(clearTimer);
 
   return {
     heap,

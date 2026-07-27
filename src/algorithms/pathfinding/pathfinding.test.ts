@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { Coord, Grid, PathStep } from '@/types';
 import type { PathAlgoKey, PathFn } from './index';
-import { algorithms, algorithmList } from './index';
+import { algorithms } from './index';
 
 // Drive a generator to completion and return the sequence of snapshots.
 function runToCompletion(generator: PathFn, grid: Grid, start: Coord, end: Coord): PathStep[] {
@@ -59,10 +59,13 @@ const unreachableStart: Coord = { row: 0, col: 0 };
 const unreachableEnd: Coord = { row: 0, col: 4 };
 
 describe('pathfinding algorithm generators', () => {
-  for (const { key, name, generator } of algorithmList) {
+  for (const key of Object.keys(algorithms) as PathAlgoKey[]) {
+    const { name, description, generator } = algorithms[key];
     describe(name, () => {
-      it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key as PathAlgoKey].generator).toBe(generator);
+      it(`registers complete metadata under "${key}"`, () => {
+        expect(name).not.toBe('');
+        expect(description).not.toBe('');
+        expect(typeof generator).toBe('function');
       });
 
       it('accumulates visited monotonically and marks only the last snapshot done', () => {

@@ -8,19 +8,23 @@
 
 ---
 
-# ⏸ RESUME HERE — execution state as of 2026-07-27
+# ✅ COMPLETE — execution state as of 2026-07-27
 
-**Branch:** `feat/typescript-migration` (6 commits, pushed) · **PR:** https://github.com/jatin389/algoviz/pull/1
+**Branch:** `feat/ts-phase5-ui-primitives` (Phases 5–6), cut from `feat/ts-phase3-components` (Phases 3–4), cut from `feat/ts-phase2-composables` (Phase 2), cut from `feat/typescript-migration` (Phases 0–1, pushed) · **PR:** https://github.com/jatin389/algoviz/pull/1 — note none of the phase branches after the first are pushed yet.
 
-| Phase                                     | Status           |
-| ----------------------------------------- | ---------------- |
-| 0 — Tooling                               | ✅ complete      |
-| 1 — Types module + all algorithms → TS    | ✅ complete      |
-| **2 — Composables → TS + timer-leak fix** | ⏭ **START HERE** |
-| 3 — 28 `.vue` → `lang="ts"`               | pending          |
-| 4 — vue-router                            | pending          |
-| 5 — UI primitives + a11y                  | pending          |
-| 6 — `allowJs: false` + CI gates           | pending          |
+| Phase                                  | Status      |
+| -------------------------------------- | ----------- |
+| 0 — Tooling                            | ✅ complete |
+| 1 — Types module + all algorithms → TS | ✅ complete |
+| 2 — Composables → TS + timer-leak fix  | ✅ complete |
+| 3 — 27 `.vue` → `lang="ts"`            | ✅ complete |
+| 4 — vue-router                         | ✅ complete |
+| 5 — UI primitives + a11y               | ✅ complete |
+| 6 — `allowJs: false` + CI gates        | ✅ complete |
+
+**All six phases have landed.** Every `src/` file is `.ts` or a `.vue` with `lang="ts"`, and both directions are now guarded: `allowJs: false` for modules, `vue/block-lang` for `<script>` blocks. (The plan said 28 `.vue`; the real count was 27, now 24 after Phase 5 deleted three selectors.)
+
+Final numbers: **165 tests**, **4 expected lint warnings**, CSS **`index-X6FNKZOQ.css` / 22.52 kB** (unchanged since Phase 0), JS **173.02 kB**.
 
 **Gate command** (must be green before committing any phase):
 
@@ -40,7 +44,22 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 6. **`vue/block-lang` is disabled** in `eslint.config.js`. Re-enable it in Phase 6 — it becomes the tripwire against a component regressing to JS.
 7. **`@vue/eslint-config-typescript` v14.9** exports `defineConfigWithVueTs` / `vueTsConfigs`, NOT the `vueTsEslintConfig()` default-function form written in the plan below.
 8. **Test count is 165**, not the 68 estimated. Local Node is 18.19.1 vs CI's 20 (works, but `EBADENGINE` warnings on install are expected).
-9. **`npm run build` catches what type-check and tests miss.** A `.js` importer cannot resolve a `.js` specifier to a sibling `.ts`. All converted modules' importers were switched to extensionless `@/` aliases. Composable importers are already fixed; **`main.js` and the `.vue` files still use relative paths and will need this treatment as they convert.**
+9. **`npm run build` catches what type-check and tests miss.** A `.js` importer cannot resolve a `.js` specifier to a sibling `.ts`. All converted modules' importers were switched to extensionless `@/` aliases. ✅ Done everywhere as of Phase 2 — the 7 `.vue` composable importers were normalized to `@/composables/useX` too, so Phase 3 inherits no relative-path work.
+10. **`satisfies` widens the `key` _property_, and `keyof typeof` does not save you. Fixed in Phase 2 — see `_registry.ts`.** The original plan (and a first pass at diagnosing this) blamed `algorithmList`'s `: SortAlgorithm[]` annotation. That was only half of it: a probe showed `algorithms.bubble.key` was **already** `string` on the object itself, because `satisfies Record<string, SortAlgorithm>` supplies a contextual type whose `key: string` widens the literal. Dropping the annotation alone would **not** have fixed it. What survives `satisfies` is the _key union_ (`keyof typeof algorithms`), not the `key` field.
+
+    This mattered because all four `*AlgorithmSelector.vue` iterate `algorithmList` and emit `algo.key` back into a `Ref<SortAlgoKey>` — it would have been `TS2322` in four files the instant Phase 3 added `lang="ts"`. Replaced all four `satisfies` clauses with `defineRegistry<SortAlgorithm>()({ ... })` ([src/algorithms/\_registry.ts](src/algorithms/_registry.ts)), a curried identity helper whose mapped parameter both preserves the literal `key` and pins each entry's `key` to the property it is stored under — so `radix: { key: 'counting' }` is now a compile error too. `algorithmList` is deliberately left unannotated; re-adding one would undo it. Verified by probe: `algorithmList[0].key` assigns to `SortAlgoKey` in all four domains.
+
+    **Superseded in Phase 5, which is the real ending.** The `key` field was redundant with the property it was stored under, and `defineRegistry` existed only to keep that redundancy honest. Once `AvAlgorithmSelector` took the registry **record** instead of a list, the field had no reason to exist: it was deleted from `AlgorithmMeta` and from all 18 entries, `_registry.ts` deleted itself, `algorithmList` lost its last consumer, and the four registries went back to a plain `satisfies Record<string, XAlgorithm>` — which was always sufficient for the _key union_ (`keyof typeof`), just not for the `key` _property_. The snippets further down this document still show `key: string` in `AlgorithmMeta`; they are stale.
+
+11. **An `in` check does not strip `undefined` from a _declared optional_ property.** TS 5.6's `in` narrowing only helps for undeclared props, so `if ('extracted' in value) lastExtracted.value = value.extracted` still sees `number | null | undefined`. `useHeap.ts` uses `as number | null` there; a `?? null` would compile but would change what gets stored.
+12. **Tailwind's content scanner reads prose, so a comment can add CSS.** The `./src/**/*.{vue,js,ts}` glob is raw text matching — it does not parse. Any bare utility-shaped word anywhere in a scanned file emits that utility. Confirmed three times: `inline` in a comment (Phase 3), `routes.filter(...)` in code, and `route table` in a comment (Phase 4) each added a rule. **This is why the CSS-hash check must stay exact** — and when it trips, diff the two stylesheets and check whether classes were _removed_ (the real danger) before assuming the worst. Watch for: `inline`, `block`, `grid`, `flex`, `table`, `filter`, `container`, `hidden`, `fixed`, `static`, `visible`, `transform`.
+13. **The CSS-hash check does _not_ catch a change to the rendered DOM.** Phase 5's biggest surprise. Tailwind emits a rule if a class appears _anywhere_ in scanned source, so once `AvButton` holds `hover:shadow-lg`, adding that class to a button that never had it leaves the stylesheet byte-identical. The hash guards the _stylesheet_; it says nothing about which elements get which classes. Phase 5 therefore added a second check: read `element.className` back out of the running app and diff it against the pre-refactor string. Two real divergences were found that way (see the Phase 5 outcome), both of which the hash check happily waved through.
+
+14. **A generic SFC works here.** `<script setup lang="ts" generic="TKey extends string">` plus `defineModel<TKey>({ required: true })` type-checks under vue-tsc 2.1 / Vue 3.4.21, and `TKey` is inferred at the call site from a `Record<TKey, …>` prop. This is what let one component replace four.
+
+15. **Don't `v-for` over a union-typed object.** `AnyComplexity` is `Complexity | TimeSpaceComplexity`, and `keyof` a union is the _intersection_ of its keys — so iterating it in a template would silently narrow the key to `'space'`. Flatten with `Object.entries` in the script block instead.
+
+16. **`useBST`/`useHeap`'s `insert`/`remove` take `unknown`, not `number`** — deliberate. Both already validate with `typeof value !== 'number' || !Number.isFinite(value)`. Typing the param `number` would make that guard statically dead and would push a runtime change into the Phase 3 `.vue` caller that passes a raw input value. Keep `unknown`; it narrows to `number` at the call to `insertBST`/`insertHeap`.
 
 ### Known pre-existing bugs — reported, deliberately NOT fixed (out of scope for a type migration)
 
@@ -49,10 +68,62 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 - `graphModel`'s edge-key `from < to` compare goes lexicographic if ids ever become strings
 - `linearSearch` yields `low`/`high` bounds it doesn't actually use
 - `bst.ts`'s `nextId` is module-global and never reset between tests
+- `useBST.seed()`'s JSDoc promises "random **distinct** values", but its `seen` set only dedupes within a single call — it never checks the existing tree, so seeding twice can insert duplicates. Harmless given `bst.ts`'s right-biased duplicate policy; the doc just overstates the guarantee.
+- `driveGenerator`'s `onDone` callback in `useBST`/`useHeap` is dead — no caller ever passes it
+- ~~**BST and Heap Insert/Delete are broken in the shipped app**~~ — **FIXED** (own commit, after Phase 3). Recorded here because the failure mode generalizes. `BstControls.vue` / `HeapControls.vue` did `inputValue.value.trim()` on a ref declared `ref('')`, but the field is `<input type="number">` with `v-model`, and **Vue coerces `v-model` to a number for numeric inputs**. So the ref held a number, `.trim()` was not a function, the `isValidInput` computed threw, the render function errored, and Insert/Delete never enabled. Confirmed pre-existing by reproducing it at the pre-Phase-3 commit via `git stash`. Fixed by typing the ref honestly as `ref<string | number>('')` and using `String(...).trim()` — the type was previously lying about what Vue actually writes. **Lesson for Phase 5: `vue-tsc` cannot catch this class of bug**, because the wrong type was asserted by hand and Vue's coercion happens at runtime. Any `v-model` on a numeric/date/range input can hold a non-string.
 
-### Phase 2 specifics (the immediate next step)
+### Phase 2 outcome (done)
 
-Convert `main.js` (+ `index.html` script src) and the 7 composables. **The timer leak is confirmed real**: no composable calls `onScopeDispose`/`onUnmounted` (only `GridCanvas.vue` does, for a window listener), so unmounting a view mid-run leaves `status === 'running'` and the `setTimeout` chain in `useSorter.js:103` recursing forever against a detached component. Add `onScopeDispose(clearTimer)` to all 6 driver composables. Verify by switching tabs mid-run and confirming the animation stops.
+`main.ts` (+ `index.html`) and all 7 composables converted; `onScopeDispose(clearTimer)` added to the 6 driver composables (`useTheme` owns no timer). Gate green: 0 lint errors / 4 expected warnings, `vue-tsc` clean, 165 tests, CSS still `index-X6FNKZOQ.css` / 22.52 kB.
+
+**The timer leak fix was verified in the browser, not just reasoned about.** Method, for reuse in Phase 3/4: instrument `window.setTimeout` with a counter, click Run on Sorting, switch to another tab, and diff the counter across the unmount. Result: 0 new timers scheduled after unmount, against a positive control of 9 while mounted and running — the control matters, since a blind counter would "pass" identically.
+
+### Phase 3 outcome (done)
+
+27 `.vue` converted by 3 parallel agents (shared components + `App.vue` / `views/` + `search/` / `pathfinding/` + `graph/` + `datastructures/`). **`vue-tsc` passed on the first attempt** across all 27 — the cross-agent prop contracts were pinned verbatim in each brief, which is what made that work. 9 `e.target as HTMLInputElement` casts (the forced ones), 2 `!` in `SearchBarChart`, no `any`.
+
+`defineModel<XAlgoKey>({ required: true })` in all four selectors confirmed correction #10's fix end-to-end: `algo.key` arrives as the literal union with no cast at any call site.
+
+**Tailwind scans prose, not just markup — a new comment changed the CSS bundle.** The word "inline" in the comment _"the inline template expression used to do…"_ (added to 4 control components) was picked up by the `./src/**/*.{vue,js,ts}` content glob and synthesized a `display:inline` rule, moving the hash to `index-kHn0utMX.css` / 22.54 kB. Diffing the two stylesheets showed **one class added, zero removed** — so nothing was dropped — but the comment was reworded to restore the exact `index-X6FNKZOQ.css` / 22.52 kB baseline. **Keep the CSS-hash invariant exact**; it is the only guard against a silently dropped class, and it is worth nothing once you start accepting "close enough". Watch for utility-shaped words (`inline`, `block`, `grid`, `flex`, `container`, `hidden`, `fixed`) in comments.
+
+### Phase 4 outcome (done)
+
+`src/router/index.ts` with `createWebHashHistory(import.meta.env.BASE_URL)`, eager view imports, a catch-all redirect to `/sorting`, and the `RouteMeta.label` augmentation. `App.vue` lost its `categories` array, `CategoryKey` union, and `<component :is>`; nav is now `<RouterLink>` and the outlet is `<RouterView />`. vue-router resolved to 4.6.4 (plan said ^4.4.5). JS bundle 160 → 186 kB; CSS unchanged.
+
+Two deviations from the plan below, both deliberate:
+
+1. **Not `active-class`.** The plan called for it, but the nav's base and active styles are _conflicting_ Tailwind backgrounds (`bg-white/70` vs `bg-indigo-500`). `active-class` appends rather than replaces, so both would apply and stylesheet order would decide the winner. Kept the existing `$route.path === route.path` ternary instead — identical rendering, and it preserves the exact class strings the CSS-hash check depends on.
+2. **`navRoutes` is its own exported array**, with `routes` composed as `[...navRoutes, catchAll]` — rather than `App.vue` filtering on `meta.label` at runtime. Better anyway (a non-navigable route cannot leak into the tab bar), and it avoids `routes.filter(...)` generating a stray `.filter` utility — see below.
+
+**The Tailwind prose trap bit twice more in this phase**, which is why correction #12 exists: `routes.filter(...)` produced `.filter`, and the comment "the full route table" produced `.table`. Both were caught only by the CSS-hash check, both were confirmed additive (one class added, zero removed) by diffing the stylesheets, and both were designed out rather than accepted.
+
+**Verified in the browser:** `/` redirects to `#/sorting`; nav renders 6 anchors (an a11y upgrade over the previous `<button>`s); clicking updates the hash and the view; **the back button works**; exactly one tab highlights; `#/pathfinding` survives a hard refresh; built assets resolve under `/algoviz/`.
+
+**Critically, the Phase 2 timer disposal still holds under `<RouterView>`** — 8 timers scheduled while running, **0** in the 2s after a route change. This is the check that would catch someone adding `<KeepAlive>`, which would keep timer chains alive by design. Note the first two attempts at this measurement reported a false leak of exactly 1: the instrumented `setTimeout` was counting the _test's own_ `sleep()`. Use the saved uninstrumented reference for the harness's sleeps.
+
+### Phase 5 outcome (done)
+
+Five primitives in `src/components/ui/` written inline first (design decisions, worth getting right once), then adopted across 17 files by 3 parallel agents, then the selector rewrite inline. **Net −555 lines**; JS 186.36 → 173.02 kB; CSS unchanged.
+
+`AvButton` carries seven variants (`primary`/`warning`/`danger`/`neutral`/`quiet`/`selector`/`toggle`), not the five the plan guessed — the app really did have that many distinct roles. A plain `Record` + `computed` was enough; no CVA, no `tailwind-merge`. One-off layout utilities (`col-span-2`, `mt-4`, `flex h-full flex-col`) ride in on Vue's class fallthrough, which needs no conflict resolution because layout never collides with color.
+
+`AvAlgorithmSelector` is generic over the key union and takes the registry **record** rather than a list. That is what let the redundant `key` field come out of every entry: the key is now the property the entry is stored under. `_registry.ts` deleted itself, the four registries went back to plain `satisfies`, and `algorithmList` had no consumers left. The four tests that asserted `entry.key` matched its property name were testing an invariant that is now structural, so they were **replaced** (with a per-algorithm metadata-completeness check) rather than deleted — the suite stays at 165.
+
+**Agents were told to refuse rather than guess, and it paid off.** All three reported blocks they would not convert because the primitive's class set differed from the original by even one utility. Three of those refusals were correct and permanent (two canvas header rows using `flex-wrap gap-x-4 gap-y-2`, and GridCanvas's smaller `px-2 … font-medium` mode buttons — those instead just gained `aria-pressed`). Two were escalations of a real design question, resolved in favour of the primitive: BST/Heap Insert and Delete now lift on hover like every other solid button, and the BST/Heap stat tiles now step up to `sm:text-2xl` like the other four stats panels. Both were inconsistencies by omission, not intent.
+
+**The CSS-hash check would have missed both of those** — see correction #13. Once a class lives in a primitive, adding it to a new element is free as far as the stylesheet is concerned. Phase 5's real verification was reading `element.className` back out of the running app and diffing it against the pre-refactor strings, plus a selector-level diff of the emitted CSS (260 selectors, zero added, zero removed).
+
+The Tailwind prose trap bit a **fourth** time: the word `invisible`, in a comment explaining why `grid-cols-${n}` must not be interpolated. Caught by the hash, reworded, back to baseline.
+
+**Verified in the browser across all six views in light and dark mode**: sliders drive state and announce `aria-valuetext` ("60%", not "60"); Run → Pause → Resume → Reset; algorithm switching repaints the description and complexity chips; BST insert/delete/seed; Heap min/max toggle flips both `aria-pressed` and the Extract label; pathfinding walls; graph regeneration. Graph renders the `{time, space}` complexity shape and correctly omits the Stable badge, confirming the generic handles both complexity types. **Phase 2's timer disposal still holds** — 12 timers while running, 0 in the 2s after a route change.
+
+a11y: `aria-pressed` on all 19 selector/toggle buttons, `aria-valuetext` on all 8 sliders. Still open, deliberately out of scope: GraphCanvas's clickable `<circle>` nodes and GridCanvas's `<div>` cells are not keyboard-reachable — fixing that is a UX change, not a refactor.
+
+### Phase 6 outcome (done)
+
+`allowJs: false` in `tsconfig.app.json` (`checkJs` went with it — meaningless once JS is not admitted), `vue/block-lang` restored to the shared config's default, and `lint:check` + `type-check` + `test` added to `deploy.yml` ahead of `build`. The plan called for lint and type-check only; `test` was added because a deploy that skips 165 passing tests is the more expensive gap.
+
+**Both tripwires were proved to fire, not assumed.** A `<script setup>` with no `lang` attribute errors with `vue/block-lang`; a `src/*.js` imported from a `.ts` file errors with `TS7016`. Neither probe was left behind. A re-enabled rule that silently doesn't apply is worth nothing.
 
 ---
 

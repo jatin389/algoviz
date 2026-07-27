@@ -18,11 +18,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
 
-    // Migration is incremental: .js and .ts coexist until every phase lands.
-    // checkJs stays off so untouched .js files don't error; Phase 6 flips
-    // allowJs to false as a tripwire against new .js entering src/.
-    "allowJs": true,
-    "checkJs": false,
+    // The migration is finished: src/ is entirely .ts and .vue. This is now a
+    // tripwire rather than a setting — a new .js file under src/ stops
+    // resolving the moment anything imports it.
+    "allowJs": false,
 
     "module": "ESNext",
     "moduleResolution": "bundler",
