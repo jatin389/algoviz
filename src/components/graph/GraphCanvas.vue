@@ -43,14 +43,24 @@ function onNodeClick(id) {
       <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Graph</h2>
       <!-- Color legend -->
       <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-indigo-500/80 dark:bg-indigo-400/80" />Unvisited</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-amber-400" />Frontier</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-rose-500" />Current</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-emerald-500" />Visited</span>
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-indigo-500/80 dark:bg-indigo-400/80" />Unvisited</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-amber-400" />Frontier</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-rose-500" />Current</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-emerald-500" />Visited</span
+        >
       </div>
     </div>
 
-    <div class="flex min-h-[320px] flex-1 items-center justify-center rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40">
+    <div
+      class="flex min-h-[320px] flex-1 items-center justify-center rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40"
+    >
       <svg viewBox="0 0 400 400" class="h-full max-h-[480px] w-full max-w-[480px]">
         <line
           v-for="edge in edges"
@@ -60,7 +70,9 @@ function onNodeClick(id) {
           :x2="nodeById.get(edge.to)?.x"
           :y2="nodeById.get(edge.to)?.y"
           stroke-width="2"
-          :class="edgeIsVisited(edge) ? 'stroke-emerald-500' : 'stroke-slate-300 dark:stroke-slate-700'"
+          :class="
+            edgeIsVisited(edge) ? 'stroke-emerald-500' : 'stroke-slate-300 dark:stroke-slate-700'
+          "
         />
 
         <g

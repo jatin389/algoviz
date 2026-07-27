@@ -30,8 +30,18 @@ const activeComponent = () => categories.find((c) => c.key === activeCategory.va
       <!-- Header -->
       <header class="mb-6 flex items-center justify-between">
         <div class="flex items-center gap-3">
-          <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/30">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" class="h-6 w-6">
+          <div
+            class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/30"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              class="h-6 w-6"
+            >
               <line x1="6" y1="20" x2="6" y2="14" />
               <line x1="12" y1="20" x2="12" y2="4" />
               <line x1="18" y1="20" x2="18" y2="10" />
@@ -52,9 +62,11 @@ const activeComponent = () => categories.find((c) => c.key === activeCategory.va
           :key="category.key"
           type="button"
           class="rounded-xl px-4 py-2 text-sm font-semibold transition-all"
-          :class="activeCategory === category.key
-            ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
-            : 'bg-white/70 text-slate-600 hover:bg-slate-100 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-700'"
+          :class="
+            activeCategory === category.key
+              ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
+              : 'bg-white/70 text-slate-600 hover:bg-slate-100 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-700'
+          "
           @click="activeCategory = category.key"
         >
           {{ category.label }}
@@ -64,7 +76,8 @@ const activeComponent = () => categories.find((c) => c.key === activeCategory.va
       <component :is="activeComponent()" />
 
       <footer class="mt-8 text-center text-xs text-slate-400">
-        Built with Vue 3, Vite &amp; Tailwind CSS · each algorithm is a generator yielding step snapshots.
+        Built with Vue 3, Vite &amp; Tailwind CSS · each algorithm is a generator yielding step
+        snapshots.
       </footer>
     </div>
   </div>

@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import { insertBST, deleteBST } from '../algorithms/datastructures/bst.js';
+import { insertBST, deleteBST } from '@/algorithms/datastructures/bst';
 
 /**
  * useBST — the BST operation-playback engine.

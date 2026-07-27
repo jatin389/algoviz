@@ -30,9 +30,7 @@ function submitRemove() {
 
 <template>
   <div class="av-card p-4 sm:p-5">
-    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-      BST Controls
-    </h2>
+    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">BST Controls</h2>
 
     <label class="block">
       <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">Value</span>

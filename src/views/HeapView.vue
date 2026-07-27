@@ -64,7 +64,9 @@ const nodes = computed(() =>
 
 const edges = computed(() => layout.value.edges);
 
-const viewBoxWidth = computed(() => Math.max(320, X_MARGIN * 2 + layout.value.slotCount * X_SPACING));
+const viewBoxWidth = computed(() =>
+  Math.max(320, X_MARGIN * 2 + layout.value.slotCount * X_SPACING),
+);
 const viewBoxHeight = computed(() => {
   const maxDepth = layout.value.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
   return Math.max(200, Y_MARGIN * 2 + maxDepth * Y_SPACING);
@@ -98,12 +100,21 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
           <span
             class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
             :class="{
-              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400': heap.status.value === 'idle',
-              'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400': heap.status.value === 'running',
-              'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400': heap.status.value === 'done',
+              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400':
+                heap.status.value === 'idle',
+              'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400':
+                heap.status.value === 'running',
+              'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400':
+                heap.status.value === 'done',
             }"
           >
-            {{ heap.status.value === 'running' ? 'Running' : heap.status.value === 'done' ? 'Done' : 'Idle' }}
+            {{
+              heap.status.value === 'running'
+                ? 'Running'
+                : heap.status.value === 'done'
+                  ? 'Done'
+                  : 'Idle'
+            }}
           </span>
         </div>
         <div class="grid grid-cols-3 gap-2">
@@ -133,7 +144,10 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
           </div>
         </div>
         <p v-if="heap.lastExtracted.value !== null" class="mt-3 text-center text-xs text-slate-400">
-          Last extracted: <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{ heap.lastExtracted.value }}</span>
+          Last extracted:
+          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{
+            heap.lastExtracted.value
+          }}</span>
         </p>
       </div>
 
@@ -162,13 +176,17 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
             v-for="(value, i) in heap.heap.value"
             :key="i"
             class="flex w-12 flex-col items-center overflow-hidden rounded-lg border transition-colors"
-            :class="stateForIndex(i) === 'visiting'
-              ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30'
-              : stateForIndex(i) === 'inserted'
-                ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
-                : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'"
+            :class="
+              stateForIndex(i) === 'visiting'
+                ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30'
+                : stateForIndex(i) === 'inserted'
+                  ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
+                  : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'
+            "
           >
-            <div class="w-full bg-slate-200/70 py-0.5 text-center text-[10px] font-medium text-slate-500 dark:bg-slate-700/70 dark:text-slate-400">
+            <div
+              class="w-full bg-slate-200/70 py-0.5 text-center text-[10px] font-medium text-slate-500 dark:bg-slate-700/70 dark:text-slate-400"
+            >
               {{ i }}
             </div>
             <div class="py-1 font-mono text-sm font-semibold text-slate-800 dark:text-slate-100">

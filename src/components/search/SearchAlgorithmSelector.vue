@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { algorithmList } from '../../algorithms/search/index.js';
+import { algorithmList } from '@/algorithms/search';
 
 const props = defineProps({
   modelValue: { type: String, required: true },
@@ -18,9 +18,7 @@ function select(key) {
 
 <template>
   <div class="av-card p-4 sm:p-5">
-    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-      Algorithm
-    </h2>
+    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Algorithm</h2>
 
     <!-- Button group -->
     <div class="grid grid-cols-2 gap-2">
@@ -53,7 +51,9 @@ function select(key) {
           class="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-400"
         >
           <span class="uppercase tracking-wide text-[10px] text-slate-400">{{ label }}</span>
-          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{ value }}</span>
+          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{
+            value
+          }}</span>
         </span>
       </div>
     </div>

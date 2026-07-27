@@ -29,16 +29,20 @@ function submitInsert() {
       Heap Controls
     </h2>
 
-    <div class="mb-4 flex items-center justify-between rounded-xl bg-slate-50 p-2 dark:bg-slate-800/50">
+    <div
+      class="mb-4 flex items-center justify-between rounded-xl bg-slate-50 p-2 dark:bg-slate-800/50"
+    >
       <span class="pl-2 text-sm font-medium text-slate-600 dark:text-slate-300">Mode</span>
       <div class="grid grid-cols-2 gap-1">
         <button
           type="button"
           :disabled="!canEdit"
           class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed"
-          :class="isMinHeap
-            ? 'bg-indigo-500 text-white shadow-sm'
-            : 'text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700'"
+          :class="
+            isMinHeap
+              ? 'bg-indigo-500 text-white shadow-sm'
+              : 'text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700'
+          "
           @click="!isMinHeap && emit('toggle-mode')"
         >
           Min
@@ -47,9 +51,11 @@ function submitInsert() {
           type="button"
           :disabled="!canEdit"
           class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed"
-          :class="!isMinHeap
-            ? 'bg-indigo-500 text-white shadow-sm'
-            : 'text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700'"
+          :class="
+            !isMinHeap
+              ? 'bg-indigo-500 text-white shadow-sm'
+              : 'text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700'
+          "
           @click="isMinHeap && emit('toggle-mode')"
         >
           Max

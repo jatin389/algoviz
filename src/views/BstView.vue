@@ -59,7 +59,9 @@ function stateForPhase(phase) {
 
 const edges = computed(() => layout.value.edges);
 
-const viewBoxWidth = computed(() => Math.max(320, X_MARGIN * 2 + layout.value.slotCount * X_SPACING));
+const viewBoxWidth = computed(() =>
+  Math.max(320, X_MARGIN * 2 + layout.value.slotCount * X_SPACING),
+);
 const viewBoxHeight = computed(() => {
   const maxDepth = layout.value.nodes.reduce((max, n) => Math.max(max, n.depth), 0);
   return Math.max(200, Y_MARGIN * 2 + maxDepth * Y_SPACING);
@@ -91,12 +93,21 @@ const isEmpty = computed(() => bst.tree.value === null);
           <span
             class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
             :class="{
-              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400': bst.status.value === 'idle',
-              'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400': bst.status.value === 'running',
-              'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400': bst.status.value === 'done',
+              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400':
+                bst.status.value === 'idle',
+              'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400':
+                bst.status.value === 'running',
+              'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400':
+                bst.status.value === 'done',
             }"
           >
-            {{ bst.status.value === 'running' ? 'Running' : bst.status.value === 'done' ? 'Done' : 'Idle' }}
+            {{
+              bst.status.value === 'running'
+                ? 'Running'
+                : bst.status.value === 'done'
+                  ? 'Done'
+                  : 'Idle'
+            }}
           </span>
         </div>
         <div class="grid grid-cols-2 gap-2">

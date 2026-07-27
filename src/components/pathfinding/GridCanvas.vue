@@ -101,10 +101,18 @@ function onMouseEnter(row, col) {
 
       <!-- Legend -->
       <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-slate-900 dark:bg-black" />Wall</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-amber-400" />Frontier</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-sky-400/80" />Visited</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-emerald-500" />Path</span>
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-slate-900 dark:bg-black" />Wall</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-amber-400" />Frontier</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-sky-400/80" />Visited</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-emerald-500" />Path</span
+        >
       </div>
     </div>
 
@@ -120,9 +128,11 @@ function onMouseEnter(row, col) {
         type="button"
         :disabled="!canEdit"
         class="rounded-lg px-2 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50"
-        :class="mode === option.value
-          ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-500/30'
-          : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'"
+        :class="
+          mode === option.value
+            ? 'bg-indigo-500 text-white shadow-sm shadow-indigo-500/30'
+            : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
+        "
         @click="mode = option.value"
       >
         {{ option.label }}
@@ -150,11 +160,13 @@ function onMouseEnter(row, col) {
         <span
           v-if="isStartCell(cell.row, cell.col)"
           class="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-green-500 text-[8px] font-bold text-white shadow"
-        >S</span>
+          >S</span
+        >
         <span
           v-else-if="isEndCell(cell.row, cell.col)"
           class="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-rose-600 text-[8px] font-bold text-white shadow"
-        >E</span>
+          >E</span
+        >
       </div>
     </div>
 
