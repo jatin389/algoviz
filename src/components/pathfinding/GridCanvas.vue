@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import type { Coord } from '@/types';
+import AvPanel from '@/components/ui/AvPanel.vue';
 
 /** One square of the rendered grid, precomputed once per rows×cols change. */
 interface GridCell {
@@ -115,7 +116,7 @@ function onMouseEnter(row: number, col: number) {
 </script>
 
 <template>
-  <div class="av-card flex h-full flex-col p-4 sm:p-5">
+  <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
       <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Grid</h2>
 
@@ -147,6 +148,7 @@ function onMouseEnter(row: number, col: number) {
         :key="option.value"
         type="button"
         :disabled="!canEdit"
+        :aria-pressed="mode === option.value"
         class="rounded-lg px-2 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-50"
         :class="
           mode === option.value
@@ -193,5 +195,5 @@ function onMouseEnter(row: number, col: number) {
     <p class="mt-3 text-center text-xs text-slate-400">
       Drag to draw walls, or switch mode to relocate start/end.
     </p>
-  </div>
+  </AvPanel>
 </template>

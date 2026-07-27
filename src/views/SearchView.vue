@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { watch } from 'vue';
 import { useSearcher } from '@/composables/useSearcher';
-import SearchAlgorithmSelector from '../components/search/SearchAlgorithmSelector.vue';
+import { algorithms } from '@/algorithms/search';
+import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import SearchControls from '../components/search/SearchControls.vue';
 import SearchBarChart from '../components/search/SearchBarChart.vue';
 import SearchStats from '../components/search/SearchStats.vue';
@@ -24,8 +25,9 @@ watch(searcher.algoKey, () => {
   <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <SearchAlgorithmSelector
+      <AvAlgorithmSelector
         v-model="searcher.algoKey.value"
+        :algorithms="algorithms"
         :disabled="!searcher.canEdit.value"
       />
       <SearchControls

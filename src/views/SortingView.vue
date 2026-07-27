@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { watch } from 'vue';
 import { useSorter } from '@/composables/useSorter';
-import AlgorithmSelector from '../components/AlgorithmSelector.vue';
+import { algorithms } from '@/algorithms';
+import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import ControlsPanel from '../components/ControlsPanel.vue';
 import BarChart from '../components/BarChart.vue';
 import StatsDisplay from '../components/StatsDisplay.vue';
@@ -24,7 +25,12 @@ watch(sorter.algoKey, () => {
   <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <AlgorithmSelector v-model="sorter.algoKey.value" :disabled="!sorter.canEdit.value" />
+      <AvAlgorithmSelector
+        v-model="sorter.algoKey.value"
+        :algorithms="algorithms"
+        :columns="3"
+        :disabled="!sorter.canEdit.value"
+      />
       <ControlsPanel
         v-model:size="sorter.size.value"
         v-model:speed="sorter.speed.value"

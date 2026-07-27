@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import AvButton from '@/components/ui/AvButton.vue';
+import AvPanel from '@/components/ui/AvPanel.vue';
+import AvSlider from '@/components/ui/AvSlider.vue';
 
 const props = defineProps<{
   canEdit: boolean;
@@ -15,10 +18,6 @@ const emit = defineEmits<{
   reset: [];
   'update:speed': [value: number];
 }>();
-
-// `$event.target` is `EventTarget | null` under lang="ts", so the narrowing
-// that the template expression used to do implicitly lives here now.
-const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
 
 // `v-model` on an `<input type="number">` assigns a *number*, not a string —
 // Vue coerces numeric inputs. The ref still starts as '' and is cleared to ''
@@ -38,42 +37,28 @@ function submitInsert() {
 </script>
 
 <template>
-  <div class="av-card p-4 sm:p-5">
-    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-      Heap Controls
-    </h2>
-
+  <AvPanel title="Heap Controls">
     <div
       class="mb-4 flex items-center justify-between rounded-xl bg-slate-50 p-2 dark:bg-slate-800/50"
     >
       <span class="pl-2 text-sm font-medium text-slate-600 dark:text-slate-300">Mode</span>
       <div class="grid grid-cols-2 gap-1">
-        <button
-          type="button"
+        <AvButton
+          variant="toggle"
+          :active="isMinHeap"
           :disabled="!canEdit"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed"
-          :class="
-            isMinHeap
-              ? 'bg-indigo-500 text-white shadow-sm'
-              : 'text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700'
-          "
           @click="!isMinHeap && emit('toggle-mode')"
         >
           Min
-        </button>
-        <button
-          type="button"
+        </AvButton>
+        <AvButton
+          variant="toggle"
+          :active="!isMinHeap"
           :disabled="!canEdit"
-          class="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all disabled:cursor-not-allowed"
-          :class="
-            !isMinHeap
-              ? 'bg-indigo-500 text-white shadow-sm'
-              : 'text-slate-500 hover:bg-slate-200 dark:text-slate-400 dark:hover:bg-slate-700'
-          "
           @click="isMinHeap && emit('toggle-mode')"
         >
           Max
-        </button>
+        </AvButton>
       </div>
     </div>
 
@@ -90,61 +75,33 @@ function submitInsert() {
     </label>
 
     <div class="mt-3 grid grid-cols-2 gap-2">
-      <button
-        type="button"
-        :disabled="!canEdit || !isValidInput"
-        class="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none active:scale-[0.98]"
-        @click="submitInsert"
-      >
+      <AvButton variant="primary" :disabled="!canEdit || !isValidInput" @click="submitInsert">
         Insert
-      </button>
-      <button
-        type="button"
-        :disabled="!canEdit"
-        class="rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-rose-500/30 transition-all hover:bg-rose-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none active:scale-[0.98]"
-        @click="emit('extract')"
-      >
+      </AvButton>
+      <AvButton variant="danger" :disabled="!canEdit" @click="emit('extract')">
         Extract {{ isMinHeap ? 'Min' : 'Max' }}
-      </button>
+      </AvButton>
     </div>
 
-    <label class="mt-4 block">
-      <div class="mb-1.5 flex items-center justify-between text-sm">
-        <span class="font-medium text-slate-600 dark:text-slate-300">Speed</span>
-        <span class="font-mono text-indigo-500 dark:text-indigo-400">{{ speed }}%</span>
-      </div>
-      <input
-        type="range"
-        min="1"
-        max="100"
-        step="1"
-        :value="speed"
-        class="w-full"
-        @input="onSpeed"
-      />
-    </label>
+    <AvSlider
+      label="Speed"
+      class="mt-4"
+      :model-value="speed"
+      :min="1"
+      :max="100"
+      suffix="%"
+      @update:model-value="emit('update:speed', $event)"
+    />
 
     <div class="mt-4 grid grid-cols-2 gap-2">
-      <button
-        type="button"
-        :disabled="!canEdit"
-        class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-        @click="emit('seed', 10)"
-      >
+      <AvButton variant="neutral" :disabled="!canEdit" @click="emit('seed', 10)">
         Seed random heap
-      </button>
-      <button
-        type="button"
-        :disabled="!canEdit"
-        class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-300 disabled:cursor-not-allowed disabled:opacity-50 active:scale-[0.98] dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-        @click="emit('reset')"
-      >
-        Reset
-      </button>
+      </AvButton>
+      <AvButton variant="neutral" :disabled="!canEdit" @click="emit('reset')"> Reset </AvButton>
     </div>
 
     <p class="mt-3 text-center text-xs text-slate-400">
       Controls lock while an insert/extract animation is playing.
     </p>
-  </div>
+  </AvPanel>
 </template>

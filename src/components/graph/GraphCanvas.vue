@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { GraphEdge, GraphNode, NodeId } from '@/types';
+import AvPanel from '@/components/ui/AvPanel.vue';
 
 const props = withDefaults(
   defineProps<{
@@ -53,7 +54,7 @@ function onNodeClick(id: NodeId) {
 </script>
 
 <template>
-  <div class="av-card flex h-full flex-col p-4 sm:p-5">
+  <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Graph</h2>
       <!-- Color legend -->
@@ -123,5 +124,5 @@ function onNodeClick(id: NodeId) {
     <p class="mt-3 text-center text-xs text-slate-400">
       Click a node to set the traversal start point.
     </p>
-  </div>
+  </AvPanel>
 </template>

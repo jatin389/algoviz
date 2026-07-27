@@ -2,6 +2,8 @@
 import { computed } from 'vue';
 import { useBST } from '@/composables/useBST';
 import type { BSTNode, BSTPhase } from '@/types';
+import AvPanel from '@/components/ui/AvPanel.vue';
+import AvStatCell from '@/components/ui/AvStatCell.vue';
 import BstControls from '../components/datastructures/BstControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
 
@@ -116,9 +118,8 @@ const isEmpty = computed(() => bst.tree.value === null);
 
     <!-- Right column -->
     <div class="flex flex-col gap-4">
-      <div class="av-card p-4 sm:p-5">
-        <div class="mb-3 flex items-center justify-between">
-          <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Stats</h2>
+      <AvPanel title="Stats">
+        <template #header>
           <span
             class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
             :class="{
@@ -138,28 +139,14 @@ const isEmpty = computed(() => bst.tree.value === null);
                   : 'Idle'
             }}
           </span>
-        </div>
+        </template>
         <div class="grid grid-cols-2 gap-2">
-          <div class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50">
-            <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">
-              {{ bst.stats.comparisons }}
-            </div>
-            <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Comparisons
-            </div>
-          </div>
-          <div class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50">
-            <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100">
-              {{ bst.stats.steps }}
-            </div>
-            <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
-              Steps
-            </div>
-          </div>
+          <AvStatCell label="Comparisons" :value="String(bst.stats.comparisons)" />
+          <AvStatCell label="Steps" :value="String(bst.stats.steps)" />
         </div>
-      </div>
+      </AvPanel>
 
-      <div class="av-card flex min-h-[320px] flex-1 items-center justify-center p-4 sm:p-5">
+      <AvPanel class="flex min-h-[320px] flex-1 items-center justify-center">
         <p v-if="isEmpty" class="text-sm text-slate-400">
           The tree is empty — insert a value to get started.
         </p>
@@ -171,7 +158,7 @@ const isEmpty = computed(() => bst.tree.value === null);
           :view-box-height="viewBoxHeight"
           class="max-h-[60vh]"
         />
-      </div>
+      </AvPanel>
     </div>
   </div>
 </template>

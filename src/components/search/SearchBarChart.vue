@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import AvPanel from '@/components/ui/AvPanel.vue';
 
 // low/high/checking/foundIndex mirror the matching SearchStep fields, which are
 // `number | null` because the bounds are cleared once a run terminates.
@@ -47,7 +48,7 @@ function heightPercent(value: number) {
 </script>
 
 <template>
-  <div class="av-card flex h-full flex-col p-4 sm:p-5">
+  <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
       <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Visualization</h2>
       <!-- Color legend -->
@@ -87,5 +88,5 @@ function heightPercent(value: number) {
         />
       </div>
     </div>
-  </div>
+  </AvPanel>
 </template>

@@ -1,5 +1,4 @@
 import type { AlgorithmFn, AlgorithmMeta, SearchStep } from '@/types';
-import { defineRegistry } from '@/algorithms/_registry';
 import { linearSearch } from './linearSearch';
 import { binarySearch } from './binarySearch';
 
@@ -8,9 +7,12 @@ export type SearchAlgorithm = AlgorithmMeta<SearchFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
-export const algorithms = defineRegistry<SearchAlgorithm>()({
+//
+// `satisfies` rather than a `: Record<string, ...>` annotation: the annotation
+// would widen `keyof typeof algorithms` to `string`, and the whole point of
+// the property names is that they *are* the algorithm keys.
+export const algorithms = {
   linear: {
-    key: 'linear',
     name: 'Linear Search',
     generator: linearSearch,
     description:
@@ -18,19 +20,13 @@ export const algorithms = defineRegistry<SearchAlgorithm>()({
     complexity: { best: 'O(1)', average: 'O(n)', worst: 'O(n)', space: 'O(1)' },
   },
   binary: {
-    key: 'binary',
     name: 'Binary Search',
     generator: binarySearch,
     description:
       'Repeatedly compares the target to the middle element of a sorted array and discards the half that cannot contain it, halving the search range each step.',
     complexity: { best: 'O(1)', average: 'O(log n)', worst: 'O(log n)', space: 'O(1)' },
   },
-});
+} satisfies Record<string, SearchAlgorithm>;
 
 /** Literal union of the registry keys: 'linear' | 'binary' */
 export type SearchAlgoKey = keyof typeof algorithms;
-
-// Ordered list for iterating in the UI (buttons, dropdowns). Deliberately
-// unannotated: an explicit `SearchAlgorithm[]` would widen `key` back to
-// `string` and undo what defineRegistry preserves.
-export const algorithmList = Object.values(algorithms);

@@ -54,7 +54,6 @@ export interface AlgorithmMeta<
   TFn extends AlgorithmFn<any, any>,
   TComplexity extends AnyComplexity = Complexity,
 > {
-  key: string;
   name: string;
   generator: TFn;
   description: string;

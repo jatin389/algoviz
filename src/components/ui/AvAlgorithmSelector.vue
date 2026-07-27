@@ -15,11 +15,12 @@ import AvButton from './AvButton.vue';
 const props = withDefaults(
   defineProps<{
     algorithms: Record<TKey, AnyAlgorithmMeta>;
+    title?: string;
     disabled?: boolean;
-    /** Widest-breakpoint column count for the button group. */
-    columns?: 2 | 3;
+    /** Column count from the `sm` breakpoint up; below it, always two. */
+    columns?: 2 | 3 | 4;
   }>(),
-  { disabled: false, columns: 2 },
+  { title: 'Algorithm', disabled: false, columns: 2 },
 );
 
 const model = defineModel<TKey>({ required: true });
@@ -39,9 +40,13 @@ const complexityRows = computed(() =>
 
 // Whole class names, never interpolated: a `grid-cols-${n}` built at runtime
 // never reaches Tailwind's scanner, so the rule would not be emitted at all.
-const groupClass = computed(() =>
-  props.columns === 3 ? 'grid grid-cols-2 gap-2 sm:grid-cols-3' : 'grid grid-cols-2 gap-2',
-);
+const GROUP_CLASS: Record<2 | 3 | 4, string> = {
+  2: 'grid grid-cols-2 gap-2',
+  3: 'grid grid-cols-2 gap-2 sm:grid-cols-3',
+  4: 'grid grid-cols-2 gap-2 sm:grid-cols-4',
+};
+
+const groupClass = computed(() => GROUP_CLASS[props.columns]);
 
 function select(key: TKey) {
   if (props.disabled) return;
@@ -50,7 +55,7 @@ function select(key: TKey) {
 </script>
 
 <template>
-  <AvPanel title="Algorithm">
+  <AvPanel :title="title">
     <div :class="groupClass">
       <AvButton
         v-for="key in keys"

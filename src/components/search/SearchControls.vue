@@ -5,6 +5,9 @@
 // bubble up as events.
 
 import type { AlgoStatus } from '@/types';
+import AvPanel from '@/components/ui/AvPanel.vue';
+import AvButton from '@/components/ui/AvButton.vue';
+import AvSlider from '@/components/ui/AvSlider.vue';
 
 defineProps<{
   size: number;
@@ -30,49 +33,30 @@ const emit = defineEmits<{
 
 // The inputs' `$event.target` is `EventTarget | null` once this block is
 // type-checked, so the DOM narrowing lives here rather than in the template.
-const onSize = (e: Event) => emit('update:size', Number((e.target as HTMLInputElement).value));
-const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
 const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInputElement).value));
 </script>
 
 <template>
-  <div class="av-card p-4 sm:p-5">
-    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Controls</h2>
-
+  <AvPanel title="Controls">
     <!-- Sliders -->
     <div class="space-y-4">
-      <label class="block">
-        <div class="mb-1.5 flex items-center justify-between text-sm">
-          <span class="font-medium text-slate-600 dark:text-slate-300">Array size</span>
-          <span class="font-mono text-indigo-500 dark:text-indigo-400">{{ size }}</span>
-        </div>
-        <input
-          type="range"
-          min="10"
-          max="50"
-          step="1"
-          :value="size"
-          :disabled="!canEdit"
-          class="w-full"
-          @input="onSize"
-        />
-      </label>
+      <AvSlider
+        label="Array size"
+        :model-value="size"
+        :min="10"
+        :max="50"
+        :disabled="!canEdit"
+        @update:model-value="emit('update:size', $event)"
+      />
 
-      <label class="block">
-        <div class="mb-1.5 flex items-center justify-between text-sm">
-          <span class="font-medium text-slate-600 dark:text-slate-300">Speed</span>
-          <span class="font-mono text-indigo-500 dark:text-indigo-400">{{ speed }}%</span>
-        </div>
-        <input
-          type="range"
-          min="1"
-          max="100"
-          step="1"
-          :value="speed"
-          class="w-full"
-          @input="onSpeed"
-        />
-      </label>
+      <AvSlider
+        label="Speed"
+        :model-value="speed"
+        :min="1"
+        :max="100"
+        suffix="%"
+        @update:model-value="emit('update:speed', $event)"
+      />
 
       <label class="block">
         <div class="mb-1.5 flex items-center justify-between text-sm">
@@ -90,33 +74,18 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
 
     <!-- Quick-pick target buttons -->
     <div class="mt-3 grid grid-cols-2 gap-2">
-      <button
-        type="button"
-        :disabled="!canEdit"
-        class="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 transition-all hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-        @click="emit('pick-present-target')"
-      >
+      <AvButton variant="quiet" :disabled="!canEdit" @click="emit('pick-present-target')">
         Random present target
-      </button>
-      <button
-        type="button"
-        :disabled="!canEdit"
-        class="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 transition-all hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
-        @click="emit('pick-missing-target')"
-      >
+      </AvButton>
+      <AvButton variant="quiet" :disabled="!canEdit" @click="emit('pick-missing-target')">
         Random missing target
-      </button>
+      </AvButton>
     </div>
 
     <!-- Playback buttons -->
     <div class="mt-5 grid grid-cols-2 gap-2">
       <!-- Run / Resume -->
-      <button
-        v-if="!isRunning"
-        type="button"
-        class="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-all hover:bg-emerald-600 hover:shadow-lg active:scale-[0.98]"
-        @click="emit('run')"
-      >
+      <AvButton v-if="!isRunning" variant="primary" class="col-span-2" @click="emit('run')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -126,15 +95,10 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
           <path d="M8 5v14l11-7z" />
         </svg>
         {{ isPaused ? 'Resume' : 'Run' }}
-      </button>
+      </AvButton>
 
       <!-- Pause -->
-      <button
-        v-else
-        type="button"
-        class="col-span-2 flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-amber-500/30 transition-all hover:bg-amber-600 hover:shadow-lg active:scale-[0.98]"
-        @click="emit('pause')"
-      >
+      <AvButton v-else variant="warning" class="col-span-2" @click="emit('pause')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -144,14 +108,10 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
           <path d="M6 4h4v16H6zM14 4h4v16h-4z" />
         </svg>
         Pause
-      </button>
+      </AvButton>
 
       <!-- Reset -->
-      <button
-        type="button"
-        class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-300 active:scale-[0.98] dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-        @click="emit('reset')"
-      >
+      <AvButton variant="neutral" @click="emit('reset')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -166,15 +126,10 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
           <path d="M3 3v5h5" />
         </svg>
         Reset
-      </button>
+      </AvButton>
 
       <!-- Generate new array -->
-      <button
-        type="button"
-        :disabled="!canEdit"
-        class="flex items-center justify-center gap-2 rounded-xl bg-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-all hover:bg-slate-300 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
-        @click="emit('generate')"
-      >
+      <AvButton variant="neutral" :disabled="!canEdit" @click="emit('generate')">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -188,11 +143,11 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
           <path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" />
         </svg>
         Shuffle
-      </button>
+      </AvButton>
     </div>
 
     <p class="mt-3 text-center text-xs text-slate-400">
       Size, algorithm &amp; target lock while a search is running.
     </p>
-  </div>
+  </AvPanel>
 </template>

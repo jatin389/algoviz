@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { watch } from 'vue';
 import { usePathfinder } from '@/composables/usePathfinder';
-import PathfindingAlgorithmSelector from '../components/pathfinding/PathfindingAlgorithmSelector.vue';
+import { algorithms } from '@/algorithms/pathfinding';
+import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import PathfindingControls from '../components/pathfinding/PathfindingControls.vue';
 import GridCanvas from '../components/pathfinding/GridCanvas.vue';
 import PathfindingStats from '../components/pathfinding/PathfindingStats.vue';
@@ -19,8 +20,10 @@ watch(finder.algoKey, () => {
   <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <PathfindingAlgorithmSelector
+      <AvAlgorithmSelector
         v-model="finder.algoKey.value"
+        :algorithms="algorithms"
+        :columns="4"
         :disabled="!finder.canEdit.value"
       />
       <PathfindingControls
