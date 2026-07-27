@@ -13,8 +13,8 @@ const elapsedLabel = computed(() => `${(props.elapsedMs / 1000).toFixed(2)}s`);
 
 const statusLabel = computed(
   () =>
-    ({ idle: 'Idle', running: 'Running', paused: 'Paused', done: 'Done' }[props.status] ??
-    props.status),
+    ({ idle: 'Idle', running: 'Running', paused: 'Paused', done: 'Done' })[props.status] ??
+    props.status,
 );
 const statusClass = computed(
   () =>
@@ -23,7 +23,7 @@ const statusClass = computed(
       running: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
       paused: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
       done: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400',
-    }[props.status]),
+    })[props.status],
 );
 
 const cells = computed(() => [

@@ -18,9 +18,7 @@ function select(key) {
 
 <template>
   <div class="av-card p-4 sm:p-5">
-    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-      Algorithm
-    </h2>
+    <h2 class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Algorithm</h2>
 
     <!-- Button group -->
     <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -53,13 +51,17 @@ function select(key) {
           class="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-400"
         >
           <span class="uppercase tracking-wide text-[10px] text-slate-400">{{ label }}</span>
-          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{ value }}</span>
+          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{
+            value
+          }}</span>
         </span>
         <span
           class="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium shadow-sm"
-          :class="selected.stable
-            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-            : 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'"
+          :class="
+            selected.stable
+              ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
+              : 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+          "
         >
           {{ selected.stable ? 'Stable' : 'Unstable' }}
         </span>

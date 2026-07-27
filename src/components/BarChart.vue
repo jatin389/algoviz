@@ -38,25 +38,34 @@ function heightPercent(value) {
       <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Visualization</h2>
       <!-- Color legend -->
       <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-indigo-500/80 dark:bg-indigo-400/80" />Unsorted</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-amber-400" />Comparing</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-rose-500" />Swapping</span>
-        <span class="flex items-center gap-1.5"><i class="h-3 w-3 rounded-sm bg-emerald-500" />Sorted</span>
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-indigo-500/80 dark:bg-indigo-400/80" />Unsorted</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-amber-400" />Comparing</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-rose-500" />Swapping</span
+        >
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-sm bg-emerald-500" />Sorted</span
+        >
       </div>
     </div>
 
     <!-- Bars -->
-    <div class="flex min-h-[280px] flex-1 items-end gap-[2px] rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40 sm:gap-1">
+    <div
+      class="flex min-h-[280px] flex-1 items-end gap-[2px] rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40 sm:gap-1"
+    >
       <div
         v-for="(value, index) in array"
         :key="index"
         class="flex flex-1 flex-col items-center justify-end"
         :style="{ height: '100%' }"
       >
-        <span
-          v-if="showLabels"
-          class="mb-1 text-[10px] font-medium text-slate-400 sm:text-xs"
-        >{{ value }}</span>
+        <span v-if="showLabels" class="mb-1 text-[10px] font-medium text-slate-400 sm:text-xs">{{
+          value
+        }}</span>
         <div
           class="w-full rounded-t-sm transition-[height,background-color] duration-150 ease-out"
           :class="colorClass(index)"

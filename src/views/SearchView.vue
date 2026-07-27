@@ -24,7 +24,10 @@ watch(searcher.algoKey, () => {
   <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <SearchAlgorithmSelector v-model="searcher.algoKey.value" :disabled="!searcher.canEdit.value" />
+      <SearchAlgorithmSelector
+        v-model="searcher.algoKey.value"
+        :disabled="!searcher.canEdit.value"
+      />
       <SearchControls
         v-model:size="searcher.size.value"
         v-model:speed="searcher.speed.value"

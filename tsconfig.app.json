@@ -1,0 +1,34 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  // Tests are co-located (src/algorithms/*.test.ts), not in __tests__ dirs, and
+  // are deliberately left included: Vitest transpiles without type-checking, so
+  // vue-tsc is the only thing that ever checks them.
+  "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
+  "compilerOptions": {
+    "composite": true,
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "noEmit": true,
+
+    "strict": true,
+    // Deliberately OFF. Turning it on would demand `?.`/`!` on every registry
+    // lookup, every `array[i]` inside the sorting generators, and every
+    // Map.get() — hundreds of assertions for near-zero real safety in
+    // index-loop-heavy algorithm code. Do not "fix" this.
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Migration is incremental: .js and .ts coexist until every phase lands.
+    // checkJs stays off so untouched .js files don't error; Phase 6 flips
+    // allowJs to false as a tripwire against new .js entering src/.
+    "allowJs": true,
+    "checkJs": false,
+
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+
+    "paths": { "@/*": ["./src/*"] }
+  }
+}

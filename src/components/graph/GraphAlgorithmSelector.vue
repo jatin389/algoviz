@@ -53,7 +53,9 @@ function select(key) {
           class="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-400"
         >
           <span class="uppercase tracking-wide text-[10px] text-slate-400">{{ label }}</span>
-          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{ value }}</span>
+          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{
+            value
+          }}</span>
         </span>
       </div>
     </div>

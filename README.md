@@ -16,6 +16,7 @@ Six independent categories, selectable from the top nav — each owns its own st
 - **Graph** — BFS/DFS traversal over a generated node-link graph; click any node to set the traversal start.
 
 Plus, app-wide:
+
 - **Dark mode by default** with a light-mode toggle (persisted to `localStorage`).
 - **Responsive** layout for desktop and tablet, with controls locked while an algorithm is actively running.
 
@@ -38,7 +39,7 @@ npm run test       # run every algorithm's unit tests (Vitest)
 
 ## Architecture
 
-Algorithm and data-structure logic is fully decoupled from rendering. Each algorithm is a **generator function** that yields immutable *step snapshots* describing its state at that instant — the array, a grid's visited/frontier/path cells, a tree's current node, etc. A composable per category (`useSorter`, `useSearcher`, `usePathfinder`, `useBST`, `useHeap`, `useGraphTraversal`) drives its generator one step per timer tick and owns all reactive state; components stay dumb, just rendering whatever the composable exposes.
+Algorithm and data-structure logic is fully decoupled from rendering. Each algorithm is a **generator function** that yields immutable _step snapshots_ describing its state at that instant — the array, a grid's visited/frontier/path cells, a tree's current node, etc. A composable per category (`useSorter`, `useSearcher`, `usePathfinder`, `useBST`, `useHeap`, `useGraphTraversal`) drives its generator one step per timer tick and owns all reactive state; components stay dumb, just rendering whatever the composable exposes.
 
 Every category is a **self-contained view** (`src/views/*.vue`) with no props and no shared state with any other category — switching tabs in `App.vue` mounts/unmounts a view outright, so nothing leaks between them.
 

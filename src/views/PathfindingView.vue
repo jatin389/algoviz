@@ -19,7 +19,10 @@ watch(finder.algoKey, () => {
   <div class="grid gap-4 lg:grid-cols-[minmax(0,340px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <PathfindingAlgorithmSelector v-model="finder.algoKey.value" :disabled="!finder.canEdit.value" />
+      <PathfindingAlgorithmSelector
+        v-model="finder.algoKey.value"
+        :disabled="!finder.canEdit.value"
+      />
       <PathfindingControls
         v-model:speed="finder.speed.value"
         :status="finder.status.value"

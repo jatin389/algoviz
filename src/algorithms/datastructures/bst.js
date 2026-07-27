@@ -18,7 +18,12 @@ function makeNode(value) {
 
 function cloneTree(node) {
   if (!node) return null;
-  return { id: node.id, value: node.value, left: cloneTree(node.left), right: cloneTree(node.right) };
+  return {
+    id: node.id,
+    value: node.value,
+    left: cloneTree(node.left),
+    right: cloneTree(node.right),
+  };
 }
 
 /**
@@ -48,14 +53,24 @@ export function* insertBST(root, value) {
     if (value < cursor.value) {
       if (!cursor.left) {
         cursor.left = makeNode(value);
-        yield { tree: cloneTree(workingRoot), visiting: cursor.left.id, phase: 'inserted', done: true };
+        yield {
+          tree: cloneTree(workingRoot),
+          visiting: cursor.left.id,
+          phase: 'inserted',
+          done: true,
+        };
         return;
       }
       cursor = cursor.left;
     } else {
       if (!cursor.right) {
         cursor.right = makeNode(value);
-        yield { tree: cloneTree(workingRoot), visiting: cursor.right.id, phase: 'inserted', done: true };
+        yield {
+          tree: cloneTree(workingRoot),
+          visiting: cursor.right.id,
+          phase: 'inserted',
+          done: true,
+        };
         return;
       }
       cursor = cursor.right;
