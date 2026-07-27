@@ -21,12 +21,6 @@ function cloneTree(node) {
   return { id: node.id, value: node.value, left: cloneTree(node.left), right: cloneTree(node.right) };
 }
 
-function findNode(root, id) {
-  if (!root) return null;
-  if (root.id === id) return root;
-  return findNode(root.left, id) ?? findNode(root.right, id);
-}
-
 /**
  * Insert `value`, yielding a snapshot after each comparison and a final one
  * once the new node is placed. Duplicates are resolved right-biased (treated
@@ -67,12 +61,6 @@ export function* insertBST(root, value) {
       cursor = cursor.right;
     }
   }
-}
-
-function findMinNode(node) {
-  let cursor = node;
-  while (cursor.left) cursor = cursor.left;
-  return cursor;
 }
 
 /**
