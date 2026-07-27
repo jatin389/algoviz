@@ -24,6 +24,12 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      # Gates run before the build so a lint, type or test failure fails the
+      # deploy rather than shipping. `build` re-runs vue-tsc, but a dedicated
+      # step attributes the failure instead of burying it in a build log.
+      - run: npm run lint:check
+      - run: npm run type-check
+      - run: npm run test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

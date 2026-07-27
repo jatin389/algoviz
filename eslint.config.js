@@ -37,10 +37,9 @@ export default defineConfigWithVueTs(
       // naming convention here is carried by directory structure instead.
       'vue/multi-word-component-names': 'off',
 
-      // MIGRATION: vueTsConfigs.recommended turns this on, but the .vue files
-      // stay on plain JS until Phase 3 converts them. Re-enable in Phase 6,
-      // where it becomes the tripwire against a component regressing to JS.
-      'vue/block-lang': 'off',
+      // Left at the config default (on): every <script> block must declare
+      // lang="ts". This is the component-side twin of allowJs: false — it is
+      // what stops a .vue file from quietly regressing to plain JS.
 
       // The AlgorithmMeta generic is bounded by AlgorithmFn<any, any> on
       // purpose — five registries hold generators with different call
