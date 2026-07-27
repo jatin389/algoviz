@@ -10,17 +10,19 @@
 
 # ⏸ RESUME HERE — execution state as of 2026-07-27
 
-**Branch:** `feat/typescript-migration` (6 commits, pushed) · **PR:** https://github.com/jatin389/algoviz/pull/1
+**Branch:** `feat/ts-phase2-composables`, cut from `feat/typescript-migration` (6 commits, pushed) · **PR:** https://github.com/jatin389/algoviz/pull/1
 
-| Phase                                     | Status           |
-| ----------------------------------------- | ---------------- |
-| 0 — Tooling                               | ✅ complete      |
-| 1 — Types module + all algorithms → TS    | ✅ complete      |
-| **2 — Composables → TS + timer-leak fix** | ⏭ **START HERE** |
-| 3 — 28 `.vue` → `lang="ts"`               | pending          |
-| 4 — vue-router                            | pending          |
-| 5 — UI primitives + a11y                  | pending          |
-| 6 — `allowJs: false` + CI gates           | pending          |
+| Phase                                  | Status           |
+| -------------------------------------- | ---------------- |
+| 0 — Tooling                            | ✅ complete      |
+| 1 — Types module + all algorithms → TS | ✅ complete      |
+| 2 — Composables → TS + timer-leak fix  | ✅ complete      |
+| **3 — 28 `.vue` → `lang="ts"`**        | ⏭ **START HERE** |
+| 4 — vue-router                         | pending          |
+| 5 — UI primitives + a11y               | pending          |
+| 6 — `allowJs: false` + CI gates        | pending          |
+
+After Phase 2 there is **no `.js` left in `src/`** — only `.vue` files remain unconverted.
 
 **Gate command** (must be green before committing any phase):
 
@@ -40,7 +42,10 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 6. **`vue/block-lang` is disabled** in `eslint.config.js`. Re-enable it in Phase 6 — it becomes the tripwire against a component regressing to JS.
 7. **`@vue/eslint-config-typescript` v14.9** exports `defineConfigWithVueTs` / `vueTsConfigs`, NOT the `vueTsEslintConfig()` default-function form written in the plan below.
 8. **Test count is 165**, not the 68 estimated. Local Node is 18.19.1 vs CI's 20 (works, but `EBADENGINE` warnings on install are expected).
-9. **`npm run build` catches what type-check and tests miss.** A `.js` importer cannot resolve a `.js` specifier to a sibling `.ts`. All converted modules' importers were switched to extensionless `@/` aliases. Composable importers are already fixed; **`main.js` and the `.vue` files still use relative paths and will need this treatment as they convert.**
+9. **`npm run build` catches what type-check and tests miss.** A `.js` importer cannot resolve a `.js` specifier to a sibling `.ts`. All converted modules' importers were switched to extensionless `@/` aliases. ✅ Done everywhere as of Phase 2 — the 7 `.vue` composable importers were normalized to `@/composables/useX` too, so Phase 3 inherits no relative-path work.
+10. **`algorithmList`'s explicit annotation erases the literal key union — this is a Phase 3 landmine.** All five registries end with `export const algorithmList: SortAlgorithm[] = Object.values(algorithms)`. Because `AlgorithmMeta.key` is typed `string`, that annotation throws away exactly what `satisfies` preserved on the object. All four `*AlgorithmSelector.vue` iterate `algorithmList` and emit `algo.key` back into `algoKey`, so the moment they get `lang="ts"` you get `TS2322: Type 'string' is not assignable to type '"bubble" | ...'`. Harmless today (those files are still untyped). **Fix it in Phase 3 by making `AlgorithmMeta` generic in its key** (`key: TKey`) or by dropping the annotation and letting `Object.values` infer — not by casting at the call site.
+11. **An `in` check does not strip `undefined` from a _declared optional_ property.** TS 5.6's `in` narrowing only helps for undeclared props, so `if ('extracted' in value) lastExtracted.value = value.extracted` still sees `number | null | undefined`. `useHeap.ts` uses `as number | null` there; a `?? null` would compile but would change what gets stored.
+12. **`useBST`/`useHeap`'s `insert`/`remove` take `unknown`, not `number`** — deliberate. Both already validate with `typeof value !== 'number' || !Number.isFinite(value)`. Typing the param `number` would make that guard statically dead and would push a runtime change into the Phase 3 `.vue` caller that passes a raw input value. Keep `unknown`; it narrows to `number` at the call to `insertBST`/`insertHeap`.
 
 ### Known pre-existing bugs — reported, deliberately NOT fixed (out of scope for a type migration)
 
@@ -49,10 +54,18 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 - `graphModel`'s edge-key `from < to` compare goes lexicographic if ids ever become strings
 - `linearSearch` yields `low`/`high` bounds it doesn't actually use
 - `bst.ts`'s `nextId` is module-global and never reset between tests
+- `useBST.seed()`'s JSDoc promises "random **distinct** values", but its `seen` set only dedupes within a single call — it never checks the existing tree, so seeding twice can insert duplicates. Harmless given `bst.ts`'s right-biased duplicate policy; the doc just overstates the guarantee.
+- `driveGenerator`'s `onDone` callback in `useBST`/`useHeap` is dead — no caller ever passes it
 
-### Phase 2 specifics (the immediate next step)
+### Phase 2 outcome (done)
 
-Convert `main.js` (+ `index.html` script src) and the 7 composables. **The timer leak is confirmed real**: no composable calls `onScopeDispose`/`onUnmounted` (only `GridCanvas.vue` does, for a window listener), so unmounting a view mid-run leaves `status === 'running'` and the `setTimeout` chain in `useSorter.js:103` recursing forever against a detached component. Add `onScopeDispose(clearTimer)` to all 6 driver composables. Verify by switching tabs mid-run and confirming the animation stops.
+`main.ts` (+ `index.html`) and all 7 composables converted; `onScopeDispose(clearTimer)` added to the 6 driver composables (`useTheme` owns no timer). Gate green: 0 lint errors / 4 expected warnings, `vue-tsc` clean, 165 tests, CSS still `index-X6FNKZOQ.css` / 22.52 kB.
+
+**The timer leak fix was verified in the browser, not just reasoned about.** Method, for reuse in Phase 3/4: instrument `window.setTimeout` with a counter, click Run on Sorting, switch to another tab, and diff the counter across the unmount. Result: 0 new timers scheduled after unmount, against a positive control of 9 while mounted and running — the control matters, since a blind counter would "pass" identically.
+
+### Phase 3 specifics (the immediate next step)
+
+28 `.vue` → `<script setup lang="ts">`, in 3 parallel agents by domain (see the delegation table). Before starting, fix correction #10 (`algorithmList`'s key widening) — it blocks all four selectors and is a one-file change in each registry. Expect `$event.target` friction at ~8 slider/`<select>` sites; extract named handlers rather than casting inline.
 
 ---
 

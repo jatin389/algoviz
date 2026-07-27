@@ -1,6 +1,6 @@
 <script setup>
 import { watch } from 'vue';
-import { useSearcher } from '../composables/useSearcher.js';
+import { useSearcher } from '@/composables/useSearcher';
 import SearchAlgorithmSelector from '../components/search/SearchAlgorithmSelector.vue';
 import SearchControls from '../components/search/SearchControls.vue';
 import SearchBarChart from '../components/search/SearchBarChart.vue';

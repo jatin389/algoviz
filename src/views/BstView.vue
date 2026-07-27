@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { useBST } from '../composables/useBST.js';
+import { useBST } from '@/composables/useBST';
 import BstControls from '../components/datastructures/BstControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
 

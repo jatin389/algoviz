@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { useHeap } from '../composables/useHeap.js';
+import { useHeap } from '@/composables/useHeap';
 import HeapControls from '../components/datastructures/HeapControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
 

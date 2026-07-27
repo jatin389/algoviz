@@ -1,5 +1,15 @@
-import { ref, reactive, computed } from 'vue';
+import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { algorithms } from '@/algorithms';
+import type { SortAlgoKey } from '@/algorithms';
+import type { AlgoStatus, SortStep, StepGenerator } from '@/types';
+
+// Declared explicitly because the empty-array initializers below would
+// otherwise infer as `never[]` and reject every index written into them.
+interface SortHighlights {
+  comparing: number[];
+  swapping: number[];
+  sorted: number[];
+}
 
 /**
  * useSorter — the animation engine.
@@ -17,19 +27,19 @@ export function useSorter() {
   // ---- User-configurable inputs ---------------------------------------------
   const size = ref(45); // number of bars (10..100)
   const speed = ref(60); // 1..100, higher = faster
-  const algoKey = ref('bubble');
+  const algoKey = ref<SortAlgoKey>('bubble');
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref('idle'); // idle | running | paused | done
-  const array = ref([]); // current bar values
-  const highlights = reactive({ comparing: [], swapping: [], sorted: [] });
+  const status = ref<AlgoStatus>('idle');
+  const array = ref<number[]>([]); // current bar values
+  const highlights = reactive<SortHighlights>({ comparing: [], swapping: [], sorted: [] });
   const stats = reactive({ comparisons: 0, swaps: 0, steps: 0, elapsedMs: 0 });
 
   // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator = null;
-  let timer = null;
+  let generator: StepGenerator<SortStep> | null = null;
+  let timer: ReturnType<typeof setTimeout> | null = null;
   let startTs = 0;
-  let baseArray = []; // the pristine array a run starts from
+  let baseArray: number[] = []; // the pristine array a run starts from
 
   // Map the 1..100 speed slider onto a per-step delay in ms.
   // Higher speed -> smaller delay. Range ~ [4ms, 202ms].
@@ -48,7 +58,7 @@ export function useSorter() {
   // would otherwise shrink the apparent max before the true max value lands.
   const maxValue = ref(1);
 
-  function randomArray(n) {
+  function randomArray(n: number) {
     return Array.from({ length: n }, () => Math.floor(Math.random() * 99) + 1);
   }
 
@@ -77,7 +87,7 @@ export function useSorter() {
     status.value = 'idle';
   }
 
-  function applyStep(step) {
+  function applyStep(step: SortStep) {
     array.value = step.array;
     highlights.comparing = step.comparing;
     highlights.swapping = step.swapping;
@@ -90,6 +100,9 @@ export function useSorter() {
 
   function tick() {
     if (status.value !== 'running') return;
+    // Unreachable at runtime — `run()` always assigns the generator before the
+    // first tick — but strict null checks cannot see that.
+    if (!generator) return;
     const { value, done: exhausted } = generator.next();
     if (exhausted || !value) {
       finish();
@@ -155,6 +168,10 @@ export function useSorter() {
 
   // Seed an initial dataset so the UI has something to show on mount.
   generate();
+
+  // Stop the timer chain if the owning component unmounts mid-run; otherwise
+  // tick() keeps recursing against a detached view forever.
+  onScopeDispose(clearTimer);
 
   return {
     // inputs

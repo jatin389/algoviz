@@ -1,6 +1,6 @@
 <script setup>
 import { watch } from 'vue';
-import { useSorter } from '../composables/useSorter.js';
+import { useSorter } from '@/composables/useSorter';
 import AlgorithmSelector from '../components/AlgorithmSelector.vue';
 import ControlsPanel from '../components/ControlsPanel.vue';
 import BarChart from '../components/BarChart.vue';

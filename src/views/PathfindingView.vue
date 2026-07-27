@@ -1,6 +1,6 @@
 <script setup>
 import { watch } from 'vue';
-import { usePathfinder } from '../composables/usePathfinder.js';
+import { usePathfinder } from '@/composables/usePathfinder';
 import PathfindingAlgorithmSelector from '../components/pathfinding/PathfindingAlgorithmSelector.vue';
 import PathfindingControls from '../components/pathfinding/PathfindingControls.vue';
 import GridCanvas from '../components/pathfinding/GridCanvas.vue';

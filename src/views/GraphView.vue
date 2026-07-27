@@ -1,6 +1,6 @@
 <script setup>
 import { watch } from 'vue';
-import { useGraphTraversal } from '../composables/useGraphTraversal.js';
+import { useGraphTraversal } from '@/composables/useGraphTraversal';
 import GraphAlgorithmSelector from '../components/graph/GraphAlgorithmSelector.vue';
 import GraphControls from '../components/graph/GraphControls.vue';
 import GraphCanvas from '../components/graph/GraphCanvas.vue';
