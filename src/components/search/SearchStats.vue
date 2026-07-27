@@ -1,13 +1,19 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
+import type { AlgoStatus } from '@/types';
 
-const props = defineProps({
-  comparisons: { type: Number, required: true },
-  steps: { type: Number, required: true },
-  elapsedMs: { type: Number, required: true },
-  status: { type: String, required: true },
-  foundIndex: { type: Number, default: null },
-});
+// `foundIndex` mirrors SearchStep.foundIndex: null until the target is located,
+// and still null if a finished run never found it.
+const props = withDefaults(
+  defineProps<{
+    comparisons: number;
+    steps: number;
+    elapsedMs: number;
+    status: AlgoStatus;
+    foundIndex?: number | null;
+  }>(),
+  { foundIndex: null },
+);
 
 const elapsedLabel = computed(() => `${(props.elapsedMs / 1000).toFixed(2)}s`);
 

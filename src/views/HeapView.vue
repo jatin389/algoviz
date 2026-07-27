@@ -1,8 +1,35 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { useHeap } from '@/composables/useHeap';
 import HeapControls from '../components/datastructures/HeapControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
+
+/** The paint states TreeDiagram understands. Mirrors the union in BstView. */
+type NodeState = 'default' | 'visiting' | 'inserted' | 'removing';
+
+/** One positioned node handed to TreeDiagram; `id` is the backing array index. */
+interface DiagramNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  state: NodeState;
+}
+
+/** A parent -> child link, referenced by backing array index. */
+interface DiagramEdge {
+  from: number;
+  to: number;
+}
+
+/** Layout bookkeeping: `depth` is used here and dropped before render. */
+interface LayoutNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  depth: number;
+}
 
 // Self-contained root: no props in, no changes to any other file needed to
 // render this view standalone.
@@ -16,13 +43,13 @@ const Y_MARGIN = 40;
 // The heap array IS a complete binary tree (child i -> 2i+1 / 2i+2), so the
 // same in-order-slot layout technique used for the BST applies directly to
 // indices instead of node references.
-function layoutHeap(a) {
-  const nodes = [];
-  const edges = [];
+function layoutHeap(a: number[]) {
+  const nodes: LayoutNode[] = [];
+  const edges: DiagramEdge[] = [];
   let nextSlot = 0;
   const n = a.length;
 
-  function walk(i, depth) {
+  function walk(i: number, depth: number) {
     if (i >= n) return;
     const left = 2 * i + 1;
     const right = 2 * i + 2;
@@ -46,13 +73,13 @@ const layout = computed(() => layoutHeap(heap.heap.value));
 // does — comparing maps to the amber "visiting" state and an active swap
 // maps to the emerald "inserted" state, since a swap means this pair is
 // settling into its resting position for this step.
-function stateForIndex(i) {
+function stateForIndex(i: number): NodeState {
   if (heap.highlights.comparing.includes(i)) return 'visiting';
   if (heap.highlights.swapping.includes(i)) return 'inserted';
   return 'default';
 }
 
-const nodes = computed(() =>
+const nodes = computed<DiagramNode[]>(() =>
   layout.value.nodes.map((n) => ({
     id: n.id,
     x: n.x,

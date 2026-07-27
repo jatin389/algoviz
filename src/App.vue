@@ -1,5 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
+import type { Component } from 'vue';
 import SortingView from './views/SortingView.vue';
 import SearchView from './views/SearchView.vue';
 import PathfindingView from './views/PathfindingView.vue';
@@ -8,10 +9,18 @@ import HeapView from './views/HeapView.vue';
 import GraphView from './views/GraphView.vue';
 import ThemeToggle from './components/ThemeToggle.vue';
 
+type CategoryKey = 'sorting' | 'searching' | 'pathfinding' | 'bst' | 'heap' | 'graph';
+
+interface Category {
+  key: CategoryKey;
+  label: string;
+  component: Component;
+}
+
 // Each category is a fully self-contained view with its own composable/state —
 // switching tabs never mixes state between them, and a view is only mounted
 // (and its timers/generators alive) while its tab is active.
-const categories = [
+const categories: Category[] = [
   { key: 'sorting', label: 'Sorting', component: SortingView },
   { key: 'searching', label: 'Searching', component: SearchView },
   { key: 'pathfinding', label: 'Pathfinding', component: PathfindingView },
@@ -20,8 +29,12 @@ const categories = [
   { key: 'graph', label: 'Graph', component: GraphView },
 ];
 
-const activeCategory = ref('sorting');
-const activeComponent = () => categories.find((c) => c.key === activeCategory.value).component;
+const activeCategory = ref<CategoryKey>('sorting');
+
+// `find` is typed `Category | undefined`, but activeCategory is a CategoryKey so
+// a match always exists. Fall back to the first category rather than asserting.
+const activeComponent = () =>
+  (categories.find((c) => c.key === activeCategory.value) ?? categories[0]).component;
 </script>
 
 <template>

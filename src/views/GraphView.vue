@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { watch } from 'vue';
 import { useGraphTraversal } from '@/composables/useGraphTraversal';
 import GraphAlgorithmSelector from '../components/graph/GraphAlgorithmSelector.vue';

@@ -1,18 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { algorithmList } from '@/algorithms/pathfinding';
+import type { PathAlgoKey } from '@/algorithms/pathfinding';
 
-const props = defineProps({
-  modelValue: { type: String, required: true },
-  disabled: { type: Boolean, default: false },
-});
-const emit = defineEmits(['update:modelValue']);
+const model = defineModel<PathAlgoKey>({ required: true });
+const props = defineProps<{ disabled?: boolean }>();
 
-const selected = computed(() => algorithmList.find((a) => a.key === props.modelValue));
+const selected = computed(() => algorithmList.find((a) => a.key === model.value));
 
-function select(key) {
+function select(key: PathAlgoKey) {
   if (props.disabled) return;
-  emit('update:modelValue', key);
+  model.value = key;
 }
 </script>
 

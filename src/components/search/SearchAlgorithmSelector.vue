@@ -1,18 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { algorithmList } from '@/algorithms/search';
+import type { SearchAlgoKey } from '@/algorithms/search';
 
-const props = defineProps({
-  modelValue: { type: String, required: true },
-  disabled: { type: Boolean, default: false },
-});
-const emit = defineEmits(['update:modelValue']);
+// Typed with the literal key union rather than `string`: defineRegistry keeps
+// each entry's `key` literal, so `algo.key` below lines up without a cast.
+const model = defineModel<SearchAlgoKey>({ required: true });
+const props = withDefaults(defineProps<{ disabled?: boolean }>(), { disabled: false });
 
-const selected = computed(() => algorithmList.find((a) => a.key === props.modelValue));
+const selected = computed(() => algorithmList.find((a) => a.key === model.value));
 
-function select(key) {
+function select(key: SearchAlgoKey) {
   if (props.disabled) return;
-  emit('update:modelValue', key);
+  model.value = key;
 }
 </script>
 

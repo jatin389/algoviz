@@ -1,13 +1,24 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 
-const props = defineProps({
-  canEdit: { type: Boolean, required: true },
-  speed: { type: Number, required: true },
-  isMinHeap: { type: Boolean, required: true },
-});
+const props = defineProps<{
+  canEdit: boolean;
+  speed: number;
+  isMinHeap: boolean;
+}>();
 
-const emit = defineEmits(['insert', 'extract', 'toggle-mode', 'seed', 'reset', 'update:speed']);
+const emit = defineEmits<{
+  insert: [value: number];
+  extract: [];
+  'toggle-mode': [];
+  seed: [count: number];
+  reset: [];
+  'update:speed': [value: number];
+}>();
+
+// `$event.target` is `EventTarget | null` under lang="ts", so the narrowing
+// that the template expression used to do implicitly lives here now.
+const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
 
 const inputValue = ref('');
 
@@ -106,7 +117,7 @@ function submitInsert() {
         step="1"
         :value="speed"
         class="w-full"
-        @input="emit('update:speed', Number($event.target.value))"
+        @input="onSpeed"
       />
     </label>
 

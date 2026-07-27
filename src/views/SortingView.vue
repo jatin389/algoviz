@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { watch } from 'vue';
 import { useSorter } from '@/composables/useSorter';
 import AlgorithmSelector from '../components/AlgorithmSelector.vue';

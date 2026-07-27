@@ -1,18 +1,16 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { algorithmList } from '@/algorithms';
+import type { SortAlgoKey } from '@/algorithms';
 
-const props = defineProps({
-  modelValue: { type: String, required: true },
-  disabled: { type: Boolean, default: false },
-});
-const emit = defineEmits(['update:modelValue']);
+const model = defineModel<SortAlgoKey>({ required: true });
+const props = defineProps<{ disabled?: boolean }>();
 
-const selected = computed(() => algorithmList.find((a) => a.key === props.modelValue));
+const selected = computed(() => algorithmList.find((a) => a.key === model.value));
 
-function select(key) {
+function select(key: SortAlgoKey) {
   if (props.disabled) return;
-  emit('update:modelValue', key);
+  model.value = key;
 }
 </script>
 

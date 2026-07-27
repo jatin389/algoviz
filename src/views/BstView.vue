@@ -1,8 +1,37 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 import { useBST } from '@/composables/useBST';
+import type { BSTNode, BSTPhase } from '@/types';
 import BstControls from '../components/datastructures/BstControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
+
+/** The paint states TreeDiagram understands, keyed off the current BST phase. */
+type NodeState = 'default' | 'visiting' | 'inserted' | 'removing';
+
+/** One positioned node handed to TreeDiagram. */
+interface DiagramNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  state: NodeState;
+}
+
+/** A parent -> child link, referenced by node id. */
+interface DiagramEdge {
+  from: number;
+  to: number;
+}
+
+/** Layout bookkeeping: `node`/`depth` are used here and dropped before render. */
+interface LayoutNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  node: BSTNode;
+  depth: number;
+}
 
 // Self-contained root: no props in, no changes to any other file needed to
 // render this view standalone.
@@ -17,12 +46,12 @@ const Y_MARGIN = 40;
 // increasing x slot (so left-subtree nodes always sit left of their parent),
 // while y is just depth * spacing. Not balanced-aware, but predictable and
 // cheap, which is all a live-editable visualizer needs.
-function layoutTree(root) {
-  const nodes = [];
-  const edges = [];
+function layoutTree(root: BSTNode | null) {
+  const nodes: LayoutNode[] = [];
+  const edges: DiagramEdge[] = [];
   let nextSlot = 0;
 
-  function walk(node, depth) {
+  function walk(node: BSTNode | null, depth: number) {
     if (!node) return;
     walk(node.left, depth + 1);
     const x = X_MARGIN + nextSlot * X_SPACING;
@@ -40,7 +69,7 @@ function layoutTree(root) {
 
 const layout = computed(() => layoutTree(bst.tree.value));
 
-const nodes = computed(() =>
+const nodes = computed<DiagramNode[]>(() =>
   layout.value.nodes.map((n) => ({
     id: n.id,
     x: n.x,
@@ -50,7 +79,7 @@ const nodes = computed(() =>
   })),
 );
 
-function stateForPhase(phase) {
+function stateForPhase(phase: BSTPhase | null): NodeState {
   if (phase === 'searching') return 'visiting';
   if (phase === 'removing') return 'removing';
   if (phase === 'inserted' || phase === 'deleted') return 'inserted';

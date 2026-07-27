@@ -1,17 +1,29 @@
-<script setup>
+<script setup lang="ts">
 // Controls panel: speed slider, playback buttons, and a fresh-graph button.
 // Pure presentational component — all state lives in useGraphTraversal and is
 // passed down via props / v-model, actions bubble up as events.
 
-defineProps({
-  speed: { type: Number, required: true },
-  status: { type: String, required: true },
-  canEdit: { type: Boolean, required: true },
-  isRunning: { type: Boolean, required: true },
-  isPaused: { type: Boolean, required: true },
-});
+import type { AlgoStatus } from '@/types';
 
-const emit = defineEmits(['update:speed', 'generate', 'run', 'pause', 'reset']);
+defineProps<{
+  speed: number;
+  status: AlgoStatus;
+  canEdit: boolean;
+  isRunning: boolean;
+  isPaused: boolean;
+}>();
+
+const emit = defineEmits<{
+  'update:speed': [value: number];
+  generate: [];
+  run: [];
+  pause: [];
+  reset: [];
+}>();
+
+// `$event.target` is `EventTarget | null` under lang="ts", so the narrowing
+// that the template expression used to do implicitly lives here now.
+const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
 </script>
 
 <template>
@@ -30,7 +42,7 @@ const emit = defineEmits(['update:speed', 'generate', 'run', 'pause', 'reset']);
         step="1"
         :value="speed"
         class="w-full"
-        @input="emit('update:speed', Number($event.target.value))"
+        @input="onSpeed"
       />
     </label>
 

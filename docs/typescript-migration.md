@@ -17,12 +17,12 @@
 | 0 — Tooling                            | ✅ complete      |
 | 1 — Types module + all algorithms → TS | ✅ complete      |
 | 2 — Composables → TS + timer-leak fix  | ✅ complete      |
-| **3 — 28 `.vue` → `lang="ts"`**        | ⏭ **START HERE** |
-| 4 — vue-router                         | pending          |
+| 3 — 27 `.vue` → `lang="ts"`            | ✅ complete      |
+| **4 — vue-router**                     | ⏭ **START HERE** |
 | 5 — UI primitives + a11y               | pending          |
 | 6 — `allowJs: false` + CI gates        | pending          |
 
-After Phase 2 there is **no `.js` left in `src/`** — only `.vue` files remain unconverted.
+**The codebase is now fully TypeScript.** Every `src/` file is `.ts` or a `.vue` with `lang="ts"`. Phases 4–6 are feature/cleanup work, not conversion. (The plan said 28 `.vue`; the real count is 27.)
 
 **Gate command** (must be green before committing any phase):
 
@@ -59,6 +59,7 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 - `bst.ts`'s `nextId` is module-global and never reset between tests
 - `useBST.seed()`'s JSDoc promises "random **distinct** values", but its `seen` set only dedupes within a single call — it never checks the existing tree, so seeding twice can insert duplicates. Harmless given `bst.ts`'s right-biased duplicate policy; the doc just overstates the guarantee.
 - `driveGenerator`'s `onDone` callback in `useBST`/`useHeap` is dead — no caller ever passes it
+- **⚠️ BST and Heap Insert/Delete are broken in the shipped app** — user-facing, not latent. `BstControls.vue:24` and `HeapControls.vue:26` do `inputValue.value.trim()`, but the field is `<input type="number">` with `v-model`, and Vue coerces `v-model` to a **number** for numeric inputs. So `inputValue` holds a number, `.trim()` is not a function, and the `isValidInput` computed throws — the render function errors and the Insert/Delete buttons never enable. **Confirmed pre-existing**: reproduced identically at the pre-Phase-3 commit via `git stash`, and the Phase 3 diff does not touch those lines. Fix is `String(inputValue.value).trim()` (or `v-model.number` plus a numeric guard) in both files. Seed/Reset/speed are unaffected.
 
 ### Phase 2 outcome (done)
 
@@ -66,9 +67,17 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 
 **The timer leak fix was verified in the browser, not just reasoned about.** Method, for reuse in Phase 3/4: instrument `window.setTimeout` with a counter, click Run on Sorting, switch to another tab, and diff the counter across the unmount. Result: 0 new timers scheduled after unmount, against a positive control of 9 while mounted and running — the control matters, since a blind counter would "pass" identically.
 
-### Phase 3 specifics (the immediate next step)
+### Phase 3 outcome (done)
 
-28 `.vue` → `<script setup lang="ts">`, in 3 parallel agents by domain (see the delegation table). The registry key-widening that would have blocked all four selectors is **already fixed** (correction #10), so `algoKey.value = algo.key` type-checks as written. Expect `$event.target` friction at ~8 slider/`<select>` sites; extract named handlers rather than casting inline.
+27 `.vue` converted by 3 parallel agents (shared components + `App.vue` / `views/` + `search/` / `pathfinding/` + `graph/` + `datastructures/`). **`vue-tsc` passed on the first attempt** across all 27 — the cross-agent prop contracts were pinned verbatim in each brief, which is what made that work. 9 `e.target as HTMLInputElement` casts (the forced ones), 2 `!` in `SearchBarChart`, no `any`.
+
+`defineModel<XAlgoKey>({ required: true })` in all four selectors confirmed correction #10's fix end-to-end: `algo.key` arrives as the literal union with no cast at any call site.
+
+**Tailwind scans prose, not just markup — a new comment changed the CSS bundle.** The word "inline" in the comment _"the inline template expression used to do…"_ (added to 4 control components) was picked up by the `./src/**/*.{vue,js,ts}` content glob and synthesized a `display:inline` rule, moving the hash to `index-kHn0utMX.css` / 22.54 kB. Diffing the two stylesheets showed **one class added, zero removed** — so nothing was dropped — but the comment was reworded to restore the exact `index-X6FNKZOQ.css` / 22.52 kB baseline. **Keep the CSS-hash invariant exact**; it is the only guard against a silently dropped class, and it is worth nothing once you start accepting "close enough". Watch for utility-shaped words (`inline`, `block`, `grid`, `flex`, `container`, `hidden`, `fixed`) in comments.
+
+### Phase 4 specifics (the immediate next step)
+
+vue-router, inline (not delegated) — it rewrites `App.vue`, which is the one real conflict point. `App.vue` currently uses a `categories` array + `<component :is>`; Phase 3 typed it with a `CategoryKey` union and a `?? categories[0]` fallback for the `find`. All of that gets replaced. Use `createWebHashHistory(import.meta.env.BASE_URL)` — see the Phase 4 section below for why hash history, and do **not** add `<KeepAlive>`.
 
 ---
 

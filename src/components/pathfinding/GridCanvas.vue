@@ -1,21 +1,41 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import type { Coord } from '@/types';
 
-const props = defineProps({
-  rows: { type: Number, required: true },
-  cols: { type: Number, required: true },
-  walls: { type: Set, required: true },
-  start: { type: Object, required: true },
-  end: { type: Object, required: true },
-  visited: { type: Array, default: () => [] },
-  frontier: { type: Array, default: () => [] },
-  path: { type: Array, default: () => [] },
-  canEdit: { type: Boolean, required: true },
-});
+/** One square of the rendered grid, precomputed once per rows×cols change. */
+interface GridCell {
+  row: number;
+  col: number;
+  /** The same "row,col" string the walls Set is keyed by. */
+  key: string;
+}
 
-const emit = defineEmits(['toggle-wall', 'place-start', 'place-end']);
+const props = withDefaults(
+  defineProps<{
+    rows: number;
+    cols: number;
+    walls: Set<string>;
+    start: Coord;
+    end: Coord;
+    visited?: Coord[];
+    frontier?: Coord[];
+    path?: Coord[];
+    canEdit: boolean;
+  }>(),
+  {
+    visited: () => [],
+    frontier: () => [],
+    path: () => [],
+  },
+);
 
-const key = (row, col) => `${row},${col}`;
+const emit = defineEmits<{
+  'toggle-wall': [cell: Coord];
+  'place-start': [cell: Coord];
+  'place-end': [cell: Coord];
+}>();
+
+const key = (row: number, col: number) => `${row},${col}`;
 
 // 'wall' paints/erases walls by dragging; 'start'/'end' relocate the markers
 // on the next click instead — this sidesteps fragile native drag-and-drop.
@@ -27,7 +47,7 @@ const frontierSet = computed(() => new Set(props.frontier.map((c) => key(c.row, 
 const pathSet = computed(() => new Set(props.path.map((c) => key(c.row, c.col))));
 
 const cells = computed(() => {
-  const list = [];
+  const list: GridCell[] = [];
   for (let row = 0; row < props.rows; row++) {
     for (let col = 0; col < props.cols; col++) {
       list.push({ row, col, key: key(row, col) });
@@ -36,17 +56,17 @@ const cells = computed(() => {
   return list;
 });
 
-function isStartCell(row, col) {
+function isStartCell(row: number, col: number) {
   return props.start.row === row && props.start.col === col;
 }
 
-function isEndCell(row, col) {
+function isEndCell(row: number, col: number) {
   return props.end.row === row && props.end.col === col;
 }
 
 // Color precedence: wall > path > frontier > visited > empty. Start/end are
 // drawn as a separate marker layered on top, independent of this background.
-function cellClass(cell) {
+function cellClass(cell: GridCell) {
   const k = cell.key;
   if (props.walls.has(k)) return 'bg-slate-900 dark:bg-black';
   if (pathSet.value.has(k)) return 'bg-emerald-500';
@@ -68,7 +88,7 @@ function stopPainting() {
 onMounted(() => window.addEventListener('mouseup', stopPainting));
 onUnmounted(() => window.removeEventListener('mouseup', stopPainting));
 
-function onMouseDown(row, col) {
+function onMouseDown(row: number, col: number) {
   if (!props.canEdit) return;
 
   if (mode.value === 'start') {
@@ -86,7 +106,7 @@ function onMouseDown(row, col) {
   isPainting.value = true;
 }
 
-function onMouseEnter(row, col) {
+function onMouseEnter(row: number, col: number) {
   if (!props.canEdit || mode.value !== 'wall' || !isPainting.value) return;
   if (isStartCell(row, col) || isEndCell(row, col)) return;
   const currentlyWall = props.walls.has(key(row, col));

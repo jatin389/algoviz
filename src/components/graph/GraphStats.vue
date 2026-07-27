@@ -1,13 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
+import type { AlgoStatus } from '@/types';
 
-const props = defineProps({
-  visitedCount: { type: Number, required: true },
-  totalNodes: { type: Number, required: true },
-  steps: { type: Number, required: true },
-  elapsedMs: { type: Number, required: true },
-  status: { type: String, required: true },
-});
+const props = defineProps<{
+  visitedCount: number;
+  totalNodes: number;
+  steps: number;
+  elapsedMs: number;
+  status: AlgoStatus;
+}>();
 
 const elapsedLabel = computed(() => `${(props.elapsedMs / 1000).toFixed(2)}s`);
 

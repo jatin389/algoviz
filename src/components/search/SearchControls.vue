@@ -1,30 +1,38 @@
-<script setup>
+<script setup lang="ts">
 // Controls panel: size + speed sliders, target input, quick-pick buttons, and
 // the playback buttons. It is a pure presentational component — all state
 // lives in useSearcher and is passed down via props / v-model, actions
 // bubble up as events.
 
-defineProps({
-  size: { type: Number, required: true },
-  speed: { type: Number, required: true },
-  target: { type: Number, required: true },
-  status: { type: String, required: true },
-  canEdit: { type: Boolean, required: true },
-  isRunning: { type: Boolean, required: true },
-  isPaused: { type: Boolean, required: true },
-});
+import type { AlgoStatus } from '@/types';
 
-const emit = defineEmits([
-  'update:size',
-  'update:speed',
-  'update:target',
-  'pick-present-target',
-  'pick-missing-target',
-  'generate',
-  'run',
-  'pause',
-  'reset',
-]);
+defineProps<{
+  size: number;
+  speed: number;
+  target: number;
+  status: AlgoStatus;
+  canEdit: boolean;
+  isRunning: boolean;
+  isPaused: boolean;
+}>();
+
+const emit = defineEmits<{
+  'update:size': [value: number];
+  'update:speed': [value: number];
+  'update:target': [value: number];
+  'pick-present-target': [];
+  'pick-missing-target': [];
+  generate: [];
+  run: [];
+  pause: [];
+  reset: [];
+}>();
+
+// The inputs' `$event.target` is `EventTarget | null` once this block is
+// type-checked, so the DOM narrowing lives here rather than in the template.
+const onSize = (e: Event) => emit('update:size', Number((e.target as HTMLInputElement).value));
+const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
+const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInputElement).value));
 </script>
 
 <template>
@@ -46,7 +54,7 @@ const emit = defineEmits([
           :value="size"
           :disabled="!canEdit"
           class="w-full"
-          @input="emit('update:size', Number($event.target.value))"
+          @input="onSize"
         />
       </label>
 
@@ -62,7 +70,7 @@ const emit = defineEmits([
           step="1"
           :value="speed"
           class="w-full"
-          @input="emit('update:speed', Number($event.target.value))"
+          @input="onSpeed"
         />
       </label>
 
@@ -75,7 +83,7 @@ const emit = defineEmits([
           :value="target"
           :disabled="!canEdit"
           class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
-          @input="emit('update:target', Number($event.target.value))"
+          @input="onTarget"
         />
       </label>
     </div>

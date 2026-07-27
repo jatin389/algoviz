@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { watch } from 'vue';
 import { usePathfinder } from '@/composables/usePathfinder';
 import PathfindingAlgorithmSelector from '../components/pathfinding/PathfindingAlgorithmSelector.vue';

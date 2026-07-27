@@ -1,12 +1,22 @@
-<script setup>
+<script setup lang="ts">
 import { ref, computed } from 'vue';
 
-const props = defineProps({
-  canEdit: { type: Boolean, required: true },
-  speed: { type: Number, required: true },
-});
+const props = defineProps<{
+  canEdit: boolean;
+  speed: number;
+}>();
 
-const emit = defineEmits(['insert', 'remove', 'seed', 'reset', 'update:speed']);
+const emit = defineEmits<{
+  insert: [value: number];
+  remove: [value: number];
+  seed: [count: number];
+  reset: [];
+  'update:speed': [value: number];
+}>();
+
+// `$event.target` is `EventTarget | null` under lang="ts", so the narrowing
+// that the template expression used to do implicitly lives here now.
+const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
 
 const inputValue = ref('');
 
@@ -75,7 +85,7 @@ function submitRemove() {
         step="1"
         :value="speed"
         class="w-full"
-        @input="emit('update:speed', Number($event.target.value))"
+        @input="onSpeed"
       />
     </label>
 

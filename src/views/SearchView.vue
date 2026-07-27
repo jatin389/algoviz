@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { watch } from 'vue';
 import { useSearcher } from '@/composables/useSearcher';
 import SearchAlgorithmSelector from '../components/search/SearchAlgorithmSelector.vue';

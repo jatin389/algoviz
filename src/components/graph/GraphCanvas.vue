@@ -1,37 +1,52 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
+import type { GraphEdge, GraphNode, NodeId } from '@/types';
 
-const props = defineProps({
-  nodes: { type: Array, required: true },
-  edges: { type: Array, required: true },
-  visited: { type: Array, default: () => [] },
-  frontier: { type: Array, default: () => [] },
-  current: { type: [Number, String], default: null },
-  startId: { type: [Number, String], default: null },
-  canEdit: { type: Boolean, default: false },
-});
+const props = withDefaults(
+  defineProps<{
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+    visited?: NodeId[];
+    frontier?: NodeId[];
+    current?: NodeId | null;
+    startId?: NodeId | null;
+    canEdit?: boolean;
+  }>(),
+  {
+    visited: () => [],
+    frontier: () => [],
+    current: null,
+    startId: null,
+    canEdit: false,
+  },
+);
 
-const emit = defineEmits(['set-start']);
+const emit = defineEmits<{
+  'set-start': [id: NodeId];
+}>();
 
 // Build O(1) lookup structures so per-node/edge class resolution stays cheap
 // even while a traversal is animating many steps per second.
 const visitedSet = computed(() => new Set(props.visited));
 const frontierSet = computed(() => new Set(props.frontier));
-const nodeById = computed(() => new Map(props.nodes.map((n) => [n.id, n])));
+// The explicit type arguments are what let the `[n.id, n]` literal be read as
+// a Map entry tuple rather than a two-element array — same trick graphModel.ts
+// uses when it builds the adjacency map.
+const nodeById = computed(() => new Map<number, GraphNode>(props.nodes.map((n) => [n.id, n])));
 
-function edgeIsVisited(edge) {
+function edgeIsVisited(edge: GraphEdge) {
   return visitedSet.value.has(edge.from) && visitedSet.value.has(edge.to);
 }
 
 // Color precedence: current > visited > frontier > default.
-function nodeColorClass(id) {
+function nodeColorClass(id: NodeId) {
   if (id === props.current) return 'fill-rose-500';
   if (visitedSet.value.has(id)) return 'fill-emerald-500';
   if (frontierSet.value.has(id)) return 'fill-amber-400';
   return 'fill-indigo-500/80 dark:fill-indigo-400/80';
 }
 
-function onNodeClick(id) {
+function onNodeClick(id: NodeId) {
   if (!props.canEdit) return;
   emit('set-start', id);
 }

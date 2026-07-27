@@ -1,27 +1,58 @@
-<script setup>
+<script setup lang="ts">
 // Generic binary-tree SVG renderer — knows nothing about BST or Heap
 // specifically. Consumers compute their own x/y layout and pass in a flat
 // node/edge list; this component only draws it.
 
-const props = defineProps({
-  nodes: { type: Array, required: true }, // { id, x, y, value, state }
-  edges: { type: Array, required: true }, // { from, to }
-  viewBoxWidth: { type: Number, default: 600 },
-  viewBoxHeight: { type: Number, default: 320 },
-});
+/** One laid-out node. `id` is the caller's stable key, not an array index. */
+interface TreeNode {
+  id: number;
+  x: number;
+  y: number;
+  value: number;
+  /**
+   * Highlight bucket. Deliberately `string`, not a union of the `stateColors`
+   * keys: each consumer names its own states and anything unrecognized (or
+   * absent) falls back to `default` styling.
+   */
+  state?: string;
+}
 
-const stateColors = {
+/** A parent→child link, referencing nodes by `id`. */
+interface TreeEdge {
+  from: number;
+  to: number;
+}
+
+interface NodeColors {
+  fill: string;
+  stroke: string;
+}
+
+const props = withDefaults(
+  defineProps<{
+    nodes: TreeNode[]; // { id, x, y, value, state }
+    edges: TreeEdge[]; // { from, to }
+    viewBoxWidth?: number;
+    viewBoxHeight?: number;
+  }>(),
+  {
+    viewBoxWidth: 600,
+    viewBoxHeight: 320,
+  },
+);
+
+const stateColors: Record<string, NodeColors> = {
   default: { fill: '#6366f1', stroke: '#4338ca' }, // indigo
   visiting: { fill: '#f59e0b', stroke: '#b45309' }, // amber
   removing: { fill: '#f43f5e', stroke: '#be123c' }, // rose
   inserted: { fill: '#10b981', stroke: '#047857' }, // emerald
 };
 
-function colorsFor(state) {
-  return stateColors[state] ?? stateColors.default;
+function colorsFor(state: string | undefined) {
+  return stateColors[state ?? 'default'] ?? stateColors.default;
 }
 
-function nodeById(id) {
+function nodeById(id: number) {
   return props.nodes.find((n) => n.id === id);
 }
 </script>

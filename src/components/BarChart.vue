@@ -1,13 +1,21 @@
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue';
 
-const props = defineProps({
-  array: { type: Array, required: true },
-  comparing: { type: Array, default: () => [] },
-  swapping: { type: Array, default: () => [] },
-  sorted: { type: Array, default: () => [] },
-  maxValue: { type: Number, default: 1 },
-});
+const props = withDefaults(
+  defineProps<{
+    array: number[];
+    comparing: number[];
+    swapping: number[];
+    sorted: number[];
+    maxValue: number;
+  }>(),
+  {
+    comparing: () => [],
+    swapping: () => [],
+    sorted: () => [],
+    maxValue: 1,
+  },
+);
 
 // Build O(1) lookup sets from the highlight index arrays so per-bar class
 // resolution stays cheap even at 100 bars * many steps per second.
@@ -19,14 +27,14 @@ const sortedSet = computed(() => new Set(props.sorted));
 const showLabels = computed(() => props.array.length <= 25);
 
 // Color precedence: swapping > comparing > sorted > default.
-function colorClass(index) {
+function colorClass(index: number) {
   if (swappingSet.value.has(index)) return 'bg-rose-500';
   if (comparingSet.value.has(index)) return 'bg-amber-400';
   if (sortedSet.value.has(index)) return 'bg-emerald-500';
   return 'bg-indigo-500/80 dark:bg-indigo-400/80';
 }
 
-function heightPercent(value) {
+function heightPercent(value: number) {
   // Reserve a little headroom so the tallest bar doesn't touch the ceiling.
   return `${(value / props.maxValue) * 98 + 2}%`;
 }
