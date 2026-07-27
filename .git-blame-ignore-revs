@@ -1,0 +1,5 @@
+# Bulk reformats — skip when running git blame.
+# Use: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# style: apply prettier formatting
+b6b168e70c30622f0306239094de7425a8184eff
