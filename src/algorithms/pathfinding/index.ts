@@ -1,4 +1,5 @@
 import type { AlgorithmFn, AlgorithmMeta, Coord, Grid, PathStep } from '@/types';
+import { defineRegistry } from '@/algorithms/_registry';
 import { bfs } from './bfs';
 import { dfs } from './dfs';
 import { dijkstra } from './dijkstra';
@@ -9,7 +10,7 @@ export type PathAlgorithm = AlgorithmMeta<PathFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
-export const algorithms = {
+export const algorithms = defineRegistry<PathAlgorithm>()({
   bfs: {
     key: 'bfs',
     name: 'BFS',
@@ -62,10 +63,12 @@ export const algorithms = {
       space: 'O(rows×cols)',
     },
   },
-} satisfies Record<string, PathAlgorithm>;
+});
 
 /** Literal union of the registry keys: 'bfs' | 'dfs' | 'dijkstra' | 'astar' */
 export type PathAlgoKey = keyof typeof algorithms;
 
-// Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList: PathAlgorithm[] = Object.values(algorithms);
+// Ordered list for iterating in the UI (buttons, dropdowns). Deliberately
+// unannotated: an explicit `PathAlgorithm[]` would widen `key` back to
+// `string` and undo what defineRegistry preserves.
+export const algorithmList = Object.values(algorithms);

@@ -1,4 +1,5 @@
 import type { AlgorithmFn, AlgorithmMeta, SortStep } from '@/types';
+import { defineRegistry } from './_registry';
 import { bubbleSort } from './bubbleSort';
 import { selectionSort } from './selectionSort';
 import { insertionSort } from './insertionSort';
@@ -15,7 +16,7 @@ export type SortAlgorithm = AlgorithmMeta<SortFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
-export const algorithms = {
+export const algorithms = defineRegistry<SortAlgorithm>()({
   bubble: {
     key: 'bubble',
     name: 'Bubble Sort',
@@ -111,10 +112,12 @@ export const algorithms = {
     },
     stable: true,
   },
-} satisfies Record<string, SortAlgorithm>;
+});
 
 /** Literal union of the registry keys: 'bubble' | 'selection' | ... */
 export type SortAlgoKey = keyof typeof algorithms;
 
-// Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList: SortAlgorithm[] = Object.values(algorithms);
+// Ordered list for iterating in the UI (buttons, dropdowns). Deliberately
+// unannotated: an explicit `SortAlgorithm[]` would widen `key` back to
+// `string` and undo what defineRegistry preserves.
+export const algorithmList = Object.values(algorithms);
