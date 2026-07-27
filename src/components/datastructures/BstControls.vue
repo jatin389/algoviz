@@ -18,10 +18,13 @@ const emit = defineEmits<{
 // that the template expression used to do implicitly lives here now.
 const onSpeed = (e: Event) => emit('update:speed', Number((e.target as HTMLInputElement).value));
 
-const inputValue = ref('');
+// `v-model` on an `<input type="number">` assigns a *number*, not a string —
+// Vue coerces numeric inputs. The ref still starts as '' and is cleared to ''
+// after a submit, so it genuinely holds either type.
+const inputValue = ref<string | number>('');
 
 const isValidInput = computed(() => {
-  if (inputValue.value.trim() === '') return false;
+  if (String(inputValue.value).trim() === '') return false;
   return Number.isFinite(Number(inputValue.value));
 });
 
