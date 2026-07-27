@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Merge Sort — recursively split the array in half, sort each half, then merge
@@ -8,23 +9,22 @@ import { snap, done } from './_utils.js';
  * positions while merging. We count each write into the array as a swap so the
  * stats panel still reflects data movement.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* mergeSort(input) {
+export function* mergeSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 
-  function* msort(lo, hi) {
+  function* msort(lo: number, hi: number): Generator<SortStep, void, undefined> {
     if (hi - lo <= 1) return;
     const mid = (lo + hi) >> 1;
     yield* msort(lo, mid);
     yield* msort(mid, hi);
 
     // Merge a[lo..mid) and a[mid..hi) into a temporary buffer.
-    const merged = [];
+    const merged: number[] = [];
     let i = lo;
     let j = mid;
     while (i < mid && j < hi) {

@@ -16,11 +16,22 @@
 //     done:        boolean   // true only on the terminal snapshot
 //   }
 
+import type { SortStep } from '@/types';
+
 /**
  * Build an intermediate snapshot. The array is copied so downstream consumers
  * can hold onto a step without it mutating underneath them.
  */
-export const snap = (array, comparing, swapping, sorted, comparisons, swaps) => ({
+export const snap = (
+  array: readonly number[],
+  comparing: number[],
+  swapping: number[],
+  // Every sort tracks finalized indices in a Set for O(1) membership; it is
+  // spread into a plain array on the way into the snapshot.
+  sorted: ReadonlySet<number>,
+  comparisons: number,
+  swaps: number,
+): SortStep => ({
   array: [...array],
   comparing,
   swapping,
@@ -34,7 +45,11 @@ export const snap = (array, comparing, swapping, sorted, comparisons, swaps) => 
  * Build the terminal snapshot. Every index is marked sorted so the UI can paint
  * the whole array green on completion.
  */
-export const done = (array, comparisons, swaps) => ({
+export const done = (
+  array: readonly number[],
+  comparisons: number,
+  swaps: number,
+): SortStep => ({
   array: [...array],
   comparing: [],
   swapping: [],

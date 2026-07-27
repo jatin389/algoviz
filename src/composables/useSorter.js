@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import { algorithms } from '../algorithms/index.js';
+import { algorithms } from '@/algorithms';
 
 /**
  * useSorter — the animation engine.

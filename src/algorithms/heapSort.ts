@@ -1,23 +1,23 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Heap Sort — build a max-heap in place, then repeatedly swap the root (largest
  * remaining element) to the end of the heap and sift the new root back down.
  * The sorted region grows from the tail.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* heapSort(input) {
+export function* heapSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 
   // Sift a[root] down until the subtree rooted at `root` satisfies the max-heap
   // property. `hi` is the last valid index still inside the heap.
-  function* siftDown(root, hi) {
+  function* siftDown(root: number, hi: number): Generator<SortStep, void, undefined> {
     while (2 * root + 1 <= hi) {
       let child = 2 * root + 1;
       // Pick the larger of the two children.

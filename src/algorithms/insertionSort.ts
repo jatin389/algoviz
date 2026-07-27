@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Insertion Sort — grow a sorted prefix one element at a time by shifting the
@@ -8,13 +9,12 @@ import { snap, done } from './_utils.js';
  * are not yet in their global final positions — so we intentionally do not mark
  * any index green until the terminal snapshot.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* insertionSort(input) {
+export function* insertionSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 

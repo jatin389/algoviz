@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Shell Sort — a generalization of insertion sort that first compares and
@@ -9,13 +10,12 @@ import { snap, done } from './_utils.js';
  * As with insertion sort, elements are not in a globally final position until
  * the whole run completes, so no index is marked sorted mid-run.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* shellSort(input) {
+export function* shellSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 

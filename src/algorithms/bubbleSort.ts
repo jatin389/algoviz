@@ -1,17 +1,17 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Bubble Sort — repeatedly step through the list, comparing adjacent pairs and
  * swapping them if they are out of order. After each outer pass the largest
  * remaining element "bubbles" to its final position at the tail.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* bubbleSort(input) {
+export function* bubbleSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 

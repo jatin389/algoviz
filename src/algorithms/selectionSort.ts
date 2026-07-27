@@ -1,17 +1,17 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Selection Sort — for each position, scan the unsorted remainder to find the
  * minimum element, then swap it into place. The sorted region grows from the
  * head of the array.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* selectionSort(input) {
+export function* selectionSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 

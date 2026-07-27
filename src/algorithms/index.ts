@@ -1,13 +1,17 @@
-import { bubbleSort } from './bubbleSort.js';
-import { selectionSort } from './selectionSort.js';
-import { insertionSort } from './insertionSort.js';
-import { mergeSort } from './mergeSort.js';
-import { quickSort } from './quickSort.js';
-import { heapSort } from './heapSort.js';
-import { shellSort } from './shellSort.js';
-import { combSort } from './combSort.js';
-import { countingSort } from './countingSort.js';
-import { radixSort } from './radixSort.js';
+import type { AlgorithmFn, AlgorithmMeta, SortStep } from '@/types';
+import { bubbleSort } from './bubbleSort';
+import { selectionSort } from './selectionSort';
+import { insertionSort } from './insertionSort';
+import { mergeSort } from './mergeSort';
+import { quickSort } from './quickSort';
+import { heapSort } from './heapSort';
+import { shellSort } from './shellSort';
+import { combSort } from './combSort';
+import { countingSort } from './countingSort';
+import { radixSort } from './radixSort';
+
+export type SortFn = AlgorithmFn<SortStep, [number[]]>;
+export type SortAlgorithm = AlgorithmMeta<SortFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
@@ -107,7 +111,10 @@ export const algorithms = {
     },
     stable: true,
   },
-};
+} satisfies Record<string, SortAlgorithm>;
+
+/** Literal union of the registry keys: 'bubble' | 'selection' | ... */
+export type SortAlgoKey = keyof typeof algorithms;
 
 // Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList = Object.values(algorithms);
+export const algorithmList: SortAlgorithm[] = Object.values(algorithms);

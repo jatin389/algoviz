@@ -1,14 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { algorithms, algorithmList } from './index.js';
+import type { SortStep } from '@/types';
+import { algorithms, algorithmList } from './index';
+import type { SortAlgoKey, SortFn } from './index';
 
 // Drive a generator to completion and return the sequence of snapshots.
-function runToCompletion(generator, input) {
-  const steps = [];
+function runToCompletion(generator: SortFn, input: number[]): SortStep[] {
+  const steps: SortStep[] = [];
   for (const step of generator([...input])) steps.push(step);
   return steps;
 }
 
-function isSorted(arr) {
+function isSorted(arr: number[]): boolean {
   return arr.every((v, i) => i === 0 || arr[i - 1] <= v);
 }
 
@@ -51,7 +53,7 @@ describe('sorting algorithm generators', () => {
       });
 
       it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key].generator).toBe(generator);
+        expect(algorithms[key as SortAlgoKey].generator).toBe(generator);
       });
     });
   }

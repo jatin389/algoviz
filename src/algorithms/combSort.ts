@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 // Standard shrink factor from the original Comb Sort paper (Box & Lacey, 1980).
 const SHRINK_FACTOR = 1.3;
@@ -14,13 +15,12 @@ const SHRINK_FACTOR = 1.3;
  * The shrinking gap means no index can be considered in its final position
  * until the terminal snapshot.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* combSort(input) {
+export function* combSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 

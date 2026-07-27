@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 const BASE = 10; // decimal digits
 
@@ -15,13 +16,12 @@ const BASE = 10; // decimal digits
  * Assumes non-negative integer input, which holds for every array this app
  * generates.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* radixSort(input) {
+export function* radixSort(input: number[]): Generator<SortStep, void, undefined> {
   let a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   const comparisons = 0; // never incremented — this sort makes no comparisons
   let swaps = 0;
 
@@ -34,7 +34,7 @@ export function* radixSort(input) {
 
   // exp = 1, 10, 100, ... selects the ones, tens, hundreds, ... digit.
   for (let exp = 1; Math.floor(max / exp) > 0; exp *= BASE) {
-    const digitOf = (value) => Math.floor(value / exp) % BASE;
+    const digitOf = (value: number) => Math.floor(value / exp) % BASE;
     const count = new Array(BASE).fill(0);
 
     // Tally occurrences of the current digit across the array.

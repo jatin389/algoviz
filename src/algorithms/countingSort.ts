@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Counting Sort — tallies how many times each value occurs, converts those
@@ -11,13 +12,12 @@ import { snap, done } from './_utils.js';
  * Assumes non-negative integer input, which holds for every array this app
  * generates.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* countingSort(input) {
+export function* countingSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
   const n = a.length;
-  const sorted = new Set();
+  const sorted = new Set<number>();
   const comparisons = 0; // never incremented — this sort makes no comparisons
   let swaps = 0;
 

@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SortStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Quick Sort (Lomuto partition scheme) — pick the last element as the pivot,
@@ -6,16 +7,15 @@ import { snap, done } from './_utils.js';
  * the right, then recurse into each side. The pivot lands in its final position
  * after every partition.
  *
- * @param {number[]} input
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* quickSort(input) {
+export function* quickSort(input: number[]): Generator<SortStep, void, undefined> {
   const a = [...input];
-  const sorted = new Set();
+  const sorted = new Set<number>();
   let comparisons = 0;
   let swaps = 0;
 
-  function* qsort(lo, hi) {
+  function* qsort(lo: number, hi: number): Generator<SortStep, void, undefined> {
     if (lo > hi) return;
     if (lo === hi) {
       sorted.add(lo);
