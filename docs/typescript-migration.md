@@ -10,7 +10,7 @@
 
 # ⏸ RESUME HERE — execution state as of 2026-07-27
 
-**Branch:** `feat/ts-phase2-composables`, cut from `feat/typescript-migration` (6 commits, pushed) · **PR:** https://github.com/jatin389/algoviz/pull/1
+**Branch:** `feat/ts-phase3-components` (Phases 3–4), cut from `feat/ts-phase2-composables` (Phase 2), cut from `feat/typescript-migration` (Phases 0–1, pushed) · **PR:** https://github.com/jatin389/algoviz/pull/1 — note none of the phase branches after the first are pushed yet.
 
 | Phase                                  | Status           |
 | -------------------------------------- | ---------------- |
@@ -18,11 +18,11 @@
 | 1 — Types module + all algorithms → TS | ✅ complete      |
 | 2 — Composables → TS + timer-leak fix  | ✅ complete      |
 | 3 — 27 `.vue` → `lang="ts"`            | ✅ complete      |
-| **4 — vue-router**                     | ⏭ **START HERE** |
-| 5 — UI primitives + a11y               | pending          |
+| 4 — vue-router                         | ✅ complete      |
+| **5 — UI primitives + a11y**           | ⏭ **START HERE** |
 | 6 — `allowJs: false` + CI gates        | pending          |
 
-**The codebase is now fully TypeScript.** Every `src/` file is `.ts` or a `.vue` with `lang="ts"`. Phases 4–6 are feature/cleanup work, not conversion. (The plan said 28 `.vue`; the real count is 27.)
+**The codebase is now fully TypeScript.** Every `src/` file is `.ts` or a `.vue` with `lang="ts"`. Phases 5–6 are feature/cleanup work, not conversion. (The plan said 28 `.vue`; the real count is 27.)
 
 **Gate command** (must be green before committing any phase):
 
@@ -48,7 +48,8 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
     This mattered because all four `*AlgorithmSelector.vue` iterate `algorithmList` and emit `algo.key` back into a `Ref<SortAlgoKey>` — it would have been `TS2322` in four files the instant Phase 3 added `lang="ts"`. Replaced all four `satisfies` clauses with `defineRegistry<SortAlgorithm>()({ ... })` ([src/algorithms/\_registry.ts](src/algorithms/_registry.ts)), a curried identity helper whose mapped parameter both preserves the literal `key` and pins each entry's `key` to the property it is stored under — so `radix: { key: 'counting' }` is now a compile error too. `algorithmList` is deliberately left unannotated; re-adding one would undo it. Verified by probe: `algorithmList[0].key` assigns to `SortAlgoKey` in all four domains.
 
 11. **An `in` check does not strip `undefined` from a _declared optional_ property.** TS 5.6's `in` narrowing only helps for undeclared props, so `if ('extracted' in value) lastExtracted.value = value.extracted` still sees `number | null | undefined`. `useHeap.ts` uses `as number | null` there; a `?? null` would compile but would change what gets stored.
-12. **`useBST`/`useHeap`'s `insert`/`remove` take `unknown`, not `number`** — deliberate. Both already validate with `typeof value !== 'number' || !Number.isFinite(value)`. Typing the param `number` would make that guard statically dead and would push a runtime change into the Phase 3 `.vue` caller that passes a raw input value. Keep `unknown`; it narrows to `number` at the call to `insertBST`/`insertHeap`.
+12. **Tailwind's content scanner reads prose, so a comment can add CSS.** The `./src/**/*.{vue,js,ts}` glob is raw text matching — it does not parse. Any bare utility-shaped word anywhere in a scanned file emits that utility. Confirmed three times: `inline` in a comment (Phase 3), `routes.filter(...)` in code, and `route table` in a comment (Phase 4) each added a rule. **This is why the CSS-hash check must stay exact** — and when it trips, diff the two stylesheets and check whether classes were _removed_ (the real danger) before assuming the worst. Watch for: `inline`, `block`, `grid`, `flex`, `table`, `filter`, `container`, `hidden`, `fixed`, `static`, `visible`, `transform`.
+13. **`useBST`/`useHeap`'s `insert`/`remove` take `unknown`, not `number`** — deliberate. Both already validate with `typeof value !== 'number' || !Number.isFinite(value)`. Typing the param `number` would make that guard statically dead and would push a runtime change into the Phase 3 `.vue` caller that passes a raw input value. Keep `unknown`; it narrows to `number` at the call to `insertBST`/`insertHeap`.
 
 ### Known pre-existing bugs — reported, deliberately NOT fixed (out of scope for a type migration)
 
@@ -75,9 +76,24 @@ Baseline: 165 tests pass; 4 lint _warnings_ are expected and OK (deliberate `any
 
 **Tailwind scans prose, not just markup — a new comment changed the CSS bundle.** The word "inline" in the comment _"the inline template expression used to do…"_ (added to 4 control components) was picked up by the `./src/**/*.{vue,js,ts}` content glob and synthesized a `display:inline` rule, moving the hash to `index-kHn0utMX.css` / 22.54 kB. Diffing the two stylesheets showed **one class added, zero removed** — so nothing was dropped — but the comment was reworded to restore the exact `index-X6FNKZOQ.css` / 22.52 kB baseline. **Keep the CSS-hash invariant exact**; it is the only guard against a silently dropped class, and it is worth nothing once you start accepting "close enough". Watch for utility-shaped words (`inline`, `block`, `grid`, `flex`, `container`, `hidden`, `fixed`) in comments.
 
-### Phase 4 specifics (the immediate next step)
+### Phase 4 outcome (done)
 
-vue-router, inline (not delegated) — it rewrites `App.vue`, which is the one real conflict point. `App.vue` currently uses a `categories` array + `<component :is>`; Phase 3 typed it with a `CategoryKey` union and a `?? categories[0]` fallback for the `find`. All of that gets replaced. Use `createWebHashHistory(import.meta.env.BASE_URL)` — see the Phase 4 section below for why hash history, and do **not** add `<KeepAlive>`.
+`src/router/index.ts` with `createWebHashHistory(import.meta.env.BASE_URL)`, eager view imports, a catch-all redirect to `/sorting`, and the `RouteMeta.label` augmentation. `App.vue` lost its `categories` array, `CategoryKey` union, and `<component :is>`; nav is now `<RouterLink>` and the outlet is `<RouterView />`. vue-router resolved to 4.6.4 (plan said ^4.4.5). JS bundle 160 → 186 kB; CSS unchanged.
+
+Two deviations from the plan below, both deliberate:
+
+1. **Not `active-class`.** The plan called for it, but the nav's base and active styles are _conflicting_ Tailwind backgrounds (`bg-white/70` vs `bg-indigo-500`). `active-class` appends rather than replaces, so both would apply and stylesheet order would decide the winner. Kept the existing `$route.path === route.path` ternary instead — identical rendering, and it preserves the exact class strings the CSS-hash check depends on.
+2. **`navRoutes` is its own exported array**, with `routes` composed as `[...navRoutes, catchAll]` — rather than `App.vue` filtering on `meta.label` at runtime. Better anyway (a non-navigable route cannot leak into the tab bar), and it avoids `routes.filter(...)` generating a stray `.filter` utility — see below.
+
+**The Tailwind prose trap bit twice more in this phase**, which is why correction #13 exists: `routes.filter(...)` produced `.filter`, and the comment "the full route table" produced `.table`. Both were caught only by the CSS-hash check, both were confirmed additive (one class added, zero removed) by diffing the stylesheets, and both were designed out rather than accepted.
+
+**Verified in the browser:** `/` redirects to `#/sorting`; nav renders 6 anchors (an a11y upgrade over the previous `<button>`s); clicking updates the hash and the view; **the back button works**; exactly one tab highlights; `#/pathfinding` survives a hard refresh; built assets resolve under `/algoviz/`.
+
+**Critically, the Phase 2 timer disposal still holds under `<RouterView>`** — 8 timers scheduled while running, **0** in the 2s after a route change. This is the check that would catch someone adding `<KeepAlive>`, which would keep timer chains alive by design. Note the first two attempts at this measurement reported a false leak of exactly 1: the instrumented `setTimeout` was counting the _test's own_ `sleep()`. Use the saved uninstrumented reference for the harness's sleeps.
+
+### Phase 5 specifics (the immediate next step)
+
+UI primitives + a11y. Land `AvButton`/`AvPanel` first (mechanical), then `AvAlgorithmSelector` (structural). The four `*AlgorithmSelector.vue` are now `defineModel<XAlgoKey>()`, so the shared component needs a generic or a `string` model — decide which before delegating. **This is also the moment to delete the redundant `key` field from the registry entries** (see the note under correction #10): the selectors are being rewritten anyway, and doing so would let `_registry.ts` delete itself.
 
 ---
 
