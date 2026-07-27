@@ -1,4 +1,5 @@
-import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils.js';
+import type { Coord, Grid, PathStep } from '@/types';
+import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils';
 
 /**
  * Dijkstra's algorithm — repeatedly settles the unvisited cell with the
@@ -19,7 +20,11 @@ import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_
  * @param {{row:number, col:number}} end
  * @yields snapshot objects (see _utils.js)
  */
-export function* dijkstra(grid, start, end) {
+export function* dijkstra(
+  grid: Grid,
+  start: Coord,
+  end: Coord,
+): Generator<PathStep, void, undefined> {
   const { isOpen } = gridHelpers(grid);
 
   if (!isOpen(start.row, start.col) || !isOpen(end.row, end.col)) {
@@ -28,19 +33,19 @@ export function* dijkstra(grid, start, end) {
   }
 
   const startKey = keyOf(start.row, start.col);
-  const dist = new Map([[startKey, 0]]);
-  const cameFrom = new Map();
-  const settled = new Set();
-  const unsettled = new Map([[startKey, start]]); // key -> cell, awaiting settlement
-  const visitedOrder = [];
+  const dist = new Map<string, number>([[startKey, 0]]);
+  const cameFrom = new Map<string, Coord>();
+  const settled = new Set<string>();
+  const unsettled = new Map<string, Coord>([[startKey, start]]); // key -> cell, awaiting settlement
+  const visitedOrder: Coord[] = [];
 
   while (unsettled.size > 0) {
     // Array-scan for the unsettled cell with the smallest known distance.
-    let currentKey = null;
-    let current = null;
+    let currentKey: string | null = null;
+    let current: Coord | null = null;
     let currentDist = Infinity;
     for (const [k, cell] of unsettled) {
-      const d = dist.get(k);
+      const d = dist.get(k)!;
       if (d < currentDist) {
         currentDist = d;
         currentKey = k;
@@ -48,20 +53,20 @@ export function* dijkstra(grid, start, end) {
       }
     }
 
-    unsettled.delete(currentKey);
-    settled.add(currentKey);
-    visitedOrder.push(current);
+    unsettled.delete(currentKey!);
+    settled.add(currentKey!);
+    visitedOrder.push(current!);
 
     yield snap(visitedOrder, [...unsettled.values()], current);
 
-    if (current.row === end.row && current.col === end.col) {
+    if (current!.row === end.row && current!.col === end.col) {
       yield done(visitedOrder, reconstructPath(cameFrom, end));
       return;
     }
 
     for (const [dr, dc] of DIRECTIONS) {
-      const nr = current.row + dr;
-      const nc = current.col + dc;
+      const nr = current!.row + dr;
+      const nc = current!.col + dc;
       if (!isOpen(nr, nc)) continue;
       const nk = keyOf(nr, nc);
       if (settled.has(nk)) continue;
@@ -69,7 +74,7 @@ export function* dijkstra(grid, start, end) {
       const candidateDist = currentDist + 1;
       if (candidateDist < (dist.get(nk) ?? Infinity)) {
         dist.set(nk, candidateDist);
-        cameFrom.set(nk, current);
+        cameFrom.set(nk, current!);
         unsettled.set(nk, { row: nr, col: nc });
       }
     }

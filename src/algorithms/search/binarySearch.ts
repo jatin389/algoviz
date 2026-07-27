@@ -1,4 +1,5 @@
-import { snap, done } from './_utils.js';
+import type { SearchStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Binary Search — repeatedly halves the search range by comparing the target
@@ -8,11 +9,12 @@ import { snap, done } from './_utils.js';
  * composable) is responsible for only ever generating sorted arrays before
  * invoking this generator — unsorted input yields undefined behavior.
  *
- * @param {number[]} input sorted ascending
- * @param {number} target
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* binarySearch(input, target) {
+export function* binarySearch(
+  input: number[],
+  target: number,
+): Generator<SearchStep, void, undefined> {
   const a = [...input];
   let low = 0;
   let high = a.length - 1;

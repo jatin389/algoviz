@@ -1,6 +1,8 @@
 export type {
   AlgoStatus,
   Complexity,
+  TimeSpaceComplexity,
+  AnyComplexity,
   StepGenerator,
   AlgorithmFn,
   AlgorithmMeta,

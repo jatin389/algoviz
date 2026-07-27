@@ -1,9 +1,10 @@
-import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils.js';
+import type { Coord, Grid, PathStep } from '@/types';
+import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils';
 
 // Manhattan distance — admissible for 4-directional movement since it never
 // overestimates the true remaining cost (each step covers at most 1 row or
 // column of distance).
-function heuristic(row, col, end) {
+function heuristic(row: number, col: number, end: Coord): number {
   return Math.abs(row - end.row) + Math.abs(col - end.col);
 }
 
@@ -24,7 +25,11 @@ function heuristic(row, col, end) {
  * @param {{row:number, col:number}} end
  * @yields snapshot objects (see _utils.js)
  */
-export function* astar(grid, start, end) {
+export function* astar(
+  grid: Grid,
+  start: Coord,
+  end: Coord,
+): Generator<PathStep, void, undefined> {
   const { isOpen } = gridHelpers(grid);
 
   if (!isOpen(start.row, start.col) || !isOpen(end.row, end.col)) {
@@ -33,17 +38,17 @@ export function* astar(grid, start, end) {
   }
 
   const startKey = keyOf(start.row, start.col);
-  const gScore = new Map([[startKey, 0]]);
-  const fScore = new Map([[startKey, heuristic(start.row, start.col, end)]]);
-  const cameFrom = new Map();
-  const settled = new Set();
-  const open = new Map([[startKey, start]]); // key -> cell, awaiting settlement
-  const visitedOrder = [];
+  const gScore = new Map<string, number>([[startKey, 0]]);
+  const fScore = new Map<string, number>([[startKey, heuristic(start.row, start.col, end)]]);
+  const cameFrom = new Map<string, Coord>();
+  const settled = new Set<string>();
+  const open = new Map<string, Coord>([[startKey, start]]); // key -> cell, awaiting settlement
+  const visitedOrder: Coord[] = [];
 
   while (open.size > 0) {
     // Array-scan for the open cell with the smallest fScore.
-    let currentKey = null;
-    let current = null;
+    let currentKey: string | null = null;
+    let current: Coord | null = null;
     let currentF = Infinity;
     for (const [k, cell] of open) {
       const f = fScore.get(k) ?? Infinity;
@@ -54,22 +59,22 @@ export function* astar(grid, start, end) {
       }
     }
 
-    open.delete(currentKey);
-    settled.add(currentKey);
-    visitedOrder.push(current);
+    open.delete(currentKey!);
+    settled.add(currentKey!);
+    visitedOrder.push(current!);
 
     yield snap(visitedOrder, [...open.values()], current);
 
-    if (current.row === end.row && current.col === end.col) {
+    if (current!.row === end.row && current!.col === end.col) {
       yield done(visitedOrder, reconstructPath(cameFrom, end));
       return;
     }
 
-    const currentG = gScore.get(currentKey);
+    const currentG = gScore.get(currentKey!)!;
 
     for (const [dr, dc] of DIRECTIONS) {
-      const nr = current.row + dr;
-      const nc = current.col + dc;
+      const nr = current!.row + dr;
+      const nc = current!.col + dc;
       if (!isOpen(nr, nc)) continue;
       const nk = keyOf(nr, nc);
       if (settled.has(nk)) continue;
@@ -78,7 +83,7 @@ export function* astar(grid, start, end) {
       if (tentativeG < (gScore.get(nk) ?? Infinity)) {
         gScore.set(nk, tentativeG);
         fScore.set(nk, tentativeG + heuristic(nr, nc, end));
-        cameFrom.set(nk, current);
+        cameFrom.set(nk, current!);
         open.set(nk, { row: nr, col: nc });
       }
     }

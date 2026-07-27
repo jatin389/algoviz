@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { insertBST, deleteBST, inOrderTraversal } from './bst.js';
+import type { BSTNode, BSTStep } from '@/types';
+import { insertBST, deleteBST, inOrderTraversal } from './bst';
 
-function drain(generator) {
-  let last;
+function drain(generator: Generator<BSTStep, void, undefined>): BSTStep {
+  let last: BSTStep | undefined;
   for (const step of generator) last = step;
-  return last;
+  return last as BSTStep;
 }
 
-function buildTree(values) {
-  let root = null;
+function buildTree(values: number[]): BSTNode | null {
+  let root: BSTNode | null = null;
   for (const value of values) {
     root = drain(insertBST(root, value)).tree;
   }
@@ -43,8 +44,8 @@ describe('insertBST', () => {
     const tree = buildTree([10, 10, 10]);
     expect(inOrderTraversal(tree)).toEqual([10, 10, 10]);
     // Right-biased: every duplicate after the first lives in the right subtree chain.
-    expect(tree.right.value).toBe(10);
-    expect(tree.right.right.value).toBe(10);
+    expect(tree!.right!.value).toBe(10);
+    expect(tree!.right!.right!.value).toBe(10);
   });
 });
 

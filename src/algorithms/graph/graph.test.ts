@@ -1,19 +1,25 @@
 import { describe, it, expect } from 'vitest';
-import { algorithms, algorithmList } from './index.js';
+import type { GraphFn, GraphAlgoKey } from './index';
+import { algorithms, algorithmList } from './index';
+import type { GraphStep, NodeId } from '@/types';
 
 // Fixed adjacency fixtures built directly here (not via generateGraph, which
 // uses Math.random) so traversal assertions stay fully deterministic.
-function buildAdjacency(nodeIds, edges) {
-  const adjacency = new Map(nodeIds.map((id) => [id, []]));
+function buildAdjacency(nodeIds: NodeId[], edges: Array<[NodeId, NodeId]>): Map<NodeId, NodeId[]> {
+  const adjacency = new Map<NodeId, NodeId[]>(nodeIds.map((id) => [id, []]));
   for (const [a, b] of edges) {
-    adjacency.get(a).push(b);
-    adjacency.get(b).push(a);
+    adjacency.get(a)!.push(b);
+    adjacency.get(b)!.push(a);
   }
   return adjacency;
 }
 
-function runToCompletion(generator, adjacency, startId) {
-  const steps = [];
+function runToCompletion(
+  generator: GraphFn,
+  adjacency: Map<NodeId, NodeId[]>,
+  startId: NodeId,
+): GraphStep[] {
+  const steps: GraphStep[] = [];
   for (const step of generator(adjacency, startId)) steps.push(step);
   return steps;
 }
@@ -54,7 +60,9 @@ describe('graph traversal generators', () => {
         expect(last.done).toBe(true);
         expect(last.visited).toHaveLength(5);
         expect(new Set(last.visited).size).toBe(5);
-        expect([...last.visited].sort((a, b) => a - b)).toEqual([0, 1, 2, 3, 4]);
+        expect([...last.visited].sort((a, b) => (a as number) - (b as number))).toEqual([
+          0, 1, 2, 3, 4,
+        ]);
       });
 
       it('only visits nodes reachable from the start in a disconnected graph', () => {
@@ -109,7 +117,7 @@ describe('graph traversal generators', () => {
       });
 
       it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key].generator).toBe(generator);
+        expect(algorithms[key as GraphAlgoKey].generator).toBe(generator);
       });
     });
   }

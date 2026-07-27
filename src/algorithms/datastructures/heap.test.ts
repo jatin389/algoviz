@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { insertHeap, extractRootHeap } from './heap.js';
+import type { HeapStep } from '@/types';
+import { insertHeap, extractRootHeap } from './heap';
 
-function drain(generator) {
-  let last;
+function drain(generator: Generator<HeapStep, void, undefined>): HeapStep {
+  let last: HeapStep | undefined;
   for (const step of generator) last = step;
-  return last;
+  return last as HeapStep;
 }
 
-function checkHeapProperty(heap, isMinHeap) {
+function checkHeapProperty(heap: number[], isMinHeap: boolean): void {
   for (let i = 0; i < heap.length; i++) {
     const left = 2 * i + 1;
     const right = 2 * i + 2;
@@ -26,7 +27,7 @@ const sample = [42, 7, 13, 99, 1, 56, 23, 8, 71, 4, 30, 65];
 
 describe('insertHeap', () => {
   it('maintains the min-heap property after each insert', () => {
-    let heap = [];
+    let heap: number[] = [];
     for (const value of sample) {
       heap = drain(insertHeap(heap, value, true)).heap;
       checkHeapProperty(heap, true);
@@ -35,7 +36,7 @@ describe('insertHeap', () => {
   });
 
   it('maintains the max-heap property after each insert', () => {
-    let heap = [];
+    let heap: number[] = [];
     for (const value of sample) {
       heap = drain(insertHeap(heap, value, false)).heap;
       checkHeapProperty(heap, false);
@@ -52,13 +53,13 @@ describe('insertHeap', () => {
 
 describe('extractRootHeap', () => {
   it('returns values in non-decreasing order from a min-heap', () => {
-    let heap = [];
+    let heap: number[] = [];
     for (const value of sample) heap = drain(insertHeap(heap, value, true)).heap;
 
-    const extractedOrder = [];
+    const extractedOrder: number[] = [];
     while (heap.length > 0) {
       const step = drain(extractRootHeap(heap, true));
-      extractedOrder.push(step.extracted);
+      extractedOrder.push(step.extracted!);
       heap = step.heap;
       checkHeapProperty(heap, true);
     }
@@ -69,13 +70,13 @@ describe('extractRootHeap', () => {
   });
 
   it('returns values in non-increasing order from a max-heap', () => {
-    let heap = [];
+    let heap: number[] = [];
     for (const value of sample) heap = drain(insertHeap(heap, value, false)).heap;
 
-    const extractedOrder = [];
+    const extractedOrder: number[] = [];
     while (heap.length > 0) {
       const step = drain(extractRootHeap(heap, false));
-      extractedOrder.push(step.extracted);
+      extractedOrder.push(step.extracted!);
       heap = step.heap;
       checkHeapProperty(heap, false);
     }

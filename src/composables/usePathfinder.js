@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import { algorithms } from '../algorithms/pathfinding/index.js';
+import { algorithms } from '@/algorithms/pathfinding';
 
 const ROWS = 15;
 const COLS = 25;

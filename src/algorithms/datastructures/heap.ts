@@ -4,19 +4,22 @@
 // (i-1)>>1. `isMinHeap` flips comparison direction so the same sift routines
 // serve both a min-heap and a max-heap.
 
-function higherPriority(a, b, isMinHeap) {
+import type { HeapStep } from '@/types';
+
+function higherPriority(a: number, b: number, isMinHeap: boolean): boolean {
   return isMinHeap ? a < b : a > b;
 }
 
 /**
  * Push `value` onto the end and sift it up until the heap property holds.
  *
- * @param {number[]} heapArray
- * @param {number} value
- * @param {boolean} isMinHeap
- * @yields {{ heap: number[], comparing: number[], swapping: number[], done: boolean }}
+ * @yields snapshot objects (see @/types HeapStep)
  */
-export function* insertHeap(heapArray, value, isMinHeap) {
+export function* insertHeap(
+  heapArray: number[],
+  value: number,
+  isMinHeap: boolean,
+): Generator<HeapStep, void, undefined> {
   const a = [...heapArray, value];
   let i = a.length - 1;
 
@@ -41,11 +44,12 @@ export function* insertHeap(heapArray, value, isMinHeap) {
  * root, then sift it down. Yields a single terminal snapshot on an empty
  * heap instead of throwing.
  *
- * @param {number[]} heapArray
- * @param {boolean} isMinHeap
- * @yields {{ heap: number[], comparing: number[], swapping: number[], done: boolean, extracted?: number }}
+ * @yields snapshot objects (see @/types HeapStep)
  */
-export function* extractRootHeap(heapArray, isMinHeap) {
+export function* extractRootHeap(
+  heapArray: number[],
+  isMinHeap: boolean,
+): Generator<HeapStep, void, undefined> {
   if (heapArray.length === 0) {
     yield { heap: [], comparing: [], swapping: [], done: true, extracted: null };
     return;
@@ -53,7 +57,8 @@ export function* extractRootHeap(heapArray, isMinHeap) {
 
   const a = [...heapArray];
   const extracted = a[0];
-  const last = a.pop();
+  // Guarded by the length check above, so pop() cannot return undefined here.
+  const last = a.pop() as number;
 
   if (a.length === 0) {
     yield { heap: [], comparing: [], swapping: [], done: true, extracted };

@@ -1,6 +1,6 @@
 // Shared step-snapshot helpers used by every search generator.
 //
-// Mirrors the sorting `_utils.js` pattern: each generator yields a plain,
+// Mirrors the sorting `_utils.ts` pattern: each generator yields a plain,
 // serializable object describing the *state of the world* at one step. The UI
 // only ever reads these fields, never the algorithm internals.
 //
@@ -17,11 +17,21 @@
 //     done:        boolean        // true only on the terminal snapshot
 //   }
 
+import type { SearchStep } from '@/types';
+
 /**
  * Build an intermediate snapshot. The array is copied so downstream consumers
  * can hold onto a step without it mutating underneath them.
  */
-export const snap = (array, low, high, mid, checking, target, comparisons) => ({
+export const snap = (
+  array: readonly number[],
+  low: number | null,
+  high: number | null,
+  mid: number | null,
+  checking: number | null,
+  target: number,
+  comparisons: number,
+): SearchStep => ({
   array: [...array],
   low,
   high,
@@ -37,7 +47,12 @@ export const snap = (array, low, high, mid, checking, target, comparisons) => ({
  * Build the terminal snapshot. `foundIndex` stays null when the target was
  * never located, so the UI can distinguish "found" from "exhausted" outcomes.
  */
-export const done = (array, target, foundIndex, comparisons) => ({
+export const done = (
+  array: readonly number[],
+  target: number,
+  foundIndex: number | null,
+  comparisons: number,
+): SearchStep => ({
   array: [...array],
   low: null,
   high: null,

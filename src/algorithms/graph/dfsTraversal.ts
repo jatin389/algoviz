@@ -1,3 +1,5 @@
+import type { GraphStep, NodeId } from '@/types';
+
 // Depth-First Search over a generic node-link graph (adjacency list), not a
 // grid — kept independent from the grid-based pathfinding module.
 //
@@ -11,14 +13,13 @@
 //
 // Time: O(V + E), Space: O(V).
 
-/**
- * @param {Map<number|string, Array<number|string>>} adjacency
- * @param {number|string} startId
- */
-export function* dfsTraversal(adjacency, startId) {
-  const visited = [];
-  const visitedSet = new Set();
-  const stack = [];
+export function* dfsTraversal(
+  adjacency: Map<NodeId, NodeId[]>,
+  startId: NodeId,
+): Generator<GraphStep, void, undefined> {
+  const visited: NodeId[] = [];
+  const visitedSet = new Set<NodeId>();
+  const stack: NodeId[] = [];
 
   if (!adjacency.has(startId)) {
     yield { visited, frontier: [], current: null, done: true };
@@ -28,7 +29,7 @@ export function* dfsTraversal(adjacency, startId) {
   stack.push(startId);
 
   while (stack.length > 0) {
-    const current = stack.pop();
+    const current = stack.pop()!;
     // A node can be pushed more than once before it's visited; skip re-processing.
     if (visitedSet.has(current)) continue;
 

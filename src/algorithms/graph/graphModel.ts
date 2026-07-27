@@ -1,3 +1,5 @@
+import type { GraphEdge, GraphModel, GraphNode } from '@/types';
+
 // Deterministic demo-graph generator for the traversal vertical.
 //
 // This is a generic node-link graph (nodes + edges), not a grid — it has no
@@ -9,16 +11,12 @@ const VIEWBOX_SIZE = 400;
 const RADIUS_RATIO = 0.42; // circle radius relative to the SVG viewBox
 const EXTRA_EDGE_RATIO = 0.35; // extra chord edges added, roughly proportional to node count
 
-/**
- * @param {number} nodeCount
- * @returns {{ nodes: Array<{id:number,label:string,x:number,y:number}>, edges: Array<{id:string,from:number,to:number}>, adjacency: Map<number, number[]> }}
- */
-export function generateGraph(nodeCount = 10) {
+export function generateGraph(nodeCount = 10): GraphModel {
   const n = Math.max(1, Math.floor(nodeCount));
   const center = VIEWBOX_SIZE / 2;
   const radius = VIEWBOX_SIZE * RADIUS_RATIO;
 
-  const nodes = Array.from({ length: n }, (_, i) => {
+  const nodes: GraphNode[] = Array.from({ length: n }, (_, i) => {
     // Start at the top (-90deg) and go clockwise so the layout reads naturally.
     const theta = (2 * Math.PI * i) / n - Math.PI / 2;
     return {
@@ -29,10 +27,10 @@ export function generateGraph(nodeCount = 10) {
     };
   });
 
-  const edgeKeys = new Set();
-  const edges = [];
+  const edgeKeys = new Set<string>();
+  const edges: GraphEdge[] = [];
 
-  function addEdge(from, to) {
+  function addEdge(from: number, to: number) {
     if (from === to) return;
     const key = from < to ? `${from}-${to}` : `${to}-${from}`;
     if (edgeKeys.has(key)) return;
@@ -54,10 +52,10 @@ export function generateGraph(nodeCount = 10) {
     addEdge(a, b);
   }
 
-  const adjacency = new Map(nodes.map((node) => [node.id, []]));
+  const adjacency = new Map<number, number[]>(nodes.map((node) => [node.id, []]));
   for (const edge of edges) {
-    adjacency.get(edge.from).push(edge.to);
-    adjacency.get(edge.to).push(edge.from);
+    adjacency.get(edge.from)!.push(edge.to);
+    adjacency.get(edge.to)!.push(edge.from);
   }
 
   return { nodes, edges, adjacency };

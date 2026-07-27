@@ -1,4 +1,5 @@
-import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils.js';
+import type { Coord, Grid, PathStep } from '@/types';
+import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils';
 
 /**
  * Depth-First Search — dives down one path as far as it can go before
@@ -17,7 +18,11 @@ import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_
  * @param {{row:number, col:number}} end
  * @yields snapshot objects (see _utils.js)
  */
-export function* dfs(grid, start, end) {
+export function* dfs(
+  grid: Grid,
+  start: Coord,
+  end: Coord,
+): Generator<PathStep, void, undefined> {
   const { isOpen } = gridHelpers(grid);
 
   if (!isOpen(start.row, start.col) || !isOpen(end.row, end.col)) {
@@ -25,13 +30,13 @@ export function* dfs(grid, start, end) {
     return;
   }
 
-  const cameFrom = new Map();
+  const cameFrom = new Map<string, Coord>();
   const discovered = new Set([keyOf(start.row, start.col)]);
-  const visitedOrder = [];
-  const stack = [start];
+  const visitedOrder: Coord[] = [];
+  const stack: Coord[] = [start];
 
   while (stack.length > 0) {
-    const current = stack.pop();
+    const current = stack.pop()!;
     visitedOrder.push(current);
 
     yield snap(visitedOrder, stack, current);

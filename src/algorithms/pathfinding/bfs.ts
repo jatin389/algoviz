@@ -1,4 +1,5 @@
-import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils.js';
+import type { Coord, Grid, PathStep } from '@/types';
+import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_utils';
 
 /**
  * Breadth-First Search — explores the grid one ring of distance at a time via
@@ -11,7 +12,11 @@ import { snap, done, DIRECTIONS, keyOf, gridHelpers, reconstructPath } from './_
  * @param {{row:number, col:number}} end
  * @yields snapshot objects (see _utils.js)
  */
-export function* bfs(grid, start, end) {
+export function* bfs(
+  grid: Grid,
+  start: Coord,
+  end: Coord,
+): Generator<PathStep, void, undefined> {
   const { isOpen } = gridHelpers(grid);
 
   // A walled start/end can never be reached — bail out cleanly rather than
@@ -21,13 +26,13 @@ export function* bfs(grid, start, end) {
     return;
   }
 
-  const cameFrom = new Map();
+  const cameFrom = new Map<string, Coord>();
   const discovered = new Set([keyOf(start.row, start.col)]);
-  const visitedOrder = [];
-  const queue = [start];
+  const visitedOrder: Coord[] = [];
+  const queue: Coord[] = [start];
 
   while (queue.length > 0) {
-    const current = queue.shift();
+    const current = queue.shift()!;
     visitedOrder.push(current);
 
     yield snap(visitedOrder, queue, current);

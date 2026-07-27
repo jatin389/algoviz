@@ -89,7 +89,13 @@ export interface GraphEdge {
 export interface GraphModel {
   nodes: GraphNode[];
   edges: GraphEdge[];
-  adjacency: Map<number, number[]>;
+  /**
+   * Keyed by NodeId rather than number even though the demo generator only
+   * produces numeric ids: Map is invariant in TypeScript, so a
+   * Map<number, number[]> would not be assignable to the traversal
+   * generators' Map<NodeId, NodeId[]> parameter.
+   */
+  adjacency: Map<NodeId, NodeId[]>;
 }
 
 export interface GraphStep {

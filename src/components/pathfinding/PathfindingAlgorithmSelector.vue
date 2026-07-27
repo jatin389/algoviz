@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { algorithmList } from '../../algorithms/pathfinding/index.js';
+import { algorithmList } from '@/algorithms/pathfinding';
 
 const props = defineProps({
   modelValue: { type: String, required: true },

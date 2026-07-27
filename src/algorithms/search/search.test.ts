@@ -1,9 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { algorithms, algorithmList } from './index.js';
+import type { SearchStep } from '@/types';
+import { algorithms, algorithmList } from './index';
+import type { SearchAlgoKey, SearchFn } from './index';
 
 // Drive a generator to completion and return the sequence of snapshots.
-function runToCompletion(generator, input, target) {
-  const steps = [];
+function runToCompletion(generator: SearchFn, input: number[], target: number): SearchStep[] {
+  const steps: SearchStep[] = [];
   for (const step of generator([...input], target)) steps.push(step);
   return steps;
 }
@@ -36,7 +38,7 @@ describe('search algorithm generators', () => {
           expect(last.done).toBe(true);
           if (found) {
             expect(last.foundIndex).not.toBeNull();
-            expect(array[last.foundIndex]).toBe(target);
+            expect(array[last.foundIndex as number]).toBe(target);
           } else {
             expect(last.foundIndex).toBeNull();
           }
@@ -53,7 +55,7 @@ describe('search algorithm generators', () => {
       });
 
       it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key].generator).toBe(generator);
+        expect(algorithms[key as SearchAlgoKey].generator).toBe(generator);
       });
     });
   }

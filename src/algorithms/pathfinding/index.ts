@@ -1,7 +1,11 @@
-import { bfs } from './bfs.js';
-import { dfs } from './dfs.js';
-import { dijkstra } from './dijkstra.js';
-import { astar } from './astar.js';
+import type { AlgorithmFn, AlgorithmMeta, Coord, Grid, PathStep } from '@/types';
+import { bfs } from './bfs';
+import { dfs } from './dfs';
+import { dijkstra } from './dijkstra';
+import { astar } from './astar';
+
+export type PathFn = AlgorithmFn<PathStep, [Grid, Coord, Coord]>;
+export type PathAlgorithm = AlgorithmMeta<PathFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
@@ -58,7 +62,10 @@ export const algorithms = {
       space: 'O(rows×cols)',
     },
   },
-};
+} satisfies Record<string, PathAlgorithm>;
+
+/** Literal union of the registry keys: 'bfs' | 'dfs' | 'dijkstra' | 'astar' */
+export type PathAlgoKey = keyof typeof algorithms;
 
 // Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList = Object.values(algorithms);
+export const algorithmList: PathAlgorithm[] = Object.values(algorithms);

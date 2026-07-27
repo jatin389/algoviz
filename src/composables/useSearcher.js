@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import { algorithms } from '../algorithms/search/index.js';
+import { algorithms } from '@/algorithms/search';
 
 /**
  * useSearcher — the animation engine for the search vertical.

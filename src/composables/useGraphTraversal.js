@@ -1,6 +1,6 @@
 import { ref, reactive, computed } from 'vue';
-import { generateGraph } from '../algorithms/graph/graphModel.js';
-import { algorithms } from '../algorithms/graph/index.js';
+import { generateGraph } from '@/algorithms/graph/graphModel';
+import { algorithms } from '@/algorithms/graph';
 
 const DEFAULT_NODE_COUNT = 10;
 

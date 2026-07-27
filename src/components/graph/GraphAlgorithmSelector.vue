@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { algorithmList } from '../../algorithms/graph/index.js';
+import { algorithmList } from '@/algorithms/graph';
 
 const props = defineProps({
   modelValue: { type: String, required: true },

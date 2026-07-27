@@ -1,3 +1,5 @@
+import type { GraphStep, NodeId } from '@/types';
+
 // Breadth-First Search over a generic node-link graph (adjacency list), not a
 // grid — kept independent from the grid-based pathfinding module.
 //
@@ -11,14 +13,13 @@
 // Time: O(V + E) — every node is dequeued once, every edge examined once from
 // each endpoint. Space: O(V) for the visited set and queue.
 
-/**
- * @param {Map<number|string, Array<number|string>>} adjacency
- * @param {number|string} startId
- */
-export function* bfsTraversal(adjacency, startId) {
-  const visited = [];
-  const visitedSet = new Set();
-  const queue = [];
+export function* bfsTraversal(
+  adjacency: Map<NodeId, NodeId[]>,
+  startId: NodeId,
+): Generator<GraphStep, void, undefined> {
+  const visited: NodeId[] = [];
+  const visitedSet = new Set<NodeId>();
+  const queue: NodeId[] = [];
 
   if (!adjacency.has(startId)) {
     yield { visited, frontier: [], current: null, done: true };
@@ -29,7 +30,7 @@ export function* bfsTraversal(adjacency, startId) {
   visitedSet.add(startId);
 
   while (queue.length > 0) {
-    const current = queue.shift();
+    const current = queue.shift()!;
     visited.push(current);
 
     for (const neighbor of adjacency.get(current) ?? []) {

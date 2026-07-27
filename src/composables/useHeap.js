@@ -1,5 +1,5 @@
 import { ref, reactive, computed } from 'vue';
-import { insertHeap, extractRootHeap } from '../algorithms/datastructures/heap.js';
+import { insertHeap, extractRootHeap } from '@/algorithms/datastructures/heap';
 
 /**
  * useHeap — the heap operation-playback engine.

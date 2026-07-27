@@ -10,13 +10,15 @@
 // caller (history, tests) can't be mutated out from under it by a later step
 // of the same generator.
 
+import type { BSTNode, BSTStep } from '@/types';
+
 let nextId = 1;
 
-function makeNode(value) {
+function makeNode(value: number): BSTNode {
   return { id: nextId++, value, left: null, right: null };
 }
 
-function cloneTree(node) {
+function cloneTree(node: BSTNode | null): BSTNode | null {
   if (!node) return null;
   return {
     id: node.id,
@@ -33,12 +35,13 @@ function cloneTree(node) {
  * stays a valid multiset-supporting BST — this is a deliberate, documented
  * choice, not an accidental side effect.
  *
- * @param {object|null} root
- * @param {number} value
- * @yields {{ tree: object|null, visiting: number|null, phase: 'searching'|'inserted', done: boolean }}
+ * @yields snapshot objects (see @/types BSTStep)
  */
-export function* insertBST(root, value) {
-  let workingRoot = cloneTree(root);
+export function* insertBST(
+  root: BSTNode | null,
+  value: number,
+): Generator<BSTStep, void, undefined> {
+  const workingRoot = cloneTree(root);
 
   if (!workingRoot) {
     const created = makeNode(value);
@@ -84,15 +87,16 @@ export function* insertBST(root, value) {
  * removal splices in the in-order successor (smallest value in the right
  * subtree) to preserve the BST invariant.
  *
- * @param {object|null} root
- * @param {number} value
- * @yields {{ tree: object|null, visiting: number|null, phase: 'searching'|'removing'|'deleted'|'not-found', done: boolean }}
+ * @yields snapshot objects (see @/types BSTStep)
  */
-export function* deleteBST(root, value) {
+export function* deleteBST(
+  root: BSTNode | null,
+  value: number,
+): Generator<BSTStep, void, undefined> {
   const workingRoot = cloneTree(root);
 
-  let cursor = workingRoot;
-  let parent = null;
+  let cursor: BSTNode | null = workingRoot;
+  let parent: BSTNode | null = null;
   while (cursor && cursor.value !== value) {
     yield { tree: cloneTree(workingRoot), visiting: cursor.id, phase: 'searching', done: false };
     parent = cursor;
@@ -137,7 +141,7 @@ export function* deleteBST(root, value) {
 }
 
 /** Plain in-order traversal, used to assert the BST invariant in tests. */
-export function inOrderTraversal(root) {
+export function inOrderTraversal(root: BSTNode | null): number[] {
   if (!root) return [];
   return [...inOrderTraversal(root.left), root.value, ...inOrderTraversal(root.right)];
 }

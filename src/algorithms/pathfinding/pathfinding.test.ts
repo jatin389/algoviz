@@ -1,20 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { algorithms, algorithmList } from './index.js';
+import type { Coord, Grid, PathStep } from '@/types';
+import type { PathAlgoKey, PathFn } from './index';
+import { algorithms, algorithmList } from './index';
 
 // Drive a generator to completion and return the sequence of snapshots.
-function runToCompletion(generator, grid, start, end) {
-  const steps = [];
+function runToCompletion(generator: PathFn, grid: Grid, start: Coord, end: Coord): PathStep[] {
+  const steps: PathStep[] = [];
   for (const step of generator(grid, start, end)) steps.push(step);
   return steps;
 }
 
-function makeOpenGrid(rows, cols) {
+function makeOpenGrid(rows: number, cols: number): Grid {
   return Array.from({ length: rows }, () => Array(cols).fill(0));
 }
 
 // A path is valid if it starts at `start`, ends at `end`, never touches a
 // wall, and every consecutive pair of cells is 4-directionally adjacent.
-function isValidPath(path, grid, start, end) {
+function isValidPath(path: Coord[], grid: Grid, start: Coord, end: Coord): boolean {
   if (path.length === 0) return false;
   const first = path[0];
   const last = path[path.length - 1];
@@ -34,8 +36,8 @@ function isValidPath(path, grid, start, end) {
 }
 
 const openGrid = makeOpenGrid(5, 5);
-const openStart = { row: 0, col: 0 };
-const openEnd = { row: 4, col: 4 };
+const openStart: Coord = { row: 0, col: 0 };
+const openEnd: Coord = { row: 4, col: 4 };
 
 // A wall column blocks every row but one, forcing any path to detour through
 // the single gap at row 4 rather than crossing straight through.
@@ -44,8 +46,8 @@ const detourGrid = (() => {
   for (let row = 0; row < 4; row++) grid[row][3] = 1;
   return grid;
 })();
-const detourStart = { row: 0, col: 0 };
-const detourEnd = { row: 0, col: 6 };
+const detourStart: Coord = { row: 0, col: 0 };
+const detourEnd: Coord = { row: 0, col: 6 };
 
 // A full wall column with no gap anywhere completely separates start from end.
 const unreachableGrid = (() => {
@@ -53,14 +55,14 @@ const unreachableGrid = (() => {
   for (let row = 0; row < 5; row++) grid[row][2] = 1;
   return grid;
 })();
-const unreachableStart = { row: 0, col: 0 };
-const unreachableEnd = { row: 0, col: 4 };
+const unreachableStart: Coord = { row: 0, col: 0 };
+const unreachableEnd: Coord = { row: 0, col: 4 };
 
 describe('pathfinding algorithm generators', () => {
   for (const { key, name, generator } of algorithmList) {
     describe(name, () => {
       it(`is registered under key "${key}"`, () => {
-        expect(algorithms[key].generator).toBe(generator);
+        expect(algorithms[key as PathAlgoKey].generator).toBe(generator);
       });
 
       it('accumulates visited monotonically and marks only the last snapshot done', () => {
@@ -103,7 +105,7 @@ describe('pathfinding algorithm generators', () => {
   }
 
   it('bfs, dijkstra, and astar all find equally-shortest paths on the open grid', () => {
-    const lengths = ['bfs', 'dijkstra', 'astar'].map((key) => {
+    const lengths = (['bfs', 'dijkstra', 'astar'] as PathAlgoKey[]).map((key) => {
       const steps = runToCompletion(algorithms[key].generator, openGrid, openStart, openEnd);
       return steps[steps.length - 1].path.length;
     });
@@ -112,7 +114,7 @@ describe('pathfinding algorithm generators', () => {
   });
 
   it('bfs, dijkstra, and astar all find equally-shortest paths on the detour grid', () => {
-    const lengths = ['bfs', 'dijkstra', 'astar'].map((key) => {
+    const lengths = (['bfs', 'dijkstra', 'astar'] as PathAlgoKey[]).map((key) => {
       const steps = runToCompletion(algorithms[key].generator, detourGrid, detourStart, detourEnd);
       return steps[steps.length - 1].path.length;
     });

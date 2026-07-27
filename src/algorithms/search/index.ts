@@ -1,5 +1,9 @@
-import { linearSearch } from './linearSearch.js';
-import { binarySearch } from './binarySearch.js';
+import type { AlgorithmFn, AlgorithmMeta, SearchStep } from '@/types';
+import { linearSearch } from './linearSearch';
+import { binarySearch } from './binarySearch';
+
+export type SearchFn = AlgorithmFn<SearchStep, [number[], number]>;
+export type SearchAlgorithm = AlgorithmMeta<SearchFn>;
 
 // Central registry mapping a stable key -> algorithm metadata + generator.
 // Rendering code depends only on this contract, never on individual files.
@@ -20,7 +24,10 @@ export const algorithms = {
       'Repeatedly compares the target to the middle element of a sorted array and discards the half that cannot contain it, halving the search range each step.',
     complexity: { best: 'O(1)', average: 'O(log n)', worst: 'O(log n)', space: 'O(1)' },
   },
-};
+} satisfies Record<string, SearchAlgorithm>;
+
+/** Literal union of the registry keys: 'linear' | 'binary' */
+export type SearchAlgoKey = keyof typeof algorithms;
 
 // Ordered list for iterating in the UI (buttons, dropdowns).
-export const algorithmList = Object.values(algorithms);
+export const algorithmList: SearchAlgorithm[] = Object.values(algorithms);

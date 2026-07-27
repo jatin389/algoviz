@@ -1,15 +1,17 @@
-import { snap, done } from './_utils.js';
+import type { SearchStep } from '@/types';
+import { snap, done } from './_utils';
 
 /**
  * Linear Search — scans the array left to right, comparing each element to
  * the target in turn until a match is found or the array is exhausted.
  * Makes no assumption about ordering, so it works on any input.
  *
- * @param {number[]} input
- * @param {number} target
- * @yields snapshot objects (see _utils.js)
+ * @yields snapshot objects (see _utils.ts)
  */
-export function* linearSearch(input, target) {
+export function* linearSearch(
+  input: number[],
+  target: number,
+): Generator<SearchStep, void, undefined> {
   const a = [...input];
   const n = a.length;
   let comparisons = 0;
