@@ -6,7 +6,9 @@ import vue from '@vitejs/plugin-vue';
 export default defineConfig(({ command }) => ({
   // GitHub Pages serves project sites from /<repo-name>/, so asset URLs must
   // be rooted there in production. Keep dev server at '/' for local work.
-  base: command === 'build' ? '/algoviz/' : '/',
+  // Branch previews live at /<repo-name>/preview/<branch>/ instead, so CI
+  // overrides the path via VITE_BASE_PATH; the default covers local builds.
+  base: command === 'build' ? (process.env.VITE_BASE_PATH ?? '/algoviz/') : '/',
   plugins: [vue()],
   resolve: {
     // Mirrors "paths" in tsconfig.app.json. Extensionless '@/...' imports
