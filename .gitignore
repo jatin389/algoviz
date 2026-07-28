@@ -6,6 +6,9 @@ dist-ssr
 .vite
 coverage
 
+# graphify - regenerated knowledge graph, contains machine-local absolute paths
+graphify-out
+
 
 
 # aw
