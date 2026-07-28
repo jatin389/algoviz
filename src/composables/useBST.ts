@@ -1,6 +1,7 @@
 import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { insertBST, deleteBST } from '@/algorithms/datastructures/bst';
 import type { AlgoStatus, BSTNode, BSTPhase, BSTStep, StepGenerator } from '@/types';
+import { createRng, randomSeed } from '@/utils/rng';
 import { useStepDelay } from './useStepDelay';
 
 /**
@@ -19,6 +20,7 @@ export function useBST() {
   /** The *id* of the node under the cursor, not its value. */
   const visiting = ref<number | null>(null);
   const phase = ref<BSTPhase | null>(null);
+  const seedValue = ref(randomSeed());
 
   let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -101,11 +103,14 @@ export function useBST() {
     const seen = new Set<number>();
     let root = tree.value;
     let attempts = 0;
+    // Fresh Rng per call: a long-lived instance would keep advancing, so
+    // bulk-loading twice with the same seed would silently stop reproducing.
+    const rng = createRng(seedValue.value);
     // Range is wide relative to `target` so distinct-value collisions stay
     // rare; the attempt cap guards against a pathologically unlucky RNG run.
     while (seen.size < target && attempts < target * 50 + 100) {
       attempts += 1;
-      const value = Math.floor(Math.random() * 999) + 1;
+      const value = rng.int(1, 999);
       if (seen.has(value)) continue;
       seen.add(value);
       let last: BSTStep | undefined;
@@ -132,6 +137,7 @@ export function useBST() {
     stats,
     visiting,
     phase,
+    seedValue,
     canEdit,
     insert,
     remove,

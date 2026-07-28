@@ -3,6 +3,7 @@ import { generateGraph } from '@/algorithms/graph/graphModel';
 import { algorithms } from '@/algorithms/graph';
 import type { GraphAlgoKey } from '@/algorithms/graph';
 import type { GraphModel, GraphStep, NodeId } from '@/types';
+import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 
 const DEFAULT_NODE_COUNT = 10;
@@ -30,6 +31,7 @@ export function useGraphTraversal() {
   const algoKey = ref<GraphAlgoKey>('bfs');
   const startId = ref<NodeId | null>(null);
   const speed = ref(60); // 1..100, higher = faster
+  const seed = ref(randomSeed());
 
   // ---- Live visualization state ---------------------------------------------
   const highlights = reactive<TraversalHighlights>({ visited: [], frontier: [], current: null });
@@ -79,7 +81,9 @@ export function useGraphTraversal() {
 
   /** Build a fresh random graph and return to a clean idle state. */
   function generate() {
-    graph.value = generateGraph(DEFAULT_NODE_COUNT);
+    // Fresh Rng per call: a long-lived instance would keep advancing, so
+    // regenerating with the same seed would silently stop being reproducible.
+    graph.value = generateGraph(DEFAULT_NODE_COUNT, createRng(seed.value));
     startId.value = graph.value.nodes[0]?.id ?? null;
     player.reset();
   }
@@ -100,6 +104,7 @@ export function useGraphTraversal() {
     algoKey,
     startId,
     speed,
+    seed,
     // state
     highlights,
     stats,

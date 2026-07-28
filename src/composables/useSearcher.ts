@@ -2,6 +2,8 @@ import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms/search';
 import type { SearchAlgoKey } from '@/algorithms/search';
 import type { SearchStep } from '@/types';
+import { createRng, randomSeed } from '@/utils/rng';
+import type { Rng } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 
 // Mirrors the matching fields on SearchStep, which are `number | null` because
@@ -27,6 +29,8 @@ export function useSearcher() {
   const size = ref(20); // number of bars (10..50)
   const speed = ref(60); // 1..100, higher = faster
   const algoKey = ref<SearchAlgoKey>('binary');
+  /** Reproduces the dataset exactly: same seed + same size = same array. */
+  const seed = ref(randomSeed());
   const target = ref(0); // value being searched for
 
   // ---- Live visualization state ---------------------------------------------
@@ -52,10 +56,11 @@ export function useSearcher() {
   // The bar scale is fixed per dataset, not recomputed per frame.
   const maxValue = ref(1);
 
+  // Fresh Rng per call: a long-lived instance would keep advancing, so
+  // regenerating twice with the same seed would silently stop reproducing.
   function randomSortedArray(n: number) {
-    return Array.from({ length: n }, () => Math.floor(Math.random() * 99) + 1).sort(
-      (a, b) => a - b,
-    );
+    const rng = createRng(seed.value);
+    return Array.from({ length: n }, () => rng.int(1, 99)).sort((a, b) => a - b);
   }
 
   function resetHighlights() {
@@ -69,10 +74,16 @@ export function useSearcher() {
     stats.comparisons = 0;
   }
 
-  /** Set the target to a value guaranteed to exist in the current dataset. */
-  function pickPresentTarget() {
+  /**
+   * Set the target to a value guaranteed to exist in the current dataset.
+   *
+   * Defaults to genuine randomness because the quick-pick button should give a
+   * different target each press. `generate()` passes a seeded source instead,
+   * so a seed reproduces the whole configuration — array *and* target.
+   */
+  function pickPresentTarget(rng: Rng = createRng(randomSeed())) {
     if (baseArray.length === 0) return;
-    target.value = baseArray[Math.floor(Math.random() * baseArray.length)];
+    target.value = baseArray[rng.int(0, baseArray.length - 1)];
   }
 
   /** Set the target to a value guaranteed absent from the current dataset. */
@@ -116,13 +127,30 @@ export function useSearcher() {
     },
   });
 
-  /** Produce a fresh random sorted dataset and return to a clean idle state. */
+  /** Rebuild the sorted dataset from the current seed and return to idle. */
   function generate() {
     baseArray = randomSortedArray(size.value);
     array.value = [...baseArray];
     maxValue.value = Math.max(...baseArray, 1);
     player.reset();
-    pickPresentTarget();
+    pickPresentTarget(createRng(seed.value));
+  }
+
+  /** Install a caller-supplied dataset (custom array input). */
+  function setArray(values: number[]) {
+    if (values.length === 0) return;
+    baseArray = [...values].sort((a, b) => a - b);
+    array.value = [...baseArray];
+    size.value = baseArray.length;
+    maxValue.value = Math.max(...baseArray, 1);
+    player.reset();
+    pickPresentTarget(createRng(seed.value));
+  }
+
+  /** Pick a new random seed and rebuild from it. */
+  function randomizeSeed() {
+    seed.value = randomSeed();
+    generate();
   }
 
   // Seed an initial dataset so the UI has something to show on mount.
@@ -133,6 +161,7 @@ export function useSearcher() {
     size,
     speed,
     algoKey,
+    seed,
     target,
     // state
     array,
@@ -158,6 +187,8 @@ export function useSearcher() {
     canStepForward: player.canStepForward,
     // controls
     generate,
+    randomizeSeed,
+    setArray,
     pickPresentTarget,
     pickMissingTarget,
     run: player.run,
