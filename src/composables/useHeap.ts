@@ -1,6 +1,7 @@
 import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { insertHeap, extractRootHeap } from '@/algorithms/datastructures/heap';
 import type { AlgoStatus, HeapStep, StepGenerator } from '@/types';
+import { useStepDelay } from './useStepDelay';
 
 /** Index buckets the array view paints for the step currently on screen. */
 interface HeapHighlights {
@@ -26,7 +27,9 @@ export function useHeap() {
 
   let timer: ReturnType<typeof setTimeout> | null = null;
 
-  const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
+  // Shared with every other engine so heap stepping stays visually in step with
+  // them; this composable keeps its own driver, though — see the note above.
+  const delayMs = useStepDelay(speed);
   const canEdit = computed(() => status.value !== 'running');
 
   function clearTimer() {

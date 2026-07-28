@@ -1,8 +1,9 @@
-import { ref, reactive, computed, onScopeDispose } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { generateGraph } from '@/algorithms/graph/graphModel';
 import { algorithms } from '@/algorithms/graph';
 import type { GraphAlgoKey } from '@/algorithms/graph';
-import type { AlgoStatus, GraphModel, GraphStep, NodeId, StepGenerator } from '@/types';
+import type { GraphModel, GraphStep, NodeId } from '@/types';
+import { useStepPlayer } from './useStepPlayer';
 
 const DEFAULT_NODE_COUNT = 10;
 
@@ -14,15 +15,14 @@ interface TraversalHighlights {
 }
 
 /**
- * useGraphTraversal — the animation engine for the graph traversal vertical.
+ * useGraphTraversal — graph traversal's binding between step snapshots and
+ * reactive UI state.
  *
- * Mirrors useSorter.ts/useSearcher.ts: it owns all playback state and drives a
- * traversal generator forward one step at a time on a timer. The generators
- * are pure and know nothing about Vue; this composable is the single bridge
- * between traversal snapshots and reactive UI state.
- *
- * Status machine: idle -> running <-> paused -> done, with reset/generate
- * returning to idle.
+ * All playback (the timer chain, the status machine, the snapshot tape that
+ * makes stepping backwards possible) lives in `useStepPlayer`. What remains
+ * here is the part that is genuinely traversal-specific: the graph, the
+ * chosen start node, and what a `GraphStep` means when painted onto the
+ * diagram.
  */
 export function useGraphTraversal() {
   // ---- User-configurable inputs ---------------------------------------------
@@ -32,25 +32,12 @@ export function useGraphTraversal() {
   const speed = ref(60); // 1..100, higher = faster
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref<AlgoStatus>('idle');
   const highlights = reactive<TraversalHighlights>({ visited: [], frontier: [], current: null });
-  const stats = reactive({ visitedCount: 0, totalNodes: 0, steps: 0, elapsedMs: 0 });
 
-  // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator: StepGenerator<GraphStep> | null = null;
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let startTs = 0;
-
-  // Map the 1..100 speed slider onto a per-step delay in ms.
-  // Higher speed -> smaller delay. Range ~ [4ms, 202ms].
-  const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
-
-  const isRunning = computed(() => status.value === 'running');
-  const isPaused = computed(() => status.value === 'paused');
-  const isDone = computed(() => status.value === 'done');
-  // Controls that mutate the dataset (or the chosen start node) may only
-  // change while nothing is playing.
-  const canEdit = computed(() => status.value === 'idle' || status.value === 'done');
+  // `steps` and `elapsedMs` deliberately do NOT live here. They are properties
+  // of playback, not of the algorithm, and a running `steps += 1` in applyStep
+  // would silently corrupt itself the moment a user scrubs backwards.
+  const stats = reactive({ visitedCount: 0, totalNodes: 0 });
 
   const currentAlgo = computed(() => algorithms[algoKey.value]);
 
@@ -63,109 +50,49 @@ export function useGraphTraversal() {
   function resetStats() {
     stats.visitedCount = 0;
     stats.totalNodes = graph.value.nodes.length;
-    stats.steps = 0;
-    stats.elapsedMs = 0;
   }
+
+  const player = useStepPlayer<GraphStep>({
+    speed,
+    // No start node picked yet means there is nothing to traverse; returning
+    // null tells useStepPlayer to refuse to start, same as the old early
+    // return at the top of run().
+    createGenerator: () => {
+      if (startId.value === null) return null;
+      resetHighlights();
+      resetStats();
+      return currentAlgo.value.generator(graph.value.adjacency, startId.value);
+    },
+    // Every field is copied straight off the snapshot rather than accumulated,
+    // so showing step N produces the same highlights however the cursor got there.
+    applyStep: (step) => {
+      highlights.visited = step.visited;
+      highlights.frontier = step.frontier;
+      highlights.current = step.current;
+      stats.visitedCount = step.visited.length;
+    },
+    clearStep: () => {
+      resetHighlights();
+      resetStats();
+    },
+  });
 
   /** Build a fresh random graph and return to a clean idle state. */
   function generate() {
-    clearTimer();
-    generator = null;
     graph.value = generateGraph(DEFAULT_NODE_COUNT);
     startId.value = graph.value.nodes[0]?.id ?? null;
-    resetHighlights();
-    resetStats();
-    status.value = 'idle';
+    player.reset();
   }
 
   /** Let the user click a node to pick where the traversal starts. */
   function setStart(id: NodeId) {
-    if (!canEdit.value) return;
+    if (!player.canEdit.value) return;
     if (!graph.value.adjacency.has(id)) return;
     startId.value = id;
   }
 
-  function applyStep(step: GraphStep) {
-    highlights.visited = step.visited;
-    highlights.frontier = step.frontier;
-    highlights.current = step.current;
-    stats.visitedCount = step.visited.length;
-    stats.steps += 1;
-    stats.elapsedMs = Date.now() - startTs;
-  }
-
-  function tick() {
-    if (status.value !== 'running') return;
-    // Runtime no-op: tick is only reachable once run() has assigned a
-    // generator. It exists so `generator` narrows to non-null below.
-    if (!generator) return;
-    const { value, done: exhausted } = generator.next();
-    if (exhausted || !value) {
-      finish();
-      return;
-    }
-    applyStep(value);
-    if (value.done) {
-      finish();
-      return;
-    }
-    timer = setTimeout(tick, delayMs.value);
-  }
-
-  function finish() {
-    clearTimer();
-    status.value = 'done';
-  }
-
-  /** Start a new run, or resume from a paused state. */
-  function run() {
-    if (status.value === 'running') return;
-    if (startId.value === null) return;
-
-    if (status.value === 'paused') {
-      status.value = 'running';
-      // Keep elapsed timing roughly continuous across the pause.
-      startTs = Date.now() - stats.elapsedMs;
-      tick();
-      return;
-    }
-
-    resetHighlights();
-    resetStats();
-    generator = currentAlgo.value.generator(graph.value.adjacency, startId.value);
-    startTs = Date.now();
-    status.value = 'running';
-    tick();
-  }
-
-  function pause() {
-    if (status.value !== 'running') return;
-    clearTimer();
-    status.value = 'paused';
-  }
-
-  /** Stop playback and clear any in-progress highlights. */
-  function reset() {
-    clearTimer();
-    generator = null;
-    resetHighlights();
-    resetStats();
-    status.value = 'idle';
-  }
-
-  function clearTimer() {
-    if (timer !== null) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  }
-
   // Seed an initial graph so the UI has something to show on mount.
   generate();
-
-  // Stop the timer chain if the owning component unmounts mid-run; otherwise
-  // tick() keeps recursing against a detached view forever.
-  onScopeDispose(clearTimer);
 
   return {
     // inputs
@@ -174,21 +101,33 @@ export function useGraphTraversal() {
     startId,
     speed,
     // state
-    status,
     highlights,
     stats,
-    // derived
-    delayMs,
-    isRunning,
-    isPaused,
-    isDone,
-    canEdit,
     currentAlgo,
+    // playback
+    status: player.status,
+    isRunning: player.isRunning,
+    isPaused: player.isPaused,
+    isDone: player.isDone,
+    canEdit: player.canEdit,
+    delayMs: player.delayMs,
+    elapsedMs: player.elapsedMs,
+    stepCount: player.stepCount,
+    cursor: player.cursor,
+    bufferedCount: player.bufferedCount,
+    fullyBuffered: player.fullyBuffered,
+    current: player.current,
+    canStepBack: player.canStepBack,
+    canStepForward: player.canStepForward,
     // controls
     generate,
     setStart,
-    run,
-    pause,
-    reset,
+    run: player.run,
+    pause: player.pause,
+    reset: player.reset,
+    stepForward: player.stepForward,
+    stepBack: player.stepBack,
+    seek: player.seek,
+    skipToEnd: player.skipToEnd,
   };
 }

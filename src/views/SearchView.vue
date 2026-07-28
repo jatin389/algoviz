@@ -51,8 +51,8 @@ watch(searcher.algoKey, () => {
     <div class="flex flex-col gap-4">
       <SearchStats
         :comparisons="searcher.stats.comparisons"
-        :steps="searcher.stats.steps"
-        :elapsed-ms="searcher.stats.elapsedMs"
+        :steps="searcher.stepCount.value"
+        :elapsed-ms="searcher.elapsedMs.value"
         :status="searcher.status.value"
         :found-index="searcher.foundIndex.value"
       />

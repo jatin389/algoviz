@@ -1,6 +1,7 @@
 import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { insertBST, deleteBST } from '@/algorithms/datastructures/bst';
 import type { AlgoStatus, BSTNode, BSTPhase, BSTStep, StepGenerator } from '@/types';
+import { useStepDelay } from './useStepDelay';
 
 /**
  * useBST — the BST operation-playback engine.
@@ -21,7 +22,9 @@ export function useBST() {
 
   let timer: ReturnType<typeof setTimeout> | null = null;
 
-  const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
+  // Shared with every other engine so BST stepping stays visually in step with
+  // them; this composable keeps its own driver, though — see the note above.
+  const delayMs = useStepDelay(speed);
   const canEdit = computed(() => status.value !== 'running');
 
   function clearTimer() {
