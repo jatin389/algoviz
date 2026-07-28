@@ -1,36 +1,17 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { watch } from 'vue';
 import { useSorter } from '@/composables/useSorter';
 import { algorithms } from '@/algorithms';
-import { parseArrayInput } from '@/utils/parseArray';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import ControlsPanel from '../components/ControlsPanel.vue';
 import PlaybackScrubber from '../components/PlaybackScrubber.vue';
-import DatasetPanel from '../components/DatasetPanel.vue';
 import BarChart from '../components/BarChart.vue';
 import StatsDisplay from '../components/StatsDisplay.vue';
 
 const sorter = useSorter();
 
-// Parsing lives here rather than in DatasetPanel, so that component stays a
-// dumb renderer like every other one in this repo.
-const customArray = ref('');
-const customError = ref<string | null>(null);
-
-function applyCustomArray() {
-  const { values, error } = parseArrayInput(customArray.value);
-  customError.value = error;
-  if (!error) sorter.setArray(values);
-}
-
 // Changing the size slider (only possible while editable) rebuilds the dataset.
 watch(sorter.size, () => {
-  if (sorter.canEdit.value) sorter.generate();
-});
-
-// Typing a seed rebuilds from it, which is what makes a seed reproducible:
-// the same number always yields the same bars.
-watch(sorter.seed, () => {
   if (sorter.canEdit.value) sorter.generate();
 });
 
@@ -62,15 +43,6 @@ watch(sorter.algoKey, () => {
         @run="sorter.run()"
         @pause="sorter.pause()"
         @reset="sorter.reset()"
-      />
-      <DatasetPanel
-        v-model:custom="customArray"
-        :seed="sorter.seed.value"
-        :error="customError"
-        :can-edit="sorter.canEdit.value"
-        @update:seed="sorter.seed.value = $event"
-        @apply="applyCustomArray()"
-        @randomize="sorter.randomizeSeed()"
       />
       <PlaybackScrubber
         :cursor="sorter.cursor.value"

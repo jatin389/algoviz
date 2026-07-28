@@ -1,13 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import type { GraphFn, GraphAlgoKey } from './index';
 import { algorithms } from './index';
-import { generateGraph } from './graphModel';
-import { createRng } from '@/utils/rng';
 import type { GraphStep, NodeId } from '@/types';
 
-// Fixed adjacency fixtures built directly here (not via generateGraph) so
-// traversal assertions stay fully deterministic regardless of seeding —
-// generateGraph itself is exercised for determinism in the describe block below.
+// Fixed adjacency fixtures built directly here (not via generateGraph, which
+// uses Math.random) so traversal assertions stay fully deterministic.
 function buildAdjacency(nodeIds: NodeId[], edges: Array<[NodeId, NodeId]>): Map<NodeId, NodeId[]> {
   const adjacency = new Map<NodeId, NodeId[]>(nodeIds.map((id) => [id, []]));
   for (const [a, b] of edges) {
@@ -127,23 +124,4 @@ describe('graph traversal generators', () => {
       });
     });
   }
-});
-
-describe('generateGraph seeding', () => {
-  it('produces identical nodes and edges when called twice with the same seed', () => {
-    // A fresh Rng per call is required: reusing one instance across calls
-    // would advance its state and break this exact reproducibility guarantee.
-    const first = generateGraph(10, createRng(7));
-    const second = generateGraph(10, createRng(7));
-
-    expect(first.nodes).toEqual(second.nodes);
-    expect(first.edges).toEqual(second.edges);
-  });
-
-  it('produces different edge sets for different seeds', () => {
-    const first = generateGraph(10, createRng(7));
-    const second = generateGraph(10, createRng(12345));
-
-    expect(first.edges).not.toEqual(second.edges);
-  });
 });

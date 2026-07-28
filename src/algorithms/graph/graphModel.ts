@@ -1,5 +1,4 @@
 import type { GraphEdge, GraphModel, GraphNode } from '@/types';
-import { createRng, randomSeed, type Rng } from '@/utils/rng';
 
 // Deterministic demo-graph generator for the traversal vertical.
 //
@@ -12,7 +11,7 @@ const VIEWBOX_SIZE = 400;
 const RADIUS_RATIO = 0.42; // circle radius relative to the SVG viewBox
 const EXTRA_EDGE_RATIO = 0.35; // extra chord edges added, roughly proportional to node count
 
-export function generateGraph(nodeCount = 10, rng: Rng = createRng(randomSeed())): GraphModel {
+export function generateGraph(nodeCount = 10): GraphModel {
   const n = Math.max(1, Math.floor(nodeCount));
   const center = VIEWBOX_SIZE / 2;
   const radius = VIEWBOX_SIZE * RADIUS_RATIO;
@@ -48,8 +47,8 @@ export function generateGraph(nodeCount = 10, rng: Rng = createRng(randomSeed())
   // A handful of random chords add branching beyond the plain ring.
   const extraEdgeCount = n > 2 ? Math.max(1, Math.round(n * EXTRA_EDGE_RATIO)) : 0;
   for (let i = 0; i < extraEdgeCount; i++) {
-    const a = rng.int(0, n - 1);
-    const b = rng.int(0, n - 1);
+    const a = Math.floor(Math.random() * n);
+    const b = Math.floor(Math.random() * n);
     addEdge(a, b);
   }
 

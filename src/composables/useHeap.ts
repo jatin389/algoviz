@@ -1,7 +1,6 @@
 import { ref, reactive, computed, onScopeDispose } from 'vue';
 import { insertHeap, extractRootHeap } from '@/algorithms/datastructures/heap';
 import type { AlgoStatus, HeapStep, StepGenerator } from '@/types';
-import { createRng, randomSeed } from '@/utils/rng';
 import { useStepDelay } from './useStepDelay';
 
 /** Index buckets the array view paints for the step currently on screen. */
@@ -25,7 +24,6 @@ export function useHeap() {
   const highlights = reactive<HeapHighlights>({ comparing: [], swapping: [] });
   const stats = reactive({ comparisons: 0, swaps: 0, steps: 0 });
   const lastExtracted = ref<number | null>(null);
-  const seedValue = ref(randomSeed());
 
   let timer: ReturnType<typeof setTimeout> | null = null;
 
@@ -123,12 +121,9 @@ export function useHeap() {
     if (!canEdit.value) return;
     clearTimer();
     const target = Math.min(Math.max(0, Math.floor(count)), 200);
-    // Fresh Rng per call: a long-lived instance would keep advancing, so
-    // bulk-loading twice with the same seed would silently stop reproducing.
-    const rng = createRng(seedValue.value);
     let a = heap.value;
     for (let i = 0; i < target; i++) {
-      const value = rng.int(1, 99);
+      const value = Math.floor(Math.random() * 99) + 1;
       let last: HeapStep | undefined;
       for (const step of insertHeap(a, value, isMinHeap.value)) last = step;
       // insertHeap always yields at least a terminal snapshot, so the loop body
@@ -153,7 +148,6 @@ export function useHeap() {
     highlights,
     stats,
     lastExtracted,
-    seedValue,
     canEdit,
     insert,
     extractRoot,

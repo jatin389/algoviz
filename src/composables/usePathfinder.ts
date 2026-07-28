@@ -2,7 +2,6 @@ import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms/pathfinding';
 import type { PathAlgoKey } from '@/algorithms/pathfinding';
 import type { Coord, Grid, PathStep } from '@/types';
-import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 
 const ROWS = 15;
@@ -29,7 +28,6 @@ export function usePathfinder() {
   const walls = reactive(new Set<string>()); // keys are "row,col"
   const start = reactive<Coord>({ row: Math.floor(ROWS / 2), col: 0 });
   const end = reactive<Coord>({ row: Math.floor(ROWS / 2), col: COLS - 1 });
-  const seed = ref(randomSeed());
 
   // ---- Live visualization state ---------------------------------------------
   const visited = ref<Coord[]>([]);
@@ -136,14 +134,11 @@ export function usePathfinder() {
   /** Roughly `density` of non-start/non-end cells become walls. */
   function randomizeWalls(density = 0.25) {
     if (!player.canEdit.value) return;
-    // Fresh Rng per call: a long-lived instance would keep advancing, so
-    // randomizing twice with the same seed would silently stop reproducing.
-    const rng = createRng(seed.value);
     walls.clear();
     for (let row = 0; row < ROWS; row++) {
       for (let col = 0; col < COLS; col++) {
         if (isStartCell(row, col) || isEndCell(row, col)) continue;
-        if (rng.next() < density) walls.add(key(row, col));
+        if (Math.random() < density) walls.add(key(row, col));
       }
     }
     player.reset();
@@ -159,7 +154,6 @@ export function usePathfinder() {
     walls,
     start,
     end,
-    seed,
     // state
     visited,
     frontier,
