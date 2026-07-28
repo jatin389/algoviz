@@ -45,7 +45,7 @@ watch(finder.algoKey, () => {
       <PathfindingStats
         :visited-count="finder.stats.visitedCount"
         :path-length="finder.stats.pathLength"
-        :elapsed-ms="finder.stats.elapsedMs"
+        :elapsed-ms="finder.elapsedMs.value"
         :status="finder.status.value"
       />
       <GridCanvas

@@ -50,8 +50,8 @@ watch(sorter.algoKey, () => {
       <StatsDisplay
         :comparisons="sorter.stats.comparisons"
         :swaps="sorter.stats.swaps"
-        :steps="sorter.stats.steps"
-        :elapsed-ms="sorter.stats.elapsedMs"
+        :steps="sorter.stepCount.value"
+        :elapsed-ms="sorter.elapsedMs.value"
         :status="sorter.status.value"
       />
       <BarChart

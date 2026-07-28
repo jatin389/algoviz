@@ -1,7 +1,8 @@
-import { ref, reactive, computed, onScopeDispose } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms';
 import type { SortAlgoKey } from '@/algorithms';
-import type { AlgoStatus, SortStep, StepGenerator } from '@/types';
+import type { SortStep } from '@/types';
+import { useStepPlayer } from './useStepPlayer';
 
 // Declared explicitly because the empty-array initializers below would
 // otherwise infer as `never[]` and reject every index written into them.
@@ -12,16 +13,12 @@ interface SortHighlights {
 }
 
 /**
- * useSorter — the animation engine.
+ * useSorter — sorting's binding between step snapshots and reactive UI state.
  *
- * It owns all playback state and drives a sorting generator forward one step at
- * a time on a timer. The generators are pure and know nothing about Vue; this
- * composable is the single bridge between algorithm snapshots and reactive UI
- * state. Components stay dumb: they render `array` + `highlights` and call the
- * exposed controls.
- *
- * Status machine: idle -> running <-> paused -> done, with reset/generate
- * returning to idle.
+ * All playback (the timer chain, the status machine, the snapshot tape that
+ * makes stepping backwards possible) lives in `useStepPlayer`. What remains
+ * here is the part that is genuinely sorting-specific: the dataset, and what a
+ * `SortStep` means when painted onto the bars.
  */
 export function useSorter() {
   // ---- User-configurable inputs ---------------------------------------------
@@ -30,26 +27,16 @@ export function useSorter() {
   const algoKey = ref<SortAlgoKey>('bubble');
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref<AlgoStatus>('idle');
   const array = ref<number[]>([]); // current bar values
   const highlights = reactive<SortHighlights>({ comparing: [], swapping: [], sorted: [] });
-  const stats = reactive({ comparisons: 0, swaps: 0, steps: 0, elapsedMs: 0 });
 
-  // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator: StepGenerator<SortStep> | null = null;
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let startTs = 0;
-  let baseArray: number[] = []; // the pristine array a run starts from
+  // `steps` and `elapsedMs` deliberately do NOT live here. They are properties
+  // of playback, not of the algorithm, and a running `steps += 1` in applyStep
+  // would silently corrupt itself the moment a user scrubs backwards.
+  const stats = reactive({ comparisons: 0, swaps: 0 });
 
-  // Map the 1..100 speed slider onto a per-step delay in ms.
-  // Higher speed -> smaller delay. Range ~ [4ms, 202ms].
-  const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
-
-  const isRunning = computed(() => status.value === 'running');
-  const isPaused = computed(() => status.value === 'paused');
-  const isDone = computed(() => status.value === 'done');
-  // Controls that mutate the dataset may only change while nothing is playing.
-  const canEdit = computed(() => status.value === 'idle' || status.value === 'done');
+  /** The pristine array every run starts from. Exposed so compare mode can mirror it. */
+  const baseArray = ref<number[]>([]);
 
   const currentAlgo = computed(() => algorithms[algoKey.value]);
 
@@ -71,107 +58,51 @@ export function useSorter() {
   function resetStats() {
     stats.comparisons = 0;
     stats.swaps = 0;
-    stats.steps = 0;
-    stats.elapsedMs = 0;
   }
+
+  const player = useStepPlayer<SortStep>({
+    speed,
+    createGenerator: () => {
+      array.value = [...baseArray.value];
+      resetHighlights();
+      resetStats();
+      return currentAlgo.value.generator([...baseArray.value]);
+    },
+    // Every field is copied straight off the snapshot rather than accumulated,
+    // so showing step N produces the same bars however the cursor got there.
+    applyStep: (step) => {
+      array.value = step.array;
+      highlights.comparing = step.comparing;
+      highlights.swapping = step.swapping;
+      highlights.sorted = step.sorted;
+      stats.comparisons = step.comparisons;
+      stats.swaps = step.swaps;
+    },
+    clearStep: () => {
+      array.value = [...baseArray.value];
+      resetHighlights();
+      resetStats();
+    },
+  });
 
   /** Produce a fresh random dataset and return to a clean idle state. */
   function generate() {
-    clearTimer();
-    generator = null;
-    baseArray = randomArray(size.value);
-    array.value = [...baseArray];
-    maxValue.value = Math.max(...baseArray, 1);
-    resetHighlights();
-    resetStats();
-    status.value = 'idle';
+    baseArray.value = randomArray(size.value);
+    maxValue.value = Math.max(...baseArray.value, 1);
+    player.reset();
   }
 
-  function applyStep(step: SortStep) {
-    array.value = step.array;
-    highlights.comparing = step.comparing;
-    highlights.swapping = step.swapping;
-    highlights.sorted = step.sorted;
-    stats.comparisons = step.comparisons;
-    stats.swaps = step.swaps;
-    stats.steps += 1;
-    stats.elapsedMs = Date.now() - startTs;
-  }
-
-  function tick() {
-    if (status.value !== 'running') return;
-    // Unreachable at runtime — `run()` always assigns the generator before the
-    // first tick — but strict null checks cannot see that.
-    if (!generator) return;
-    const { value, done: exhausted } = generator.next();
-    if (exhausted || !value) {
-      finish();
-      return;
-    }
-    applyStep(value);
-    if (value.done) {
-      finish();
-      return;
-    }
-    timer = setTimeout(tick, delayMs.value);
-  }
-
-  function finish() {
-    clearTimer();
-    status.value = 'done';
-  }
-
-  /** Start a new run, or resume from a paused state. */
-  function run() {
-    if (status.value === 'running') return;
-
-    if (status.value === 'paused') {
-      status.value = 'running';
-      // Keep elapsed timing roughly continuous across the pause.
-      startTs = Date.now() - stats.elapsedMs;
-      tick();
-      return;
-    }
-
-    // Fresh run from the pristine base array.
-    array.value = [...baseArray];
-    resetHighlights();
-    resetStats();
-    generator = currentAlgo.value.generator([...baseArray]);
-    startTs = Date.now();
-    status.value = 'running';
-    tick();
-  }
-
-  function pause() {
-    if (status.value !== 'running') return;
-    clearTimer();
-    status.value = 'paused';
-  }
-
-  /** Stop playback and restore the array to the run's starting point. */
-  function reset() {
-    clearTimer();
-    generator = null;
-    array.value = [...baseArray];
-    resetHighlights();
-    resetStats();
-    status.value = 'idle';
-  }
-
-  function clearTimer() {
-    if (timer !== null) {
-      clearTimeout(timer);
-      timer = null;
-    }
+  /** Install a caller-supplied dataset (custom input, or compare-mode mirroring). */
+  function setArray(values: number[]) {
+    if (values.length === 0) return;
+    baseArray.value = [...values];
+    size.value = values.length;
+    maxValue.value = Math.max(...values, 1);
+    player.reset();
   }
 
   // Seed an initial dataset so the UI has something to show on mount.
   generate();
-
-  // Stop the timer chain if the owning component unmounts mid-run; otherwise
-  // tick() keeps recursing against a detached view forever.
-  onScopeDispose(clearTimer);
 
   return {
     // inputs
@@ -179,22 +110,36 @@ export function useSorter() {
     speed,
     algoKey,
     // state
-    status,
     array,
+    baseArray,
     highlights,
     stats,
-    // derived
-    delayMs,
-    isRunning,
-    isPaused,
-    isDone,
-    canEdit,
-    currentAlgo,
     maxValue,
+    currentAlgo,
+    // playback
+    status: player.status,
+    isRunning: player.isRunning,
+    isPaused: player.isPaused,
+    isDone: player.isDone,
+    canEdit: player.canEdit,
+    delayMs: player.delayMs,
+    elapsedMs: player.elapsedMs,
+    stepCount: player.stepCount,
+    cursor: player.cursor,
+    bufferedCount: player.bufferedCount,
+    fullyBuffered: player.fullyBuffered,
+    current: player.current,
+    canStepBack: player.canStepBack,
+    canStepForward: player.canStepForward,
     // controls
     generate,
-    run,
-    pause,
-    reset,
+    setArray,
+    run: player.run,
+    pause: player.pause,
+    reset: player.reset,
+    stepForward: player.stepForward,
+    stepBack: player.stepBack,
+    seek: player.seek,
+    skipToEnd: player.skipToEnd,
   };
 }

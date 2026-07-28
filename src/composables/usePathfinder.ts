@@ -1,7 +1,8 @@
-import { ref, reactive, computed, onScopeDispose } from 'vue';
+import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms/pathfinding';
 import type { PathAlgoKey } from '@/algorithms/pathfinding';
-import type { AlgoStatus, Coord, Grid, PathStep, StepGenerator } from '@/types';
+import type { Coord, Grid, PathStep } from '@/types';
+import { useStepPlayer } from './useStepPlayer';
 
 const ROWS = 15;
 const COLS = 25;
@@ -9,19 +10,16 @@ const COLS = 25;
 const key = (row: number, col: number) => `${row},${col}`;
 
 /**
- * usePathfinder — the pathfinding playback engine.
+ * usePathfinder — pathfinding's binding between step snapshots and reactive UI state.
  *
- * Mirrors useSorter's shape: it owns all playback state and drives a
- * pathfinding generator forward one step at a time on a timer. Generators are
- * pure and know nothing about walls or Vue; this composable is the bridge
- * between grid-search snapshots and reactive UI state.
+ * All playback (the timer chain, the status machine, the snapshot tape that
+ * makes stepping backwards possible) lives in `useStepPlayer`. What remains
+ * here is the part that is genuinely pathfinding-specific: the grid (walls,
+ * start, end), and what a `PathStep` means when painted onto the grid.
  *
  * Walls are owned here, not by the generators — they're static input the user
  * edits between runs, so they never appear in a step snapshot (see
  * algorithms/pathfinding/_utils.ts).
- *
- * Status machine: idle -> running <-> paused -> done, with reset returning to
- * idle. Same as useSorter, walls/start/end may only change while `canEdit`.
  */
 export function usePathfinder() {
   // ---- User-configurable inputs ---------------------------------------------
@@ -32,25 +30,14 @@ export function usePathfinder() {
   const end = reactive<Coord>({ row: Math.floor(ROWS / 2), col: COLS - 1 });
 
   // ---- Live visualization state ---------------------------------------------
-  const status = ref<AlgoStatus>('idle');
   const visited = ref<Coord[]>([]);
   const frontier = ref<Coord[]>([]);
   const path = ref<Coord[]>([]);
-  const stats = reactive({ visitedCount: 0, pathLength: 0, elapsedMs: 0 });
 
-  // ---- Internal (non-reactive) machinery ------------------------------------
-  let generator: StepGenerator<PathStep> | null = null;
-  let timer: ReturnType<typeof setTimeout> | null = null;
-  let startTs = 0;
-
-  // Same speed -> delay mapping as useSorter, so both views feel consistent.
-  const delayMs = computed(() => Math.max(4, Math.round(204 - speed.value * 2)));
-
-  const isRunning = computed(() => status.value === 'running');
-  const isPaused = computed(() => status.value === 'paused');
-  const isDone = computed(() => status.value === 'done');
-  // Walls/start/end/algorithm may only change while nothing is playing.
-  const canEdit = computed(() => status.value === 'idle' || status.value === 'done');
+  // `elapsedMs` deliberately does NOT live here. It is a property of playback,
+  // not of the algorithm, and a running accumulation in applyStep would
+  // silently corrupt itself the moment a user scrubs backwards.
+  const stats = reactive({ visitedCount: 0, pathLength: 0 });
 
   const currentAlgo = computed(() => algorithms[algoKey.value]);
 
@@ -81,49 +68,72 @@ export function usePathfinder() {
   function resetStats() {
     stats.visitedCount = 0;
     stats.pathLength = 0;
-    stats.elapsedMs = 0;
   }
 
+  const player = useStepPlayer<PathStep>({
+    speed,
+    createGenerator: () => {
+      resetHighlights();
+      resetStats();
+      // The walls Set is materialized into the 0/1 grid at run start, so edits
+      // mid-run cannot affect an in-flight generator.
+      return currentAlgo.value.generator(buildGrid(), { ...start }, { ...end });
+    },
+    // Every field is copied straight off the snapshot rather than accumulated,
+    // so showing step N produces the same grid however the cursor got there.
+    applyStep: (step) => {
+      visited.value = step.visited;
+      frontier.value = step.frontier;
+      path.value = step.path;
+      stats.visitedCount = step.visited.length;
+      stats.pathLength = step.path.length;
+    },
+    clearStep: () => {
+      resetHighlights();
+      resetStats();
+    },
+  });
+
   function toggleWall(row: number, col: number) {
-    if (!canEdit.value) return;
+    if (!player.canEdit.value) return;
     if (isStartCell(row, col) || isEndCell(row, col)) return;
     const k = key(row, col);
     if (walls.has(k)) walls.delete(k);
     else walls.add(k);
     // A finished run's highlight/path overlay refers to the old layout —
     // drop it the moment the grid structure changes so nothing stale lingers.
-    if (status.value === 'done') reset();
+    if (player.isDone.value) player.reset();
   }
 
   function clearWalls() {
-    if (!canEdit.value) return;
+    if (!player.canEdit.value) return;
     walls.clear();
-    reset();
+    player.reset();
   }
 
   /** Refuse to overwrite the end cell or an existing wall — pick another spot. */
   function placeStart(row: number, col: number) {
-    if (!canEdit.value) return;
+    if (!player.canEdit.value) return;
     if (isEndCell(row, col)) return;
     if (walls.has(key(row, col))) return;
     start.row = row;
     start.col = col;
-    reset();
+    player.reset();
   }
 
   /** Refuse to overwrite the start cell or an existing wall — pick another spot. */
   function placeEnd(row: number, col: number) {
-    if (!canEdit.value) return;
+    if (!player.canEdit.value) return;
     if (isStartCell(row, col)) return;
     if (walls.has(key(row, col))) return;
     end.row = row;
     end.col = col;
-    reset();
+    player.reset();
   }
 
   /** Roughly `density` of non-start/non-end cells become walls. */
   function randomizeWalls(density = 0.25) {
-    if (!canEdit.value) return;
+    if (!player.canEdit.value) return;
     walls.clear();
     for (let row = 0; row < ROWS; row++) {
       for (let col = 0; col < COLS; col++) {
@@ -131,86 +141,8 @@ export function usePathfinder() {
         if (Math.random() < density) walls.add(key(row, col));
       }
     }
-    reset();
+    player.reset();
   }
-
-  function applyStep(step: PathStep) {
-    visited.value = step.visited;
-    frontier.value = step.frontier;
-    path.value = step.path;
-    stats.visitedCount = step.visited.length;
-    stats.pathLength = step.path.length;
-    stats.elapsedMs = Date.now() - startTs;
-  }
-
-  function tick() {
-    if (status.value !== 'running') return;
-    // Runtime no-op: tick is only reachable once run() has assigned a
-    // generator. It exists so `generator` narrows to non-null below.
-    if (!generator) return;
-    const { value, done: exhausted } = generator.next();
-    if (exhausted || !value) {
-      finish();
-      return;
-    }
-    applyStep(value);
-    if (value.done) {
-      finish();
-      return;
-    }
-    timer = setTimeout(tick, delayMs.value);
-  }
-
-  function finish() {
-    clearTimer();
-    status.value = 'done';
-  }
-
-  /** Start a new run, or resume from a paused state. */
-  function run() {
-    if (status.value === 'running') return;
-
-    if (status.value === 'paused') {
-      status.value = 'running';
-      // Keep elapsed timing roughly continuous across the pause.
-      startTs = Date.now() - stats.elapsedMs;
-      tick();
-      return;
-    }
-
-    resetHighlights();
-    resetStats();
-    generator = currentAlgo.value.generator(buildGrid(), { ...start }, { ...end });
-    startTs = Date.now();
-    status.value = 'running';
-    tick();
-  }
-
-  function pause() {
-    if (status.value !== 'running') return;
-    clearTimer();
-    status.value = 'paused';
-  }
-
-  /** Stop playback and clear any in-progress highlight state. */
-  function reset() {
-    clearTimer();
-    generator = null;
-    resetHighlights();
-    resetStats();
-    status.value = 'idle';
-  }
-
-  function clearTimer() {
-    if (timer !== null) {
-      clearTimeout(timer);
-      timer = null;
-    }
-  }
-
-  // Stop the timer chain if the owning component unmounts mid-run; otherwise
-  // tick() keeps recursing against a detached view forever.
-  onScopeDispose(clearTimer);
 
   return {
     // dimensions
@@ -223,26 +155,38 @@ export function usePathfinder() {
     start,
     end,
     // state
-    status,
     visited,
     frontier,
     path,
     stats,
-    // derived
-    delayMs,
-    isRunning,
-    isPaused,
-    isDone,
-    canEdit,
     currentAlgo,
+    // playback
+    status: player.status,
+    isRunning: player.isRunning,
+    isPaused: player.isPaused,
+    isDone: player.isDone,
+    canEdit: player.canEdit,
+    delayMs: player.delayMs,
+    elapsedMs: player.elapsedMs,
+    stepCount: player.stepCount,
+    cursor: player.cursor,
+    bufferedCount: player.bufferedCount,
+    fullyBuffered: player.fullyBuffered,
+    current: player.current,
+    canStepBack: player.canStepBack,
+    canStepForward: player.canStepForward,
     // controls
     toggleWall,
     clearWalls,
     placeStart,
     placeEnd,
     randomizeWalls,
-    run,
-    pause,
-    reset,
+    run: player.run,
+    pause: player.pause,
+    reset: player.reset,
+    stepForward: player.stepForward,
+    stepBack: player.stepBack,
+    seek: player.seek,
+    skipToEnd: player.skipToEnd,
   };
 }

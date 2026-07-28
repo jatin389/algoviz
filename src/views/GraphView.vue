@@ -44,8 +44,8 @@ watch(traversal.algoKey, () => {
       <GraphStats
         :visited-count="traversal.stats.visitedCount"
         :total-nodes="traversal.stats.totalNodes"
-        :steps="traversal.stats.steps"
-        :elapsed-ms="traversal.stats.elapsedMs"
+        :steps="traversal.stepCount.value"
+        :elapsed-ms="traversal.elapsedMs.value"
         :status="traversal.status.value"
       />
       <GraphCanvas
