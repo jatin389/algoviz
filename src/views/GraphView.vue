@@ -4,6 +4,7 @@ import { useGraphTraversal } from '@/composables/useGraphTraversal';
 import { algorithms } from '@/algorithms/graph';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import GraphControls from '../components/graph/GraphControls.vue';
+import PlaybackScrubber from '../components/PlaybackScrubber.vue';
 import GraphCanvas from '../components/graph/GraphCanvas.vue';
 import GraphStats from '../components/graph/GraphStats.vue';
 
@@ -36,6 +37,17 @@ watch(traversal.algoKey, () => {
         @run="traversal.run()"
         @pause="traversal.pause()"
         @reset="traversal.reset()"
+      />
+      <PlaybackScrubber
+        :cursor="traversal.cursor.value"
+        :buffered-count="traversal.bufferedCount.value"
+        :fully-buffered="traversal.fullyBuffered.value"
+        :can-step-back="traversal.canStepBack.value"
+        :can-step-forward="traversal.canStepForward.value"
+        @seek="traversal.seek($event)"
+        @step-back="traversal.stepBack()"
+        @step-forward="traversal.stepForward()"
+        @skip-to-end="traversal.skipToEnd()"
       />
     </div>
 
