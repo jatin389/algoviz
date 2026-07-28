@@ -2,7 +2,6 @@ import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms';
 import type { SortAlgoKey } from '@/algorithms';
 import type { SortStep } from '@/types';
-import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 
 // Declared explicitly because the empty-array initializers below would
@@ -26,8 +25,6 @@ export function useSorter() {
   const size = ref(45); // number of bars (10..100)
   const speed = ref(60); // 1..100, higher = faster
   const algoKey = ref<SortAlgoKey>('bubble');
-  /** Reproduces the dataset exactly: same seed + same size = same bars. */
-  const seed = ref(randomSeed());
 
   // ---- Live visualization state ---------------------------------------------
   const array = ref<number[]>([]); // current bar values
@@ -48,11 +45,8 @@ export function useSorter() {
   // would otherwise shrink the apparent max before the true max value lands.
   const maxValue = ref(1);
 
-  // Fresh Rng per call: a long-lived instance would keep advancing, so
-  // regenerating twice with the same seed would silently stop reproducing.
   function randomArray(n: number) {
-    const rng = createRng(seed.value);
-    return Array.from({ length: n }, () => rng.int(1, 99));
+    return Array.from({ length: n }, () => Math.floor(Math.random() * 99) + 1);
   }
 
   function resetHighlights() {
@@ -91,7 +85,7 @@ export function useSorter() {
     },
   });
 
-  /** Rebuild the dataset from the current seed and return to a clean idle state. */
+  /** Produce a fresh random dataset and return to a clean idle state. */
   function generate() {
     baseArray.value = randomArray(size.value);
     maxValue.value = Math.max(...baseArray.value, 1);
@@ -107,12 +101,6 @@ export function useSorter() {
     player.reset();
   }
 
-  /** Pick a new random seed and rebuild from it. */
-  function randomizeSeed() {
-    seed.value = randomSeed();
-    generate();
-  }
-
   // Seed an initial dataset so the UI has something to show on mount.
   generate();
 
@@ -121,7 +109,6 @@ export function useSorter() {
     size,
     speed,
     algoKey,
-    seed,
     // state
     array,
     baseArray,
@@ -146,7 +133,6 @@ export function useSorter() {
     canStepForward: player.canStepForward,
     // controls
     generate,
-    randomizeSeed,
     setArray,
     run: player.run,
     pause: player.pause,
