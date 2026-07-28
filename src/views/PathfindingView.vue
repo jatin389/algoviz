@@ -4,6 +4,7 @@ import { usePathfinder } from '@/composables/usePathfinder';
 import { algorithms } from '@/algorithms/pathfinding';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import PathfindingControls from '../components/pathfinding/PathfindingControls.vue';
+import PlaybackScrubber from '../components/PlaybackScrubber.vue';
 import GridCanvas from '../components/pathfinding/GridCanvas.vue';
 import PathfindingStats from '../components/pathfinding/PathfindingStats.vue';
 
@@ -37,6 +38,17 @@ watch(finder.algoKey, () => {
         @reset="finder.reset()"
         @clear-walls="finder.clearWalls()"
         @randomize-walls="finder.randomizeWalls()"
+      />
+      <PlaybackScrubber
+        :cursor="finder.cursor.value"
+        :buffered-count="finder.bufferedCount.value"
+        :fully-buffered="finder.fullyBuffered.value"
+        :can-step-back="finder.canStepBack.value"
+        :can-step-forward="finder.canStepForward.value"
+        @seek="finder.seek($event)"
+        @step-back="finder.stepBack()"
+        @step-forward="finder.stepForward()"
+        @skip-to-end="finder.skipToEnd()"
       />
     </div>
 

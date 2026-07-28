@@ -4,6 +4,7 @@ import { useSorter } from '@/composables/useSorter';
 import { algorithms } from '@/algorithms';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import ControlsPanel from '../components/ControlsPanel.vue';
+import PlaybackScrubber from '../components/PlaybackScrubber.vue';
 import BarChart from '../components/BarChart.vue';
 import StatsDisplay from '../components/StatsDisplay.vue';
 
@@ -42,6 +43,17 @@ watch(sorter.algoKey, () => {
         @run="sorter.run()"
         @pause="sorter.pause()"
         @reset="sorter.reset()"
+      />
+      <PlaybackScrubber
+        :cursor="sorter.cursor.value"
+        :buffered-count="sorter.bufferedCount.value"
+        :fully-buffered="sorter.fullyBuffered.value"
+        :can-step-back="sorter.canStepBack.value"
+        :can-step-forward="sorter.canStepForward.value"
+        @seek="sorter.seek($event)"
+        @step-back="sorter.stepBack()"
+        @step-forward="sorter.stepForward()"
+        @skip-to-end="sorter.skipToEnd()"
       />
     </div>
 

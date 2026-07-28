@@ -4,6 +4,7 @@ import { useSearcher } from '@/composables/useSearcher';
 import { algorithms } from '@/algorithms/search';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import SearchControls from '../components/search/SearchControls.vue';
+import PlaybackScrubber from '../components/PlaybackScrubber.vue';
 import SearchBarChart from '../components/search/SearchBarChart.vue';
 import SearchStats from '../components/search/SearchStats.vue';
 
@@ -44,6 +45,17 @@ watch(searcher.algoKey, () => {
         @run="searcher.run()"
         @pause="searcher.pause()"
         @reset="searcher.reset()"
+      />
+      <PlaybackScrubber
+        :cursor="searcher.cursor.value"
+        :buffered-count="searcher.bufferedCount.value"
+        :fully-buffered="searcher.fullyBuffered.value"
+        :can-step-back="searcher.canStepBack.value"
+        :can-step-forward="searcher.canStepForward.value"
+        @seek="searcher.seek($event)"
+        @step-back="searcher.stepBack()"
+        @step-forward="searcher.stepForward()"
+        @skip-to-end="searcher.skipToEnd()"
       />
     </div>
 
