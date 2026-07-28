@@ -1,0 +1,40 @@
+name: Remove Pages preview
+
+# Preview folders outlive the branches that created them, so delete each one
+# when its branch goes away. Deleting a branch always runs the copy of this
+# workflow on the default branch, never the deleted branch's copy.
+on:
+  delete:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: Branch whose preview folder should be removed
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages-cleanup
+
+jobs:
+  remove:
+    # `delete` fires for tags too, and those never had a preview.
+    if: github.event_name == 'workflow_dispatch' || github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: target
+        run: .github/scripts/pages-target.sh
+        env:
+          BRANCH: ${{ inputs.branch || github.event.ref }}
+
+      # An empty path means the branch was main, which owns the site root
+      # rather than a preview folder — there is nothing to clean up.
+      - if: steps.target.outputs.path != ''
+        run: .github/scripts/publish-pages.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TARGET_PATH: ${{ steps.target.outputs.path }}
+          COMMIT_NOTE: branch ${{ inputs.branch || github.event.ref }} deleted

@@ -2,20 +2,23 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # Every branch deploys: main to the site root, the rest to preview folders.
+    # gh-pages is the published output and must not build itself.
+    branches-ignore: [gh-pages]
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  # Per branch, so a new push supersedes its own in-flight deploy without
+  # cancelling another branch's. Races between branches are resolved by the
+  # publish script retrying against the updated gh-pages tip.
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +26,12 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
+      - id: target
+        run: .github/scripts/pages-target.sh
+        env:
+          BRANCH: ${{ github.ref_name }}
+
       - run: npm ci
       # Gates run before the build so a lint, type or test failure fails the
       # deploy rather than shipping. `build` re-runs vue-tsc, but a dedicated
@@ -31,16 +40,15 @@ jobs:
       - run: npm run type-check
       - run: npm run test
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+        env:
+          VITE_BASE_PATH: ${{ steps.target.outputs.base }}
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      - run: .github/scripts/publish-pages.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SRC_DIR: dist
+          TARGET_PATH: ${{ steps.target.outputs.path }}
+          COMMIT_NOTE: ${{ github.ref_name }} @ ${{ github.sha }}
+
+      - name: Link the deployment
+        run: echo "Deployed \`${{ github.ref_name }}\` to ${{ steps.target.outputs.url }}" >>"$GITHUB_STEP_SUMMARY"

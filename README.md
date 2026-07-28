@@ -37,6 +37,21 @@ npm run preview    # preview the production build
 npm run test       # run every algorithm's unit tests (Vitest)
 ```
 
+## Deployment
+
+Every branch deploys. A repository only ever gets **one** GitHub Pages site, so branches share it and are separated by directory rather than getting a site each:
+
+| Branch | URL |
+| --- | --- |
+| `main` | `https://jatin389.github.io/algoviz/` |
+| anything else | `https://jatin389.github.io/algoviz/preview/<branch>/` |
+
+`.github/workflows/deploy.yml` runs on a push to any branch: it gates on lint, type-check and tests, builds with the base path for that branch, and commits the result into the right folder of the `gh-pages` branch, which is what Pages serves. A deploy of `main` replaces the site root but leaves `preview/` untouched, so previews survive. Slashes in a branch name are flattened (`feat/new-sort` → `preview/feat-new-sort`).
+
+When a branch is deleted, `.github/workflows/pages-cleanup.yml` removes its preview folder. That workflow can also be run manually against a branch name to clear a stale preview.
+
+> **One-time setup:** this requires **Settings → Pages → Source** set to **Deploy from a branch → `gh-pages` / `(root)`**. Let the workflow run once first so the branch exists.
+
 ## Architecture
 
 Algorithm and data-structure logic is fully decoupled from rendering. Each algorithm is a **generator function** that yields immutable _step snapshots_ describing its state at that instant — the array, a grid's visited/frontier/path cells, a tree's current node, etc. Generators are pure and know nothing about Vue.
