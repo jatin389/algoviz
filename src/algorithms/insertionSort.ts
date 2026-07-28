@@ -22,11 +22,11 @@ export function* insertionSort(input: number[]): Generator<SortStep, void, undef
     let j = i;
     while (j > 0) {
       comparisons++;
-      yield snap(a, [j - 1, j], [], sorted, comparisons, swaps);
+      yield snap(a, [j - 1, j], [], sorted, comparisons, swaps, 2);
       if (a[j - 1] > a[j]) {
         [a[j - 1], a[j]] = [a[j], a[j - 1]];
         swaps++;
-        yield snap(a, [], [j - 1, j], sorted, comparisons, swaps);
+        yield snap(a, [], [j - 1, j], sorted, comparisons, swaps, 3);
         j--;
       } else {
         break;
@@ -34,5 +34,5 @@ export function* insertionSort(input: number[]): Generator<SortStep, void, undef
     }
   }
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 5);
 }

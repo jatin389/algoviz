@@ -29,7 +29,7 @@ export function* mergeSort(input: number[]): Generator<SortStep, void, undefined
     let j = mid;
     while (i < mid && j < hi) {
       comparisons++;
-      yield snap(a, [i, j], [], sorted, comparisons, swaps);
+      yield snap(a, [i, j], [], sorted, comparisons, swaps, 5);
       if (a[i] <= a[j]) merged.push(a[i++]);
       else merged.push(a[j++]);
     }
@@ -40,10 +40,10 @@ export function* mergeSort(input: number[]): Generator<SortStep, void, undefined
     for (let k = 0; k < merged.length; k++) {
       a[lo + k] = merged[k];
       swaps++;
-      yield snap(a, [], [lo + k], sorted, comparisons, swaps);
+      yield snap(a, [], [lo + k], sorted, comparisons, swaps, 7);
     }
   }
 
   yield* msort(0, a.length);
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 8);
 }

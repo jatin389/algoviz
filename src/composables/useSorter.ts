@@ -109,6 +109,9 @@ export function useSorter() {
     player.reset();
   }
 
+  /** The pseudocode line responsible for the step on screen; null when untagged. */
+  const activeLine = computed(() => player.current.value?.line ?? null);
+
   /** Pick a new random seed and rebuild from it. */
   function randomizeSeed() {
     seed.value = randomSeed();
@@ -149,6 +152,7 @@ export function useSorter() {
     bufferedCount: player.bufferedCount,
     fullyBuffered: player.fullyBuffered,
     current: player.current,
+    activeLine,
     canStepBack: player.canStepBack,
     canStepForward: player.canStepForward,
     // controls

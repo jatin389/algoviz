@@ -21,6 +21,12 @@ export interface SortStep {
   swaps: number;
   /** True only on the terminal snapshot. */
   done: boolean;
+  /**
+   * 0-based index into this algorithm's entry in `algorithms/pseudocode.ts`.
+   * Optional: untagged generators omit it and the panel renders with no
+   * highlight.
+   */
+  line?: number;
 }
 
 // ---- Searching -------------------------------------------------------------

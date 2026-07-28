@@ -3,9 +3,11 @@ import { ref, watch } from 'vue';
 import { useSorter } from '@/composables/useSorter';
 import { algorithms } from '@/algorithms';
 import { parseArrayInput } from '@/utils/parseArray';
+import { pseudocode } from '@/algorithms/pseudocode';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import ControlsPanel from '../components/ControlsPanel.vue';
 import PlaybackScrubber from '../components/PlaybackScrubber.vue';
+import PseudocodePanel from '../components/PseudocodePanel.vue';
 import DatasetPanel from '../components/DatasetPanel.vue';
 import BarChart from '../components/BarChart.vue';
 import StatsDisplay from '../components/StatsDisplay.vue';
@@ -82,6 +84,10 @@ watch(sorter.algoKey, () => {
         @step-back="sorter.stepBack()"
         @step-forward="sorter.stepForward()"
         @skip-to-end="sorter.skipToEnd()"
+      />
+      <PseudocodePanel
+        :lines="pseudocode[sorter.algoKey.value] ?? []"
+        :active-line="sorter.activeLine.value"
       />
     </div>
 

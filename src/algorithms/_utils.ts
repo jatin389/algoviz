@@ -14,6 +14,7 @@
 //     comparisons: number    // running comparison counter
 //     swaps:       number    // running swap/write counter
 //     done:        boolean   // true only on the terminal snapshot
+//     line?:       number    // pseudocode line this step came from, if tagged
 //   }
 
 import type { SortStep } from '@/types';
@@ -31,6 +32,9 @@ export const snap = (
   sorted: ReadonlySet<number>,
   comparisons: number,
   swaps: number,
+  // Trailing and optional so the generators that have not been tagged with
+  // pseudocode lines keep type-checking unchanged.
+  line?: number,
 ): SortStep => ({
   array: [...array],
   comparing,
@@ -39,6 +43,7 @@ export const snap = (
   comparisons,
   swaps,
   done: false,
+  line,
 });
 
 /**
@@ -49,6 +54,7 @@ export const done = (
   array: readonly number[],
   comparisons: number,
   swaps: number,
+  line?: number,
 ): SortStep => ({
   array: [...array],
   comparing: [],
@@ -57,4 +63,5 @@ export const done = (
   comparisons,
   swaps,
   done: true,
+  line,
 });

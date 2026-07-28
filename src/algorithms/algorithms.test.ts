@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import type { SortStep } from '@/types';
 import { algorithms } from './index';
 import type { SortAlgoKey, SortFn } from './index';
+import { pseudocode } from './pseudocode';
+import type { Pseudocode } from './pseudocode';
 
 // Drive a generator to completion and return the sequence of snapshots.
 function runToCompletion(generator: SortFn, input: number[]): SortStep[] {
@@ -67,6 +69,50 @@ describe('sorting algorithm generators', () => {
       const last = steps[steps.length - 1];
       expect(last.done).toBe(true);
       expect(last.array).toEqual([]);
+    }
+  });
+});
+
+// Editing a pseudocode array without renumbering the `line` arguments in the
+// generator is invisible on screen except as a highlight on the wrong line, so
+// the index bounds are pinned here instead.
+describe('pseudocode line tagging', () => {
+  // Entries rather than keys: `Partial<Record<...>>` types a lookup as possibly
+  // undefined, and destructuring the entry keeps `lines` narrowed.
+  const tagged = Object.entries(pseudocode) as [SortAlgoKey, Pseudocode][];
+
+  it('covers exactly the algorithms that are tagged', () => {
+    expect(tagged.map(([key]) => key).sort()).toEqual(['bubble', 'insertion', 'merge', 'quick']);
+  });
+
+  for (const [key, lines] of tagged) {
+    it(`${key} yields only in-range line indices`, () => {
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      for (const step of steps) {
+        if (step.line === undefined) continue;
+        expect(step.line).toBeGreaterThanOrEqual(0);
+        expect(step.line).toBeLessThan(lines.length);
+      }
+    });
+
+    it(`${key} still tags at least one step`, () => {
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      expect(steps.some((s) => s.line !== undefined)).toBe(true);
+    });
+
+    it(`${key} tags its terminal step`, () => {
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      expect(steps[steps.length - 1].line).toBe(lines.length - 1);
+    });
+  }
+
+  it('leaves the untagged algorithms running with no line', () => {
+    const untagged = (Object.keys(algorithms) as SortAlgoKey[]).filter((k) => !(k in pseudocode));
+    expect(untagged).toHaveLength(6);
+    for (const key of untagged) {
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      expect(steps[steps.length - 1].done).toBe(true);
+      expect(steps.every((s) => s.line === undefined)).toBe(true);
     }
   });
 });

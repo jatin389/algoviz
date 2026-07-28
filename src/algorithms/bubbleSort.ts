@@ -18,12 +18,12 @@ export function* bubbleSort(input: number[]): Generator<SortStep, void, undefine
   for (let i = 0; i < n - 1; i++) {
     for (let j = 0; j < n - 1 - i; j++) {
       comparisons++;
-      yield snap(a, [j, j + 1], [], sorted, comparisons, swaps);
+      yield snap(a, [j, j + 1], [], sorted, comparisons, swaps, 2);
 
       if (a[j] > a[j + 1]) {
         [a[j], a[j + 1]] = [a[j + 1], a[j]];
         swaps++;
-        yield snap(a, [], [j, j + 1], sorted, comparisons, swaps);
+        yield snap(a, [], [j, j + 1], sorted, comparisons, swaps, 3);
       }
     }
     // The tail element for this pass is now in its final position.
@@ -31,5 +31,5 @@ export function* bubbleSort(input: number[]): Generator<SortStep, void, undefine
   }
   sorted.add(0);
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 5);
 }
