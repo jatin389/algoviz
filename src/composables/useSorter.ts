@@ -2,7 +2,10 @@ import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms';
 import type { SortAlgoKey } from '@/algorithms';
 import type { SortStep } from '@/types';
+import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
+import { useUrlState } from './useUrlState';
+import { sorterUrlParams } from './urlParams';
 
 // Declared explicitly because the empty-array initializers below would
 // otherwise infer as `never[]` and reject every index written into them.
@@ -20,11 +23,24 @@ interface SortHighlights {
  * here is the part that is genuinely sorting-specific: the dataset, and what a
  * `SortStep` means when painted onto the bars.
  */
-export function useSorter() {
+export interface UseSorterOptions {
+  /**
+   * Whether this instance mirrors itself into the URL. Compare mode's second
+   * sorter must opt out: two instances writing `algo` would fight over the
+   * query string on every algorithm change.
+   */
+  syncUrl?: boolean;
+}
+
+export function useSorter(options: UseSorterOptions = {}) {
+  const { syncUrl = true } = options;
+
   // ---- User-configurable inputs ---------------------------------------------
   const size = ref(45); // number of bars (10..100)
   const speed = ref(60); // 1..100, higher = faster
   const algoKey = ref<SortAlgoKey>('bubble');
+  /** Reproduces the dataset exactly: same seed + same size = same bars. */
+  const seed = ref(randomSeed());
 
   // ---- Live visualization state ---------------------------------------------
   const array = ref<number[]>([]); // current bar values
@@ -45,8 +61,11 @@ export function useSorter() {
   // would otherwise shrink the apparent max before the true max value lands.
   const maxValue = ref(1);
 
+  // Fresh Rng per call: a long-lived instance would keep advancing, so
+  // regenerating twice with the same seed would silently stop reproducing.
   function randomArray(n: number) {
-    return Array.from({ length: n }, () => Math.floor(Math.random() * 99) + 1);
+    const rng = createRng(seed.value);
+    return Array.from({ length: n }, () => rng.int(1, 99));
   }
 
   function resetHighlights() {
@@ -85,7 +104,7 @@ export function useSorter() {
     },
   });
 
-  /** Produce a fresh random dataset and return to a clean idle state. */
+  /** Rebuild the dataset from the current seed and return to a clean idle state. */
   function generate() {
     baseArray.value = randomArray(size.value);
     maxValue.value = Math.max(...baseArray.value, 1);
@@ -101,6 +120,20 @@ export function useSorter() {
     player.reset();
   }
 
+  /** The pseudocode line responsible for the step on screen; null when untagged. */
+  const activeLine = computed(() => player.current.value?.line ?? null);
+
+  /** Pick a new random seed and rebuild from it. */
+  function randomizeSeed() {
+    seed.value = randomSeed();
+    generate();
+  }
+
+  // Hydrate from the URL BEFORE the initial generate(): a shared seed or
+  // size must be in place before the first dataset is built, or the link
+  // reproduces the wrong array.
+  if (syncUrl) useUrlState(sorterUrlParams({ algoKey, size, speed, seed }));
+
   // Seed an initial dataset so the UI has something to show on mount.
   generate();
 
@@ -109,6 +142,7 @@ export function useSorter() {
     size,
     speed,
     algoKey,
+    seed,
     // state
     array,
     baseArray,
@@ -129,10 +163,12 @@ export function useSorter() {
     bufferedCount: player.bufferedCount,
     fullyBuffered: player.fullyBuffered,
     current: player.current,
+    activeLine,
     canStepBack: player.canStepBack,
     canStepForward: player.canStepForward,
     // controls
     generate,
+    randomizeSeed,
     setArray,
     run: player.run,
     pause: player.pause,

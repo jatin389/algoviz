@@ -27,12 +27,12 @@ export function* quickSort(input: number[]): Generator<SortStep, void, undefined
     for (let j = lo; j < hi; j++) {
       comparisons++;
       // hi is the pivot index — highlight it alongside the scanned element.
-      yield snap(a, [j, hi], [], sorted, comparisons, swaps);
+      yield snap(a, [j, hi], [], sorted, comparisons, swaps, 4);
       if (a[j] < pivot) {
         if (i !== j) {
           [a[i], a[j]] = [a[j], a[i]];
           swaps++;
-          yield snap(a, [], [i, j], sorted, comparisons, swaps);
+          yield snap(a, [], [i, j], sorted, comparisons, swaps, 5);
         }
         i++;
       }
@@ -41,7 +41,7 @@ export function* quickSort(input: number[]): Generator<SortStep, void, undefined
     if (i !== hi) {
       [a[i], a[hi]] = [a[hi], a[i]];
       swaps++;
-      yield snap(a, [], [i, hi], sorted, comparisons, swaps);
+      yield snap(a, [], [i, hi], sorted, comparisons, swaps, 6);
     }
     // Pivot is now in its final resting position.
     sorted.add(i);
@@ -51,5 +51,5 @@ export function* quickSort(input: number[]): Generator<SortStep, void, undefined
   }
 
   yield* qsort(0, a.length - 1);
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 8);
 }
