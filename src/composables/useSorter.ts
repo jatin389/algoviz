@@ -4,6 +4,8 @@ import type { SortAlgoKey } from '@/algorithms';
 import type { SortStep } from '@/types';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
+import { useUrlState } from './useUrlState';
+import { sorterUrlParams } from './urlParams';
 
 // Declared explicitly because the empty-array initializers below would
 // otherwise infer as `never[]` and reject every index written into them.
@@ -112,6 +114,11 @@ export function useSorter() {
     seed.value = randomSeed();
     generate();
   }
+
+  // Hydrate from the URL BEFORE the initial generate(): a shared seed or
+  // size must be in place before the first dataset is built, or the link
+  // reproduces the wrong array.
+  useUrlState(sorterUrlParams({ algoKey, size, speed, seed }));
 
   // Seed an initial dataset so the UI has something to show on mount.
   generate();

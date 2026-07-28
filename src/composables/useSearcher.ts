@@ -5,6 +5,8 @@ import type { SearchStep } from '@/types';
 import { createRng, randomSeed } from '@/utils/rng';
 import type { Rng } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
+import { useUrlState } from './useUrlState';
+import { searcherUrlParams } from './urlParams';
 
 // Mirrors the matching fields on SearchStep, which are `number | null` because
 // the bounds are cleared once a run terminates. Declared explicitly because the
@@ -127,13 +129,20 @@ export function useSearcher() {
     },
   });
 
-  /** Rebuild the sorted dataset from the current seed and return to idle. */
-  function generate() {
+  /**
+   * Rebuild the sorted dataset from the current seed and return to idle.
+   *
+   * `keepTarget` exists for the one call made straight after URL hydration: a
+   * shared link's target must survive, or the link does not actually reproduce
+   * what was shared. Every other caller wants a fresh target, since a new
+   * dataset may not contain the old one.
+   */
+  function generate(keepTarget = false) {
     baseArray = randomSortedArray(size.value);
     array.value = [...baseArray];
     maxValue.value = Math.max(...baseArray, 1);
     player.reset();
-    pickPresentTarget(createRng(seed.value));
+    if (!keepTarget) pickPresentTarget(createRng(seed.value));
   }
 
   /** Install a caller-supplied dataset (custom array input). */
@@ -153,8 +162,14 @@ export function useSearcher() {
     generate();
   }
 
-  // Seed an initial dataset so the UI has something to show on mount.
-  generate();
+  // Hydrate from the URL BEFORE the initial generate(): a shared seed, size
+  // or target must be in place before the first dataset is built, or the
+  // link reproduces the wrong array.
+  const { hydrated } = useUrlState(searcherUrlParams({ algoKey, size, speed, seed, target }));
+
+  // Seed an initial dataset so the UI has something to show on mount, keeping
+  // a target that came from a shared link rather than overwriting it.
+  generate(hydrated.has('target'));
 
   return {
     // inputs

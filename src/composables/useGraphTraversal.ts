@@ -5,6 +5,8 @@ import type { GraphAlgoKey } from '@/algorithms/graph';
 import type { GraphModel, GraphStep, NodeId } from '@/types';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
+import { useUrlState } from './useUrlState';
+import { graphUrlParams } from './urlParams';
 
 const DEFAULT_NODE_COUNT = 10;
 
@@ -79,12 +81,19 @@ export function useGraphTraversal() {
     },
   });
 
-  /** Build a fresh random graph and return to a clean idle state. */
-  function generate() {
+  /**
+   * Build a fresh random graph and return to a clean idle state.
+   *
+   * `keepStart` exists for the one call made straight after URL hydration: a
+   * shared link's start node must survive, or the link does not reproduce what
+   * was shared. It is honoured only if that node exists in the new graph.
+   */
+  function generate(keepStart = false) {
     // Fresh Rng per call: a long-lived instance would keep advancing, so
     // regenerating with the same seed would silently stop being reproducible.
     graph.value = generateGraph(DEFAULT_NODE_COUNT, createRng(seed.value));
-    startId.value = graph.value.nodes[0]?.id ?? null;
+    const keep = keepStart && startId.value !== null && graph.value.adjacency.has(startId.value);
+    if (!keep) startId.value = graph.value.nodes[0]?.id ?? null;
     player.reset();
   }
 
@@ -95,8 +104,14 @@ export function useGraphTraversal() {
     startId.value = id;
   }
 
-  // Seed an initial graph so the UI has something to show on mount.
-  generate();
+  // Hydrate from the URL BEFORE the initial generate(): a shared seed must be
+  // in place before the first graph is built, or the link reproduces the
+  // wrong graph.
+  const { hydrated } = useUrlState(graphUrlParams({ algoKey, speed, seed, startId }));
+
+  // Seed an initial graph so the UI has something to show on mount, keeping a
+  // start node that came from a shared link rather than overwriting it.
+  generate(hydrated.has('start'));
 
   return {
     // inputs

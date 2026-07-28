@@ -4,6 +4,8 @@ import type { PathAlgoKey } from '@/algorithms/pathfinding';
 import type { Coord, Grid, PathStep } from '@/types';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
+import { useUrlState } from './useUrlState';
+import { pathfinderUrlParams, coordRef } from './urlParams';
 
 const ROWS = 15;
 const COLS = 25;
@@ -30,6 +32,22 @@ export function usePathfinder() {
   const start = reactive<Coord>({ row: Math.floor(ROWS / 2), col: 0 });
   const end = reactive<Coord>({ row: Math.floor(ROWS / 2), col: COLS - 1 });
   const seed = ref(randomSeed());
+
+  // Hydrate from the URL before anything reads start/end/seed: unlike the
+  // other categories there's no explicit generate() here, but GridCanvas
+  // paints start/end on first render, so hydration still has to land before
+  // that first paint rather than in onMounted.
+  //
+  // Walls are deliberately NOT part of the URL: a 375-cell bitmask would need
+  // a versioned base64+RLE format to be worth the complexity. Hand-painted
+  // walls do not survive a share link. `randomizeWalls` is fully
+  // deterministic given `seed`, so a *randomized* maze still reproduces.
+  useUrlState(
+    pathfinderUrlParams(
+      { algoKey, speed, seed, start: coordRef(start), end: coordRef(end) },
+      { rows: ROWS, cols: COLS },
+    ),
+  );
 
   // ---- Live visualization state ---------------------------------------------
   const visited = ref<Coord[]>([]);
