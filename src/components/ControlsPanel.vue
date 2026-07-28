@@ -8,23 +8,38 @@ import AvPanel from '@/components/ui/AvPanel.vue';
 import AvButton from '@/components/ui/AvButton.vue';
 import AvSlider from '@/components/ui/AvSlider.vue';
 
-defineProps<{
-  size: number;
-  speed: number;
-  status: AlgoStatus;
-  canEdit: boolean;
-  isRunning: boolean;
-  isPaused: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    size: number;
+    speed: number;
+    status: AlgoStatus;
+    canEdit: boolean;
+    isRunning: boolean;
+    isPaused: boolean;
+    compare?: boolean;
+  }>(),
+  {
+    compare: false,
+  },
+);
 
 const emit = defineEmits<{
   'update:size': [value: number];
   'update:speed': [value: number];
+  'update:compare': [value: boolean];
   generate: [];
   run: [];
+  runBoth: [];
   pause: [];
   reset: [];
 }>();
+
+// Vue's overloaded emit signature can't take a union event name, so the
+// compare-mode branch is split out rather than passed as a ternary argument.
+function handleRun() {
+  if (props.compare) emit('runBoth');
+  else emit('run');
+}
 </script>
 
 <template>
@@ -50,10 +65,21 @@ const emit = defineEmits<{
       />
     </div>
 
+    <!-- Compare mode toggle -->
+    <AvButton
+      variant="toggle"
+      class="mt-5 w-full"
+      :active="compare"
+      :disabled="!canEdit"
+      @click="emit('update:compare', !compare)"
+    >
+      Compare two algorithms
+    </AvButton>
+
     <!-- Playback buttons -->
-    <div class="mt-5 grid grid-cols-2 gap-2">
-      <!-- Run / Resume -->
-      <AvButton v-if="!isRunning" variant="primary" class="col-span-2" @click="emit('run')">
+    <div class="mt-2 grid grid-cols-2 gap-2">
+      <!-- Run / Resume: compare mode starts both sorters together instead of one -->
+      <AvButton v-if="!isRunning" variant="primary" class="col-span-2" @click="handleRun">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"

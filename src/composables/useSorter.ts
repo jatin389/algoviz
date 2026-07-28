@@ -23,7 +23,18 @@ interface SortHighlights {
  * here is the part that is genuinely sorting-specific: the dataset, and what a
  * `SortStep` means when painted onto the bars.
  */
-export function useSorter() {
+export interface UseSorterOptions {
+  /**
+   * Whether this instance mirrors itself into the URL. Compare mode's second
+   * sorter must opt out: two instances writing `algo` would fight over the
+   * query string on every algorithm change.
+   */
+  syncUrl?: boolean;
+}
+
+export function useSorter(options: UseSorterOptions = {}) {
+  const { syncUrl = true } = options;
+
   // ---- User-configurable inputs ---------------------------------------------
   const size = ref(45); // number of bars (10..100)
   const speed = ref(60); // 1..100, higher = faster
@@ -121,7 +132,7 @@ export function useSorter() {
   // Hydrate from the URL BEFORE the initial generate(): a shared seed or
   // size must be in place before the first dataset is built, or the link
   // reproduces the wrong array.
-  useUrlState(sorterUrlParams({ algoKey, size, speed, seed }));
+  if (syncUrl) useUrlState(sorterUrlParams({ algoKey, size, speed, seed }));
 
   // Seed an initial dataset so the UI has something to show on mount.
   generate();

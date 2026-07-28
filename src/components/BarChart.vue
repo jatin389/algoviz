@@ -9,12 +9,18 @@ const props = withDefaults(
     swapping: number[];
     sorted: number[];
     maxValue: number;
+    /** Panel heading. Compare mode passes the algorithm name. */
+    title?: string;
+    /** The second chart in compare mode hides it, so the legend appears once. */
+    showLegend?: boolean;
   }>(),
   {
     comparing: () => [],
     swapping: () => [],
     sorted: () => [],
     maxValue: 1,
+    title: 'Visualization',
+    showLegend: true,
   },
 );
 
@@ -44,9 +50,12 @@ function heightPercent(value: number) {
 <template>
   <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Visualization</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</h2>
       <!-- Color legend -->
-      <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+      <div
+        v-if="showLegend"
+        class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400"
+      >
         <span class="flex items-center gap-1.5"
           ><i class="h-3 w-3 rounded-sm bg-indigo-500/80 dark:bg-indigo-400/80" />Unsorted</span
         >
