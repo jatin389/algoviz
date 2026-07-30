@@ -8,7 +8,7 @@ An interactive, single-page app for watching algorithms and data structures work
 
 Six independent categories, selectable from the top nav — each owns its own state and visualization, nothing is mixed together:
 
-- **Sorting** — Bubble, Selection, Insertion, Merge, Quick, Heap, Shell, Comb, Counting, and Radix sort, each with a description and Big-O complexity card. Color-coded bars (unsorted/comparing/swapping/sorted) with smooth transitions, live comparisons/swaps/steps/elapsed stats.
+- **Sorting** — Bubble, Selection, Insertion, Merge, Quick, Heap, Shell, Comb, Counting, and Radix sort, each with a description and Big-O complexity card. Color-coded bars (unsorted/comparing/swapping/sorted) with smooth transitions, live comparisons/swaps/steps/elapsed stats. A code panel follows along as it runs, toggling between hand-written pseudocode and the generator's real source — highlighting the `yield` it is suspended at.
 - **Searching** — Linear and Binary Search over a sorted array, with random present/missing target pickers and a found/not-found result banner.
 - **Pathfinding** — BFS, DFS, Dijkstra, and A* on an editable grid. Draw walls by dragging, relocate start/end, randomize a maze, and watch the frontier/visited/path colors animate.
 - **BST** — interactive Binary Search Tree insert/delete, animated as a live SVG tree diagram.
@@ -69,6 +69,7 @@ src/
 ├── algorithms/
 │   ├── _utils.ts, bubbleSort.ts, ... radixSort.ts, index.ts   # sorting generators + registry
 │   ├── pseudocode.ts        # displayed pseudocode, keyed by algorithm
+│   ├── source.ts            # the generators' own text (?raw) + step -> source line map
 │   ├── sortCues.ts          # audio cue registry mapping steps to cue names
 │   ├── algorithms.test.ts
 │   ├── search/              # linearSearch.ts, binarySearch.ts, index.ts, search.test.ts
@@ -91,7 +92,7 @@ src/
 │   ├── parseArray.ts, urlCodec.ts
 ├── components/
 │   ├── ui/                  # AvPanel, AvButton, AvSlider, AvTextField, AvStatCell, AvAlgorithmSelector
-│   ├── ControlsPanel.vue, PlaybackScrubber.vue, PseudocodePanel.vue, DatasetPanel.vue
+│   ├── ControlsPanel.vue, PlaybackScrubber.vue, CodePanel.vue, DatasetPanel.vue
 │   ├── BarChart.vue, StatsDisplay.vue, ThemeToggle.vue
 │   └── search/, pathfinding/, datastructures/, graph/   # per-category components
 ├── views/                   # one self-contained view per category
@@ -119,7 +120,22 @@ Sorting generators yield objects of this shape (see `algorithms/_utils.ts`):
 
 Each other category defines its own snapshot shape suited to its domain (e.g. pathfinding yields `{ visited, frontier, current, path, done }`; graph traversal yields `{ visited, frontier, current, done }`), but the same principle holds everywhere: generators are lazy and framework-agnostic, so the player can advance one step per timer tick and the underlying structure is never mutated "all at once" behind the scenes.
 
-`line` is what drives the pseudocode panel's highlight. It is optional: only bubble, insertion, quick and merge sort are tagged so far, and untagged algorithms simply render the panel without a highlight. **If you tag a generator, every `line` it yields must index into that algorithm's entry in `pseudocode.ts`** — a test in `algorithms.test.ts` enforces the bounds, since an off-by-one is otherwise invisible until someone reads the screen.
+`line` is what drives the code panel's highlight. It is optional: only bubble, insertion, quick and merge sort are tagged so far, and untagged algorithms simply render the panel without a highlight. **If you tag a generator, every `line` it yields must index into that algorithm's entry in `pseudocode.ts`** — a test in `algorithms.test.ts` enforces the bounds, since an off-by-one is otherwise invisible until someone reads the screen.
+
+### Pseudocode and source, from one tag
+
+`CodePanel.vue` shows the running algorithm two ways, switched by a toggle in its header:
+
+- **Pseudocode** — the hand-written prose in `pseudocode.ts`, highlighted at `line`.
+- **Source** — the generator file itself, highlighted at the `yield` the generator is currently suspended at.
+
+Both come off the same `line` tag, so nothing extra is asked of a generator to get the source view. `algorithms/source.ts` supplies the two halves that make it work:
+
+The **text** is imported with Vite's `?raw`, not read from `generator.toString()`. `toString()` is the obvious move and it is wrong twice over: esbuild strips comments and rewrites whitespace in a production build, so what is on screen would stop being what is in the repo, and the line numbers would stop lining up with it. `?raw` inlines the file's exact bytes as a string literal, which minification leaves alone. The cost is the ten sort files' text in the bundle (~15 kB raw, ~4.6 kB gzipped).
+
+The **mapping** from a pseudocode index to the source line(s) that yield it is parsed out of that text by `buildSourceMap`, rather than written by hand — the tag numbers already live in the `yield` calls, and a hand-kept table would go stale the first time anyone inserted a line above one. That parse is a regex, which makes it the fragile part: a `yield` reformatted across two lines stops matching and the highlight silently vanishes. `source.test.ts` pins it from both directions — every tag a generator actually emits must resolve to a line, and every line the map points at must really contain a `yield`.
+
+One tag may map to several source lines (nothing stops two yields sharing one), so `activeSourceLines` is a list and all of them highlight.
 
 ### Reproducibility
 

@@ -1,6 +1,7 @@
 import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms';
 import type { SortAlgoKey } from '@/algorithms';
+import { source, sourceMap } from '@/algorithms/source';
 import { sortCues } from '@/algorithms/sortCues';
 import { NO_CUES } from '@/audio/cues';
 import type { SortStep } from '@/types';
@@ -140,6 +141,23 @@ export function useSorter(options: UseSorterOptions = {}) {
   /** The pseudocode line responsible for the step on screen; null when untagged. */
   const activeLine = computed(() => player.current.value?.line ?? null);
 
+  /** The running generator's own file, for the code panel's source mode. */
+  const sourceCode = computed(() => source[algoKey.value]);
+
+  /**
+   * Source lines (0-based) responsible for the step on screen; empty when the
+   * generator is untagged. One tag can legitimately sit on several yields, so
+   * this is a list rather than a single line.
+   *
+   * Derived off the snapshot like `activeLine`, never accumulated, so it stays
+   * correct under a backward scrub or an arbitrary seek.
+   */
+  const activeSourceLines = computed(() => {
+    const line = player.current.value?.line;
+    if (line === undefined) return [];
+    return sourceMap(algoKey.value).get(line) ?? [];
+  });
+
   /** True when this algorithm has cue mappings; drives the UI hint. */
   const hasSoundCues = computed(() => algoKey.value in sortCues);
 
@@ -184,6 +202,8 @@ export function useSorter(options: UseSorterOptions = {}) {
     fullyBuffered: player.fullyBuffered,
     current: player.current,
     activeLine,
+    sourceCode,
+    activeSourceLines,
     hasSoundCues,
     canStepBack: player.canStepBack,
     canStepForward: player.canStepForward,
