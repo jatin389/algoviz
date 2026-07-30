@@ -1,7 +1,22 @@
 ## Agent & code guidelines
 
-- Use subagents for research and implementation wherever possible. Use Haiku for simple tasks, Sonnet for medium tasks and code implementation, and Opus for complex tasks and planning.
-- Code should be modular and reusable.
+### Delegate to subagents by task complexity
+Prefer delegating research and implementation work to subagents rather than
+handling everything inline. Match the subagent's model to the task's
+complexity:
+- **Haiku** — simple, well-scoped work: quick lookups, mechanical edits,
+  narrow single-file changes.
+- **Sonnet** — medium-complexity work: standard code implementation,
+  multi-file changes, typical bug fixes.
+- **Opus** — complex work: architectural planning, ambiguous problems,
+  cross-cutting design decisions.
+
+### Write modular, reusable code
+Favor small, composable units (functions, components, modules) with a
+single clear responsibility over large, monolithic ones. Extract shared
+logic into reusable utilities instead of duplicating it, and design
+interfaces so pieces can be recombined in new contexts without rewriting
+them.
 
 ## graphify
 
