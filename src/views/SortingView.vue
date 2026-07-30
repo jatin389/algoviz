@@ -9,7 +9,7 @@ import { pseudocode } from '@/algorithms/pseudocode';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import ControlsPanel from '../components/ControlsPanel.vue';
 import PlaybackScrubber from '../components/PlaybackScrubber.vue';
-import PseudocodePanel from '../components/PseudocodePanel.vue';
+import CodePanel from '../components/CodePanel.vue';
 import DatasetPanel from '../components/DatasetPanel.vue';
 import BarChart from '../components/BarChart.vue';
 import StatsDisplay from '../components/StatsDisplay.vue';
@@ -148,9 +148,12 @@ watch(sorter.algoKey, () => {
         @step-forward="sorter.stepForward()"
         @skip-to-end="sorter.skipToEnd()"
       />
-      <PseudocodePanel
+      <CodePanel
         :lines="pseudocode[sorter.algoKey.value] ?? []"
         :active-line="sorter.activeLine.value"
+        :source="sorter.sourceCode.value.text"
+        :source-file="sorter.sourceCode.value.file"
+        :active-source-lines="sorter.activeSourceLines.value"
       />
     </div>
 

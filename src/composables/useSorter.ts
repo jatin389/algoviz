@@ -1,6 +1,7 @@
 import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms';
 import type { SortAlgoKey } from '@/algorithms';
+import { source, sourceMap } from '@/algorithms/source';
 import type { SortStep } from '@/types';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
@@ -123,6 +124,23 @@ export function useSorter(options: UseSorterOptions = {}) {
   /** The pseudocode line responsible for the step on screen; null when untagged. */
   const activeLine = computed(() => player.current.value?.line ?? null);
 
+  /** The running generator's own file, for the code panel's source mode. */
+  const sourceCode = computed(() => source[algoKey.value]);
+
+  /**
+   * Source lines (0-based) responsible for the step on screen; empty when the
+   * generator is untagged. One tag can legitimately sit on several yields, so
+   * this is a list rather than a single line.
+   *
+   * Derived off the snapshot like `activeLine`, never accumulated, so it stays
+   * correct under a backward scrub or an arbitrary seek.
+   */
+  const activeSourceLines = computed(() => {
+    const line = player.current.value?.line;
+    if (line === undefined) return [];
+    return sourceMap(algoKey.value).get(line) ?? [];
+  });
+
   /** Pick a new random seed and rebuild from it. */
   function randomizeSeed() {
     seed.value = randomSeed();
@@ -164,6 +182,8 @@ export function useSorter(options: UseSorterOptions = {}) {
     fullyBuffered: player.fullyBuffered,
     current: player.current,
     activeLine,
+    sourceCode,
+    activeSourceLines,
     canStepBack: player.canStepBack,
     canStepForward: player.canStepForward,
     // controls
