@@ -58,7 +58,7 @@ Algorithm and data-structure logic is fully decoupled from rendering. Each algor
 
 **`useStepPlayer` is the shared animation engine.** It owns the timer chain, the `idle → running ↔ paused → done` status machine, elapsed timing, and the recorded history of every snapshot a run produces — which is what makes stepping backwards and scrubbing possible, since generators only run forwards. The four continuous categories (`useSorter`, `useSearcher`, `usePathfinder`, `useGraphTraversal`) each supply just the category-specific parts: how to build a generator, and what a snapshot means when painted onto the screen.
 
-That callback, `applyStep`, **must be idempotent and absolute** — it is called on forward ticks, backward scrubs and arbitrary seeks, so accumulating in it (`stats.steps += 1`) silently corrupts the moment a user scrubs back. Anything counted per-step comes from the player instead.
+That callback, `applyStep`, **must be idempotent and absolute** — it is called on forward ticks, backward scrubs and arbitrary seeks, so accumulating in it (`stats.steps += 1`) silently corrupts the moment a user scrubs back. Anything counted per-step comes from the player instead. Its counterpart `onAdvance` carries the effects that belong to *advancing* rather than to displaying — it fires only on forward advances, never on a backward scrub or a seek — which is what makes it safe to hang the audio cues off it.
 
 `useBST` and `useHeap` keep their own simpler driver: they animate a single operation per command, never pause, and their `reset()` destroys the structure rather than rewinding a run. They share only `useStepDelay`.
 
@@ -70,18 +70,23 @@ src/
 │   ├── _utils.ts, bubbleSort.ts, ... radixSort.ts, index.ts   # sorting generators + registry
 │   ├── pseudocode.ts        # displayed pseudocode, keyed by algorithm
 │   ├── source.ts            # the generators' own text (?raw) + step -> source line map
+│   ├── sortCues.ts          # audio cue registry mapping steps to cue names
 │   ├── algorithms.test.ts
 │   ├── search/              # linearSearch.ts, binarySearch.ts, index.ts, search.test.ts
 │   ├── pathfinding/         # bfs.ts, dfs.ts, dijkstra.ts, astar.ts, index.ts, pathfinding.test.ts
 │   ├── datastructures/      # bst.ts, heap.ts, bst.test.ts, heap.test.ts
 │   └── graph/               # graphModel.ts, bfsTraversal.ts, dfsTraversal.ts, index.ts
+├── audio/
+│   ├── cues.ts              # cue vocabulary as plain data
+│   └── engine.ts            # Web Audio API engine; the only file touching Web Audio
 ├── composables/
 │   ├── useStepPlayer.ts     # the shared playback engine + step history
 │   ├── useStepDelay.ts      # the one speed -> delay mapping
 │   ├── useUrlState.ts, urlParams.ts   # shareable configuration in the hash query
 │   ├── useSorter.ts, useSearcher.ts, usePathfinder.ts
 │   ├── useBST.ts, useHeap.ts, useGraphTraversal.ts
-│   └── useTheme.ts          # shared dark/light mode
+│   ├── useTheme.ts          # shared dark/light mode
+│   └── useAudioCues.ts      # persisted audio on/off + volume singleton
 ├── utils/
 │   ├── rng.ts               # seeded mulberry32; the app's only entropy source
 │   ├── parseArray.ts, urlCodec.ts

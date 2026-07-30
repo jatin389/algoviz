@@ -17,9 +17,16 @@ const props = withDefaults(
     isRunning: boolean;
     isPaused: boolean;
     compare?: boolean;
+    sound?: boolean;
+    /** 0..1, gain-shaped to match the audio composable's ref. */
+    volume?: number;
+    hasSoundCues?: boolean;
   }>(),
   {
     compare: false,
+    sound: false,
+    volume: 0.4,
+    hasSoundCues: true,
   },
 );
 
@@ -27,6 +34,8 @@ const emit = defineEmits<{
   'update:size': [value: number];
   'update:speed': [value: number];
   'update:compare': [value: boolean];
+  'update:sound': [value: boolean];
+  'update:volume': [value: number];
   generate: [];
   run: [];
   runBoth: [];
@@ -75,6 +84,34 @@ function handleRun() {
     >
       Compare two algorithms
     </AvButton>
+
+    <!-- Sound toggle: no :disabled, unlike compare. Compare mode locks because
+         it changes what is being run; sound is exactly the kind of thing you
+         want to flip mid-run, to hear (or silence) the sort in progress. -->
+    <AvButton
+      variant="toggle"
+      class="mt-2 w-full"
+      :active="sound"
+      @click="emit('update:sound', !sound)"
+    >
+      Sound cues
+    </AvButton>
+    <!-- AvSlider's step defaults to 1 (whole percent), while the audio
+         composable keeps volume gain-shaped in 0..1 — so the value is scaled
+         both ways at this boundary. -->
+    <AvSlider
+      v-if="sound"
+      label="Volume"
+      class="mt-3"
+      :model-value="Math.round(volume * 100)"
+      :min="0"
+      :max="100"
+      suffix="%"
+      @update:model-value="emit('update:volume', $event / 100)"
+    />
+    <p v-if="sound && !hasSoundCues" class="mt-2 text-center text-xs text-slate-400">
+      Sound cues aren't mapped for this algorithm yet.
+    </p>
 
     <!-- Playback buttons -->
     <div class="mt-2 grid grid-cols-2 gap-2">
