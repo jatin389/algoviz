@@ -61,6 +61,19 @@ export interface StepPlayerOptions<TStep extends { done: boolean }> {
   /** Restore the pre-run visual state. Called by reset() and whenever the cursor lands at -1. */
   clearStep: () => void;
 
+  /**
+   * Side effects that belong to *advancing* rather than to displaying — audio
+   * cues today.
+   *
+   * The counterpart to `applyStep`: it fires exactly once per forward advance,
+   * and never on a backward scrub, an arbitrary seek or a skipToEnd drain. So
+   * an effect here can neither fire twice for the same step nor fire in reverse,
+   * which is what makes it safe to do something audible or irreversible. Unlike
+   * `applyStep` it need not be idempotent — but it is paid on every tick, so
+   * keep it cheap.
+   */
+  onAdvance?: (step: TStep, index: number) => void;
+
   /** Defaults to MAX_BUFFERED_STEPS. */
   maxSteps?: number;
 }
@@ -244,6 +257,11 @@ export function useStepPlayer<TStep extends { done: boolean }>(
       show(history.length - 1);
     }
 
+    // After show(), so a listener observes the step it is being told about; and
+    // unconditional, so the contract stays "every forward advance, including the
+    // terminal one" rather than carrying an exception.
+    options.onAdvance?.(step, cursor.value);
+
     syncClock();
     if (step.done) {
       finish();
@@ -320,7 +338,14 @@ export function useStepPlayer<TStep extends { done: boolean }>(
     // Stepping straight from idle is the natural way to read an algorithm one
     // line at a time, so it starts the run rather than requiring Run first.
     if (status.value === 'idle' && !beginRun()) return;
+
+    // Captured after beginRun(), which resets the cursor to -1. seek() clamps to
+    // the end of the tape, so at the final step the cursor does not move and
+    // nothing actually advanced — hence the comparison rather than an
+    // unconditional notify.
+    const before = cursor.value;
     seek(cursor.value + 1);
+    if (cursor.value > before) options.onAdvance?.(history[cursor.value], cursor.value);
   }
 
   function stepBack() {
