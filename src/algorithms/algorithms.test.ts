@@ -4,6 +4,8 @@ import { algorithms } from './index';
 import type { SortAlgoKey, SortFn } from './index';
 import { pseudocode } from './pseudocode';
 import type { Pseudocode } from './pseudocode';
+import { sortCues } from './sortCues';
+import type { CueName } from '@/audio/cues';
 
 // Drive a generator to completion and return the sequence of snapshots.
 function runToCompletion(generator: SortFn, input: number[]): SortStep[] {
@@ -115,4 +117,54 @@ describe('pseudocode line tagging', () => {
       expect(steps.every((s) => s.line === undefined)).toBe(true);
     }
   });
+});
+
+// Deliberately not asserting Object.keys(sortCues) === Object.keys(pseudocode):
+// coupling the two registries would make a legitimate future "cues added
+// before pseudocode" change fail for the wrong reason. The pseudocode-only
+// literals above stay untouched — they are about `pseudocode`, not cues.
+describe('sort cue tagging', () => {
+  // Same literal as `pseudocode`'s "covers exactly the algorithms that are
+  // tagged" above, and coincidentally identical today, but the two lists move
+  // independently: this one tracks `sortCues`, not `pseudocode`.
+  const cued = Object.keys(sortCues) as SortAlgoKey[];
+
+  it('covers exactly the algorithms wired for audio cues', () => {
+    expect(cued.sort()).toEqual(['bubble', 'insertion', 'merge', 'quick']);
+  });
+
+  for (const key of cued) {
+    const resolver = sortCues[key];
+    if (!resolver) continue; // narrows for TS below; every key in `cued` has an entry by construction
+
+    it(`${key} yields at most one cue per step`, () => {
+      // Load-bearing invariant of the whole audio design: defaultSortCues
+      // assumes `comparing` and `swapping` are mutually exclusive on every
+      // step, so a step that trips both would silently drop one cue. Nothing
+      // else pins this assumption, so pin it here.
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      for (const step of steps) {
+        expect(resolver(step).length).toBeLessThanOrEqual(1);
+      }
+    });
+
+    it(`${key} fires both a compare and a swap cue across a full run`, () => {
+      // Catches a resolver registered against a sort that never actually
+      // triggers one of the two cue kinds.
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      const fired = new Set<CueName>();
+      for (const step of steps) {
+        for (const cue of resolver(step)) fired.add(cue);
+      }
+      expect(fired.has('compare')).toBe(true);
+      expect(fired.has('swap')).toBe(true);
+    });
+
+    it(`${key} yields no cues on its terminal step`, () => {
+      const steps = runToCompletion(algorithms[key].generator, cases[0].input);
+      const last = steps[steps.length - 1];
+      expect(last.done).toBe(true);
+      expect(resolver(last)).toHaveLength(0);
+    });
+  }
 });
