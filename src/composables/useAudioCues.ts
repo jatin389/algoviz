@@ -22,7 +22,10 @@ export function readStoredEnabled(): boolean {
 export function readStoredVolume(): number {
   try {
     const raw = localStorage.getItem(AUDIO_VOLUME_KEY);
-    if (raw === null) return DEFAULT_VOLUME;
+    // Empty string is checked alongside null because `Number('')` is 0, which
+    // would otherwise pass the range test below and silently mute audio rather
+    // than falling back like every other malformed value.
+    if (raw === null || raw === '') return DEFAULT_VOLUME;
     const parsed = Number(raw);
     if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 1) return parsed;
     return DEFAULT_VOLUME;
