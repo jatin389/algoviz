@@ -1,9 +1,12 @@
 import { ref, reactive, computed } from 'vue';
 import { algorithms } from '@/algorithms';
 import type { SortAlgoKey } from '@/algorithms';
+import { sortCues } from '@/algorithms/sortCues';
+import { NO_CUES } from '@/audio/cues';
 import type { SortStep } from '@/types';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
+import { useAudioCues } from './useAudioCues';
 import { useUrlState } from './useUrlState';
 import { sorterUrlParams } from './urlParams';
 
@@ -30,10 +33,19 @@ export interface UseSorterOptions {
    * query string on every algorithm change.
    */
   syncUrl?: boolean;
+
+  /**
+   * Whether this instance drives the shared audio engine. Compare mode's
+   * second sorter opts out for the same reason it opts out of `syncUrl`: two
+   * instances ticking into one engine make a muddle, not a duet.
+   */
+  audio?: boolean;
 }
 
 export function useSorter(options: UseSorterOptions = {}) {
-  const { syncUrl = true } = options;
+  const { syncUrl = true, audio = true } = options;
+
+  const cues = useAudioCues();
 
   // ---- User-configurable inputs ---------------------------------------------
   const size = ref(45); // number of bars (10..100)
@@ -102,6 +114,11 @@ export function useSorter(options: UseSorterOptions = {}) {
       resetHighlights();
       resetStats();
     },
+    // Passing `undefined` rather than a callback with an internal `if audio`
+    // lets the player's `?.` short-circuit at zero per-tick cost for the
+    // rival sorter. `algoKey.value` is read at fire time (not captured above)
+    // so the resolver used always matches whichever algorithm is running.
+    onAdvance: audio ? (step) => cues.play(sortCues[algoKey.value]?.(step) ?? NO_CUES) : undefined,
   });
 
   /** Rebuild the dataset from the current seed and return to a clean idle state. */
@@ -122,6 +139,9 @@ export function useSorter(options: UseSorterOptions = {}) {
 
   /** The pseudocode line responsible for the step on screen; null when untagged. */
   const activeLine = computed(() => player.current.value?.line ?? null);
+
+  /** True when this algorithm has cue mappings; drives the UI hint. */
+  const hasSoundCues = computed(() => algoKey.value in sortCues);
 
   /** Pick a new random seed and rebuild from it. */
   function randomizeSeed() {
@@ -164,6 +184,7 @@ export function useSorter(options: UseSorterOptions = {}) {
     fullyBuffered: player.fullyBuffered,
     current: player.current,
     activeLine,
+    hasSoundCues,
     canStepBack: player.canStepBack,
     canStepForward: player.canStepForward,
     // controls

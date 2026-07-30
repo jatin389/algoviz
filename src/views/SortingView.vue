@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useSorter } from '@/composables/useSorter';
+import { useAudioCues } from '@/composables/useAudioCues';
 import { algorithms } from '@/algorithms';
 import { parseArrayInput } from '@/utils/parseArray';
 import { decodeKey } from '@/utils/urlCodec';
@@ -15,10 +16,13 @@ import BarChart from '../components/BarChart.vue';
 import StatsDisplay from '../components/StatsDisplay.vue';
 
 const sorter = useSorter();
+const audio = useAudioCues();
 
 // The challenger in compare mode. syncUrl is off because two instances writing
 // `algo` would fight over the query string; the view owns `algo2` instead.
-const rival = useSorter({ syncUrl: false });
+// audio is off too: two instances ticking into one engine make a muddle, not
+// a duet — only the primary sorter drives sound.
+const rival = useSorter({ syncUrl: false, audio: false });
 const compare = ref(false);
 
 useUrlState({
@@ -108,6 +112,9 @@ watch(sorter.algoKey, () => {
         :columns="3"
         :disabled="!sorter.canEdit.value"
       />
+      <!-- @update:sound calls audio.toggle() rather than binding v-model:sound,
+           so the click handler that satisfies the autoplay unlock stays an
+           explicit call site instead of hiding behind two-way binding sugar. -->
       <ControlsPanel
         v-model:size="sorter.size.value"
         v-model:speed="sorter.speed.value"
@@ -116,6 +123,9 @@ watch(sorter.algoKey, () => {
         :can-edit="sorter.canEdit.value"
         :is-running="sorter.isRunning.value"
         :is-paused="sorter.isPaused.value"
+        :sound="audio.enabled.value"
+        :volume="audio.volume.value"
+        :has-sound-cues="sorter.hasSoundCues.value"
         @generate="sorter.generate()"
         @run="sorter.run()"
         @run-both="runBoth()"
@@ -127,6 +137,8 @@ watch(sorter.algoKey, () => {
           sorter.reset();
           rival.reset();
         "
+        @update:sound="audio.toggle()"
+        @update:volume="audio.setVolume($event)"
       />
       <DatasetPanel
         v-model:custom="customArray"

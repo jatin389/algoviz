@@ -295,4 +295,148 @@ describe('useStepPlayer', () => {
       expect(counter.calls()).toBe(1);
     });
   });
+
+  describe('onAdvance', () => {
+    it('fires once per forward advance, with strictly increasing indices, matching applyStep', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player, applied } = setup(20, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.run();
+        await vi.advanceTimersByTimeAsync(DELAY * 8);
+        player.pause();
+
+        expect(advanced.length).toBeGreaterThan(0);
+        expect(advanced.length).toBe(applied.length);
+        for (let k = 1; k < advanced.length; k++) {
+          expect(advanced[k].index).toBeGreaterThan(advanced[k - 1].index);
+        }
+      });
+    });
+
+    // The crucial regression this whole describe block exists for: audio must
+    // never play in reverse, so rewinding the tape must not touch onAdvance.
+    it('fires zero calls on stepBack()', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player } = setup(20, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.run();
+        await vi.advanceTimersByTimeAsync(DELAY * 6);
+        player.pause();
+        advanced.length = 0;
+
+        player.stepBack();
+        player.stepBack();
+        player.stepBack();
+
+        expect(advanced).toHaveLength(0);
+      });
+    });
+
+    it('fires zero calls on seek(), even though a single seek can pump several steps', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player } = setup(200, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.stepForward(); // buffers index 0; the expected onAdvance call is cleared below.
+        advanced.length = 0;
+
+        player.seek(5);
+
+        // Six steps now sit on the tape (indices 0-5), all reached by the pump
+        // loop inside seek() — none of that pumping should reach onAdvance.
+        expect(player.bufferedCount.value).toBe(6);
+        expect(advanced).toHaveLength(0);
+      });
+    });
+
+    it('fires zero calls on skipToEnd(), even though it applies the terminal step', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player } = setup(20, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.skipToEnd();
+
+        expect(advanced).toHaveLength(0);
+      });
+    });
+
+    // Guards against a double-fire: beginRun() resets the cursor to -1 and
+    // stepForward() then calls seek(0), which both moves onto and displays
+    // index 0 in one go.
+    it('fires exactly one call when stepped forward straight from idle', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player } = setup(10, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.stepForward();
+
+        expect(advanced).toEqual([{ i: 0, index: 0 }]);
+      });
+    });
+
+    it('fires zero calls when stepped forward at a fully-buffered end', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player } = setup(3, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.skipToEnd();
+        advanced.length = 0;
+
+        // seek() clamps at the end of the tape, so the cursor never actually
+        // moves and stepForward() must treat that as no advance at all.
+        player.stepForward();
+
+        expect(advanced).toHaveLength(0);
+      });
+    });
+
+    // Deliberate, not a bug: scrubbing back and resuming replays the buffered
+    // stretch, and onAdvance fires again for it. You scrubbed back to
+    // re-watch, so you should re-hear too — do not "fix" this into a
+    // fire-once-ever guarantee.
+    it('fires again when replaying buffered steps after a scrub back', async () => {
+      await withScope(async () => {
+        const advanced: { i: number; index: number }[] = [];
+        const { player } = setup(20, {
+          onAdvance: (step, index) => advanced.push({ i: step.i, index }),
+        });
+
+        player.run();
+        await vi.advanceTimersByTimeAsync(DELAY * 8);
+        player.pause();
+
+        for (let k = 0; k < 4; k++) player.stepBack();
+        advanced.length = 0;
+
+        player.run();
+        await vi.advanceTimersByTimeAsync(DELAY * 4);
+
+        expect(advanced.length).toBeGreaterThan(0);
+      });
+    });
+
+    it('does not throw when onAdvance is omitted', async () => {
+      await withScope(async () => {
+        const { player } = setup(10);
+
+        expect(() => player.run()).not.toThrow();
+        await vi.advanceTimersByTimeAsync(DELAY * 20);
+        expect(player.status.value).toBe('done');
+      });
+    });
+  });
 });
