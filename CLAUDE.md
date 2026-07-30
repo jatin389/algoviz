@@ -1,3 +1,8 @@
+## Agent & code guidelines
+
+- Use subagents for research and implementation wherever possible. Use Haiku for simple tasks, Sonnet for medium tasks and code implementation, and Opus for complex tasks and planning.
+- Code should be modular and reusable.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
