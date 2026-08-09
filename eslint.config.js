@@ -63,4 +63,12 @@ export default defineConfigWithVueTs(
     files: ['**/*.test.{js,ts}'],
     languageOptions: { globals: { ...globals.node } },
   },
+
+  // Standalone Node scripts (e.g. backlog/generate-board.mjs) run outside the
+  // browser-targeted app bundle, so they need Node globals like `process`.
+  {
+    name: 'app/node-scripts',
+    files: ['**/*.mjs'],
+    languageOptions: { globals: { ...globals.node } },
+  },
 );
