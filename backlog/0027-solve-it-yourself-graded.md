@@ -4,6 +4,7 @@ title: Solve it yourself, then get graded
 status: ready
 priority: P3
 effort: M
+zone: B
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

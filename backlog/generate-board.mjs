@@ -68,6 +68,7 @@ function parseTaskFile(fileName) {
     status: frontmatter.status ?? 'unknown',
     priority: frontmatter.priority ?? '',
     effort: frontmatter.effort ?? '',
+    zone: frontmatter.zone ?? '',
     created: frontmatter.created ?? '',
     refinedAt: frontmatter.refined_at ?? '',
     idea: extractSection(body, 'Idea'),
@@ -159,6 +160,11 @@ const presentStatuses = Object.keys(statusCounts).sort((a, b) => {
 const presentPriorities = PRIORITY_ORDER.filter((p) => tasks.some((t) => t.priority === p));
 const presentEfforts = ['S', 'M', 'L'].filter((e) => tasks.some((t) => t.effort === e));
 
+// Zones are open-ended (a later research pass can add Zone E, F, ...), so the
+// filter list is derived from whatever's actually present in the data,
+// sorted alphabetically, rather than a hardcoded A–D list.
+const presentZones = [...new Set(tasks.map((t) => t.zone).filter(Boolean))].sort();
+
 // Default order: group by status (Ready, In Progress, Inbox, Done, ...),
 // and within each group sort by priority (P0 first), then by ID.
 const sortedTasks = [...tasks].sort((a, b) => {
@@ -192,6 +198,21 @@ function effortLabel(effort) {
   return { S: 'Small', M: 'Medium', L: 'Large' }[effort] ?? effort;
 }
 
+// Display names for known zones. Falls back to the bare letter for any zone
+// not listed here, so a future Zone E/F/... renders fine without a code
+// change — the backlog skill's "Zones (optional)" section is the source of
+// truth for what a letter means.
+const ZONE_NAMES = {
+  A: 'Extend the map',
+  B: 'Off the map',
+  C: 'New territories',
+  D: 'Instruments',
+};
+
+function zoneLabel(zone) {
+  return ZONE_NAMES[zone] ? `${zone} · ${ZONE_NAMES[zone]}` : zone;
+}
+
 /** Tiny 3-bar "signal strength" cue: fills 1/2/3 bars for S/M/L. */
 function effortBars(effort) {
   const filled = { S: 1, M: 2, L: 3 }[effort] ?? 0;
@@ -203,15 +224,17 @@ function effortBars(effort) {
 }
 
 function renderCard(task) {
-  const searchText = `${task.title} ${task.idea}`.toLowerCase();
+  const searchText = `${task.title} ${task.idea} ${task.zone} ${zoneLabel(task.zone)}`.toLowerCase();
   const priorityAttr = task.priority || 'none';
   const effortAttr = task.effort || 'none';
+  const zoneAttr = task.zone || 'none';
 
   return `
     <article class="card"
       data-status="${escapeHtml(task.status)}"
       data-priority="${escapeHtml(priorityAttr)}"
       data-effort="${escapeHtml(effortAttr)}"
+      data-zone="${escapeHtml(zoneAttr)}"
       data-search="${escapeHtml(searchText)}">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">${escapeHtml(task.id)}</span>
@@ -220,6 +243,7 @@ function renderCard(task) {
           <span class="pill status-${escapeHtml(task.status)}">${escapeHtml(statusLabel(task.status))}</span>
           ${task.priority ? `<span class="badge priority-${escapeHtml(task.priority)}">${escapeHtml(task.priority)}</span>` : ''}
           ${task.effort ? `<span class="badge effort-${escapeHtml(task.effort)}" title="${escapeHtml(effortLabel(task.effort))} effort">${effortBars(task.effort)}${escapeHtml(task.effort)}</span>` : ''}
+          ${task.zone ? `<span class="badge zone-badge">${escapeHtml(zoneLabel(task.zone))}</span>` : ''}
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -260,6 +284,12 @@ function renderPriorityOptions() {
 function renderEffortOptions() {
   return presentEfforts
     .map((e) => `<option value="${escapeHtml(e)}">${escapeHtml(e)} — ${escapeHtml(effortLabel(e))}</option>`)
+    .join('\n            ');
+}
+
+function renderZoneOptions() {
+  return presentZones
+    .map((z) => `<option value="${escapeHtml(z)}">${escapeHtml(zoneLabel(z))}</option>`)
     .join('\n            ');
 }
 
@@ -521,6 +551,11 @@ const html = `<!DOCTYPE html>
     color: var(--text);
   }
 
+  .badge.zone-badge {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
   .effort-bars {
     display: inline-flex;
     align-items: flex-end;
@@ -665,6 +700,13 @@ const html = `<!DOCTYPE html>
       ${renderEffortOptions()}
     </select>
   </label>
+  <label>
+    Zone
+    <select id="filter-zone">
+      <option value="">All zones</option>
+      ${renderZoneOptions()}
+    </select>
+  </label>
   <label class="search-field">
     Search title &amp; idea
     <input type="search" id="filter-search" placeholder="e.g. sandbox, domain, quiz&hellip;">
@@ -703,6 +745,7 @@ const html = `<!DOCTYPE html>
   var statusSelect = document.getElementById('filter-status');
   var prioritySelect = document.getElementById('filter-priority');
   var effortSelect = document.getElementById('filter-effort');
+  var zoneSelect = document.getElementById('filter-zone');
   var searchInput = document.getElementById('filter-search');
   var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
   var resultCount = document.getElementById('result-count');
@@ -711,6 +754,7 @@ const html = `<!DOCTYPE html>
     var status = statusSelect.value;
     var priority = prioritySelect.value;
     var effort = effortSelect.value;
+    var zone = zoneSelect.value;
     var query = searchInput.value.trim().toLowerCase();
     var visible = 0;
 
@@ -719,6 +763,7 @@ const html = `<!DOCTYPE html>
         (!status || card.dataset.status === status) &&
         (!priority || card.dataset.priority === priority) &&
         (!effort || card.dataset.effort === effort) &&
+        (!zone || card.dataset.zone === zone) &&
         (!query || card.dataset.search.indexOf(query) !== -1);
       card.hidden = !matches;
       if (matches) visible++;
@@ -730,6 +775,7 @@ const html = `<!DOCTYPE html>
   statusSelect.addEventListener('change', applyFilters);
   prioritySelect.addEventListener('change', applyFilters);
   effortSelect.addEventListener('change', applyFilters);
+  zoneSelect.addEventListener('change', applyFilters);
   searchInput.addEventListener('input', applyFilters);
 
   document.querySelectorAll('.card-header').forEach(function (header) {

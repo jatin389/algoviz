@@ -4,6 +4,7 @@ title: "New domain: Database internals"
 status: ready
 priority: P1
 effort: L
+zone: C
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

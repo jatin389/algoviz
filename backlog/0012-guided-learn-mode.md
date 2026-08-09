@@ -4,6 +4,7 @@ title: Guided "Learn" mode
 status: ready
 priority: P2
 effort: M
+zone: A
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

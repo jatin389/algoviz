@@ -4,6 +4,7 @@ title: Step narration
 status: ready
 priority: P1
 effort: S
+zone: D
 created: 2026-08-09
 refined_at: 2026-08-09
 ---
