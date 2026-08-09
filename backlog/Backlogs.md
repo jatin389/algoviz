@@ -1,6 +1,8 @@
 # Backlog
 
-Run `npm run backlog:board` to regenerate `backlog/board.html`, an interactive, filterable view of this backlog (status, priority, effort, and free-text search) that you can open directly in a browser. It's generated from these markdown files and committed to the repo, so browsing doesn't depend on reading raw markdown or on any ephemeral external tool.
+Run `npm run backlog:board` to regenerate `backlog/board.html`, an interactive, filterable view of this backlog (status, priority, effort, zone, lab status, and free-text search) that you can open directly in a browser, plus one **Feature Lab** detail page per item under `backlog/lab/`. Both are generated from these markdown files and committed to the repo, so browsing doesn't depend on reading raw markdown or on any ephemeral external tool.
+
+This table is the breadth view: what could be built, and roughly in what order. The lab pages are the depth view: whether we actually know *how*. Every item here says `ready`, but "ready" means triaged — check the item's lab page before starting it. See `docs/feature-lab-design.md` for why the two layers are separate.
 
 ## Inbox
 Captured but not yet scoped. Refine these before starting them.

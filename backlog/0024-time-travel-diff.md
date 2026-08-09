@@ -4,6 +4,8 @@ title: Time-travel diff
 status: ready
 priority: P1
 effort: S
+zone: B
+cluster: sequence-diff
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

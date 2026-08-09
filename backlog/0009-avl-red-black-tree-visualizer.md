@@ -4,6 +4,8 @@ title: "New category: AVL / Red-Black Tree"
 status: ready
 priority: P3
 effort: M
+zone: A
+cluster: tree-rendering
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

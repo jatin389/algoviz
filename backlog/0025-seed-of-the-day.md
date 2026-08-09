@@ -4,6 +4,8 @@ title: Seed-of-the-day
 status: ready
 priority: P1
 effort: S
+zone: B
+cluster: seed-challenge
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

@@ -4,6 +4,7 @@ title: Break it on purpose
 status: ready
 priority: P2
 effort: M
+zone: B
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

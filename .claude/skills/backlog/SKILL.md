@@ -18,18 +18,29 @@ backlog/
   0001-slug.md      # one file per task, id-prefixed, holds the actual content
   0002-slug.md
   ...
+  labs/
+    0012-slug.md    # optional deep-research doc for one task (see "Feature Lab")
+  generate-board.mjs
+  lib/              # generator modules (parse / derive / theme / components / render)
+  board.html        # GENERATED index — never hand-edit
+  lab/
+    0012.html       # GENERATED detail page, one per task — never hand-edit
 ```
 
 If `backlog/` doesn't exist in this repo yet, create it the first time this skill runs: `Backlogs.md` and `DONE.md` with the empty templates shown below. Nothing else is needed to bootstrap.
 
+**After any change to a task file, a lab file, `Backlogs.md` or `DONE.md`, run `npm run backlog:board`** and commit the regenerated `board.html` and `lab/*.html` alongside the markdown. The HTML is a build artifact of the markdown — it is what makes the backlog browsable without reading raw files, and it is stale the moment it isn't regenerated. Never edit the generated HTML directly.
+
 ## Statuses
 
 - **inbox** — just captured. A title, maybe a one-line description. Not scoped, no priority yet.
-- **ready** — refined: has acceptance criteria and a priority (P0–P3). Safe to start.
+- **ready** — refined: has acceptance criteria and a priority (P0–P3). Safe to start *if it has no load-bearing unknowns left* — see "Feature Lab" below.
 - **in-progress** — being worked on right now.
 - **done** / **dropped** — closed. Lives in `DONE.md`, not `Backlogs.md`, so the active view stays focused on live work.
 
 A task only ever has one status at a time, and it lives in exactly one table across `Backlogs.md`/`DONE.md` that matches it.
+
+Orthogonal to status, a task has a **lab status** — whether anyone has actually researched *how* to build it. This is tracked in `backlog/labs/NNNN-slug.md`, not in the task file, and it's what tells you whether "ready" really means ready.
 
 ## `Backlogs.md` format
 
@@ -49,15 +60,15 @@ Captured but not yet scoped. Refine these before starting them.
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
 
-| ID | Priority | Title | Description |
-|----|----------|-------|--------------|
-| 0003 | P1 | Seeded RNG follow-up | revisit after revert of #14 |
+| ID | Priority | Effort | Title | Description |
+|----|----------|--------|-------|--------------|
+| 0003 | P1 | S | Seeded RNG follow-up | revisit after revert of #14 |
 
 ## In Progress
 
-| ID | Priority | Title | Description |
-|----|----------|-------|--------------|
-| 0005 | P0 | Compare mode perf fix | |
+| ID | Priority | Effort | Title | Description |
+|----|----------|--------|-------|--------------|
+| 0005 | P0 | M | Compare mode perf fix | |
 ```
 
 Description is optional in every row — leave the cell empty rather than inventing one. Title alone is a complete inbox entry.
@@ -81,6 +92,10 @@ id: 0007
 title: Add dark mode toggle
 status: inbox
 priority:
+effort:
+zone:
+depends_on:
+cluster:
 created: 2026-08-09
 refined_at:
 ---
@@ -95,11 +110,73 @@ Raw capture, in the user's own words as much as possible.
 (running brainstorm log — timestamp entries as the conversation develops)
 ```
 
-`priority` and `refined_at` stay blank until the task moves to `ready`. When it closes, add `closed: <date>` and set `status` to `done` or `dropped` — but leave the file at its original path. Only the index *row* moves to `DONE.md`; the file itself doesn't move, so links and history stay stable.
+Field reference — all of these are read by the board generator, so keep the key names exact:
+
+| Field | Values | Meaning |
+|---|---|---|
+| `priority` | `P0`–`P3` | urgency, see scale below |
+| `effort` | `S` / `M` / `L` | rough size |
+| `zone` | `A` / `B` / `C` / `D` | what *kind* of work it is — see below |
+| `depends_on` | comma-separated ids, e.g. `0042, 0010` | hard or strong-soft prerequisites only |
+| `cluster` | a slug, e.g. `snapshot-to-text` | names a group of items sharing an implementation substrate |
+
+**Zones** classify work by kind, independently of priority:
+- **A — Extend the map**: deepens or broadens the existing gallery using established patterns.
+- **B — Off the map**: novel modes/mechanics wrapped around existing surfaces.
+- **C — New territories**: entirely new top-level domains.
+- **D — Instruments**: cross-cutting platform capability — "tools that make tools."
+
+Record only dependencies that are real and stateable in one sentence. **Never record `unblocks`** — the generator derives it by inverting every item's `depends_on`, so a stored copy could only drift.
+
+`priority`, `effort` and `refined_at` stay blank until the task moves to `ready`. `zone` can be set at capture time if it's obvious; `depends_on` and `cluster` are usually discovered during refinement or in a lab. When it closes, add `closed: <date>` and set `status` to `done` or `dropped` — but leave the file at its original path. Only the index *row* moves to `DONE.md`; the file itself doesn't move, so links and history stay stable.
 
 ## Assigning IDs and slugs
 
-Next ID = highest existing ID across `backlog/*.md` (excluding `Backlogs.md`/`DONE.md`) + 1, zero-padded to 4 digits. Slug = short kebab-case of the title. Both are internal bookkeeping — don't ask the user for either.
+Next ID = highest existing ID across `backlog/*.md` (excluding `Backlogs.md`/`DONE.md`, and excluding the `labs/` subdirectory) + 1, zero-padded to 4 digits. Slug = short kebab-case of the title. Both are internal bookkeeping — don't ask the user for either.
+
+## Feature Lab
+
+Refinement produces a *scope*. A lab produces *knowledge*. They're different jobs, and conflating them is how an item ends up marked `ready` while its hardest question is still open.
+
+A lab lives at `backlog/labs/NNNN-slug.md` and records what was actually found out by reading the codebase, prototyping, or checking whether an approach is even possible. **The unit of value is a discovered constraint that changes the plan** — not a restatement of the idea.
+
+```markdown
+---
+id: 0015
+lab_status: planned          # unresearched | researching | planned
+researched_at: 2026-08-09
+closes: Format choice (GIF vs. WebM); library/approach
+---
+
+## Verdict
+The bottom line in one paragraph: what we now know that we didn't, and what it
+means for the plan. Written last, read first.
+
+## Constraints
+Facts about this codebase that shape or block the design. The highest-value
+section — each entry is a fact plus its consequence.
+
+## Architecture
+Module layout, contracts, key types.
+
+## Phases
+| # | Deliverable | Gate |
+
+## Risks
+| Risk | Mitigation |
+
+## Out of scope
+```
+
+`closes` is a semicolon-separated list of open questions this lab answered, quoted from the task's `Open questions` line. It's what makes a lab checkable instead of a matter of opinion: **a lab that closes nothing isn't finished.**
+
+An item with no lab file is `unresearched`, and its generated page at `backlog/lab/NNNN.html` renders the gap — the open questions, the dependencies, and what a lab would need to establish. That emptiness is deliberate and useful; don't fill it with speculation.
+
+### When to write a lab
+
+Not every item needs one. Write a lab when the item is **deep**: it introduces a new dependency, has unknown feasibility, is cross-cutting, or its open questions are load-bearing (the answer changes the architecture, not just a checklist). Skip it when the item is a direct application of an already-proven pattern in this repo — those just need acceptance criteria.
+
+If you're unsure which it is, that uncertainty is itself the signal to write one.
 
 ## Workflows
 
@@ -115,13 +192,15 @@ Trigger: "note this for later", "add to the backlog", "let's deal with that afte
 ### "What's next?" / "what should I work on?"
 
 1. Read the **Ready** table. If it has rows, sort by priority (P0 first), then by row order for ties, and return the top one along with its file's `## Refinement` summary.
-2. If **Ready** is empty, say so plainly and offer to triage the **Inbox** instead — don't silently fall back to picking an inbox item yourself.
+2. Mention two things priority alone hides: whether the item is **blocked** (something in its `depends_on` is itself unresearched) and whether anything has high **leverage** (several other items list it in their `depends_on`). A small, mid-priority item that unblocks three others is often the better next move than the top P0 — say so and let the user decide.
+3. If **Ready** is empty, say so plainly and offer to triage the **Inbox** instead — don't silently fall back to picking an inbox item yourself.
 
 ### "Start on X" / "start the next item"
 
 1. Resolve the target: either the item the user named, or the result of the "what's next" lookup above.
 2. Check its status. **If it's not `ready` — meaning it's still sitting in Inbox with no priority — do not start it.** Say clearly that it hasn't been scoped yet and ask if they want to brainstorm it now. This gate matters more than being helpful in the moment: starting unscoped work is exactly the failure mode this whole system exists to prevent.
-3. If it is `ready`, flip its status to `in-progress` — move its row from **Ready** to **In Progress** in `Backlogs.md`, and update `status` in the task file — then proceed with the work.
+3. **Second gate: check whether it's researched.** Read its `Open questions` line and look for `backlog/labs/NNNN-*.md`. If the open questions are load-bearing (the answer would change the architecture, the dependency list, or whether it's feasible at all) and no lab exists, say so and offer to write one first. Don't refuse outright the way step 2 does — a shallow item with a thin open question is fine to start. The point is to name the unknown out loud before committing to it, not to block.
+4. If it's cleared both gates, flip its status to `in-progress` — move its row from **Ready** to **In Progress** in `Backlogs.md`, and update `status` in the task file — then proceed with the work.
 
 ### "How many tasks are pending?"
 

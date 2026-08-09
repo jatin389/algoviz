@@ -4,6 +4,7 @@ title: "New domain: Also viable (grab-bag)"
 status: ready
 priority: P3
 effort: M
+zone: C
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

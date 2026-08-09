@@ -4,6 +4,7 @@ title: Plugin contract & i18n
 status: ready
 priority: P2
 effort: M
+zone: D
 created: 2026-08-09
 refined_at: 2026-08-09
 ---
