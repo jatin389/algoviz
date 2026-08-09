@@ -4,6 +4,7 @@ title: Complexity cheat-sheet page
 status: ready
 priority: P1
 effort: S
+zone: A
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

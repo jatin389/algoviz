@@ -4,6 +4,7 @@ title: "New domain: Memory hierarchy"
 status: ready
 priority: P1
 effort: M
+zone: C
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

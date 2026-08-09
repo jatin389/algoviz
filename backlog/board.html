@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-09T17:59:34.962Z">
+<meta name="generated-at" content="2026-08-09T18:44:40.018Z">
 <title>AlgoViz Backlog Board</title>
 <style>
   :root {
@@ -242,6 +242,11 @@
     color: var(--text);
   }
 
+  .badge.zone-badge {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
   .effort-bars {
     display: inline-flex;
     align-items: flex-end;
@@ -360,7 +365,7 @@
 
 <header class="board-header">
   <h1>AlgoViz Backlog Board</h1>
-  <p class="subtitle">43 tracked tasks &middot; generated 2026-08-09T17:59:34.962Z</p>
+  <p class="subtitle">43 tracked tasks &middot; generated 2026-08-09T18:44:40.018Z</p>
   <div class="stats">
         <div class="stat">
           <span class="stat-count">43</span>
@@ -395,6 +400,16 @@
             <option value="L">L — Large</option>
     </select>
   </label>
+  <label>
+    Zone
+    <select id="filter-zone">
+      <option value="">All zones</option>
+      <option value="A">A · Extend the map</option>
+            <option value="B">B · Off the map</option>
+            <option value="C">C · New territories</option>
+            <option value="D">D · Instruments</option>
+    </select>
+  </label>
   <label class="search-field">
     Search title &amp; idea
     <input type="search" id="filter-search" placeholder="e.g. sandbox, domain, quiz&hellip;">
@@ -410,7 +425,8 @@
       data-status="ready"
       data-priority="P0"
       data-effort="S"
-      data-search="landing page right now the router redirects straight into `/sorting` — there's no front door. add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localstorage.">
+      data-zone="A"
+      data-search="landing page right now the router redirects straight into `/sorting` — there's no front door. add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localstorage. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0001</span>
         <span class="card-title">Landing page</span>
@@ -418,6 +434,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P0">P0</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -442,7 +459,8 @@
       data-status="ready"
       data-priority="P0"
       data-effort="L"
-      data-search="new domain: concurrency &amp; interleavings race conditions, mutex/semaphore, producer-consumer, dining philosophers. the killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. the seeded rng makes each bug a shareable url. flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it.">
+      data-zone="C"
+      data-search="new domain: concurrency &amp; interleavings race conditions, mutex/semaphore, producer-consumer, dining philosophers. the killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. the seeded rng makes each bug a shareable url. flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0030</span>
         <span class="card-title">New domain: Concurrency &amp; interleavings</span>
@@ -450,6 +468,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P0">P0</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -474,7 +493,8 @@
       data-status="ready"
       data-priority="P0"
       data-effort="L"
-      data-search="bring-your-own-algorithm sandbox an in-browser editor (codemirror) plus a web worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. converts algoviz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves.">
+      data-zone="D"
+      data-search="bring-your-own-algorithm sandbox an in-browser editor (codemirror) plus a web worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. converts algoviz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves. d d · instruments">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0038</span>
         <span class="card-title">Bring-your-own-algorithm sandbox</span>
@@ -482,6 +502,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P0">P0</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">D · Instruments</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -506,7 +527,8 @@
       data-status="ready"
       data-priority="P0"
       data-effort="S"
-      data-search="embeddable widgets an iframe-able `/embed/sorting?algo=quick&amp;seed=…` route. the existing url state and hash router already do the hard part. every blog post or lecture deck that embeds one becomes a discovery channel/backlink rather than a one-time visit.">
+      data-zone="D"
+      data-search="embeddable widgets an iframe-able `/embed/sorting?algo=quick&amp;seed=…` route. the existing url state and hash router already do the hard part. every blog post or lecture deck that embeds one becomes a discovery channel/backlink rather than a one-time visit. d d · instruments">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0039</span>
         <span class="card-title">Embeddable widgets</span>
@@ -514,6 +536,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P0">P0</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">D · Instruments</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -538,7 +561,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="M"
-      data-search="fill the existing gaps tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add bellman-ford, floyd-warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph.">
+      data-zone="A"
+      data-search="fill the existing gaps tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add bellman-ford, floyd-warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0010</span>
         <span class="card-title">Fill the existing gaps</span>
@@ -546,6 +570,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -570,7 +595,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="S"
-      data-search="complexity cheat-sheet page one sortable table of every algorithm's time/space complexity, stability, and in-place-ness — today that information is scattered one card at a time across categories.">
+      data-zone="A"
+      data-search="complexity cheat-sheet page one sortable table of every algorithm's time/space complexity, stability, and in-place-ness — today that information is scattered one card at a time across categories. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0011</span>
         <span class="card-title">Complexity cheat-sheet page</span>
@@ -578,6 +604,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -602,7 +629,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="S"
-      data-search="dataset presets nearly-sorted, reverse-sorted, few-unique-values, real-world-ish presets — shows *why* insertion sort shines on nearly-sorted data instead of just asserting it in a complexity card.">
+      data-zone="A"
+      data-search="dataset presets nearly-sorted, reverse-sorted, few-unique-values, real-world-ish presets — shows *why* insertion sort shines on nearly-sorted data instead of just asserting it in a complexity card. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0017</span>
         <span class="card-title">Dataset presets</span>
@@ -610,6 +638,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -634,7 +663,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="M"
-      data-search="skins the same generator renders as book spines, race cars, a hand of cards, or people lining up by height — a picker, zero changes to any algorithm's logic. exploits the fact that step-snapshot logic (`array`/`comparing`/`swapping`/`sorted`) already knows nothing about `barchart.vue`.">
+      data-zone="B"
+      data-search="skins the same generator renders as book spines, race cars, a hand of cards, or people lining up by height — a picker, zero changes to any algorithm's logic. exploits the fact that step-snapshot logic (`array`/`comparing`/`swapping`/`sorted`) already knows nothing about `barchart.vue`. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0019</span>
         <span class="card-title">Skins</span>
@@ -642,6 +672,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -666,7 +697,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="S"
-      data-search="time-travel diff full step history is already recorded for scrubbing (`usestepplayer`'s tape). let a user pick two arbitrary steps and show a diff of exactly what changed between them — &quot;what did these 50 steps actually accomplish.&quot;">
+      data-zone="B"
+      data-search="time-travel diff full step history is already recorded for scrubbing (`usestepplayer`'s tape). let a user pick two arbitrary steps and show a diff of exactly what changed between them — &quot;what did these 50 steps actually accomplish.&quot; b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0024</span>
         <span class="card-title">Time-travel diff</span>
@@ -674,6 +706,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -698,7 +731,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="S"
-      data-search="seed-of-the-day derive a deterministic seed from the date (seeding is already the app's whole reproducibility model) so everyone gets the same dataset today — &quot;quicksort took 41 comparisons on today's array, beat that with a different pivot rule.&quot;">
+      data-zone="B"
+      data-search="seed-of-the-day derive a deterministic seed from the date (seeding is already the app's whole reproducibility model) so everyone gets the same dataset today — &quot;quicksort took 41 comparisons on today's array, beat that with a different pivot rule.&quot; b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0025</span>
         <span class="card-title">Seed-of-the-day</span>
@@ -706,6 +740,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -730,7 +765,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="L"
-      data-search="new domain: database internals b+tree page splits, join-strategy races (nested loop vs. hash vs. merge), wal and crash recovery, and isolation anomalies as two interleaved transactions you can step — dirty read, non-repeatable read, phantom, write skew. existing tools in this space are scattered vendor blog widgets and research prototypes, not a coherent app.">
+      data-zone="C"
+      data-search="new domain: database internals b+tree page splits, join-strategy races (nested loop vs. hash vs. merge), wal and crash recovery, and isolation anomalies as two interleaved transactions you can step — dirty read, non-repeatable read, phantom, write skew. existing tools in this space are scattered vendor blog widgets and research prototypes, not a coherent app. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0031</span>
         <span class="card-title">New domain: Database internals</span>
@@ -738,6 +774,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -762,7 +799,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="S"
-      data-search="new domain: number &amp; text representation ieee-754 with toggleable bits (the &quot;why is 0.1 + 0.2 !== 0.3&quot; page basically writes its own traffic), two's complement, endianness, utf-8 byte-level encoding, grapheme clusters vs. code points, base64. flagged as the cheapest build researched, with disproportionate reach.">
+      data-zone="C"
+      data-search="new domain: number &amp; text representation ieee-754 with toggleable bits (the &quot;why is 0.1 + 0.2 !== 0.3&quot; page basically writes its own traffic), two's complement, endianness, utf-8 byte-level encoding, grapheme clusters vs. code points, base64. flagged as the cheapest build researched, with disproportionate reach. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0035</span>
         <span class="card-title">New domain: Number &amp; text representation</span>
@@ -770,6 +808,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -794,7 +833,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="M"
-      data-search="new domain: memory hierarchy cache lines, associativity, hit/miss, false sharing, and the row-major vs. column-major loop-order demo where identical work runs 10x slower purely from memory access pattern. flagged as the best &quot;aha&quot; moment available for a working engineer.">
+      data-zone="C"
+      data-search="new domain: memory hierarchy cache lines, associativity, hit/miss, false sharing, and the row-major vs. column-major loop-order demo where identical work runs 10x slower purely from memory access pattern. flagged as the best &quot;aha&quot; moment available for a working engineer. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0036</span>
         <span class="card-title">New domain: Memory hierarchy</span>
@@ -802,6 +842,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -826,7 +867,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="M"
-      data-search="empirical complexity lab actually measure runtimes across increasing input sizes in the browser, plot measured performance against the theoretical big-o curve, and expose constant factors — e.g. why insertion sort wins below n≈20, why real-world sorts are hybrids. turns big-o from a badge into evidence.">
+      data-zone="D"
+      data-search="empirical complexity lab actually measure runtimes across increasing input sizes in the browser, plot measured performance against the theoretical big-o curve, and expose constant factors — e.g. why insertion sort wins below n≈20, why real-world sorts are hybrids. turns big-o from a badge into evidence. d d · instruments">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0040</span>
         <span class="card-title">Empirical complexity lab</span>
@@ -834,6 +876,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">D · Instruments</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -858,7 +901,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="M"
-      data-search="challenge layer learngitbranching became the canonical way people learn git through levels with verified goal states, not animation quality — &quot;reach this heap in ≤5 ops,&quot; &quot;craft an input making quicksort o(n²),&quot; &quot;fix the sabotaged generator.&quot; deterministic seeds make grading trivial here.">
+      data-zone="D"
+      data-search="challenge layer learngitbranching became the canonical way people learn git through levels with verified goal states, not animation quality — &quot;reach this heap in ≤5 ops,&quot; &quot;craft an input making quicksort o(n²),&quot; &quot;fix the sabotaged generator.&quot; deterministic seeds make grading trivial here. d d · instruments">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0041</span>
         <span class="card-title">Challenge layer</span>
@@ -866,6 +910,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">D · Instruments</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -890,7 +935,8 @@
       data-status="ready"
       data-priority="P1"
       data-effort="S"
-      data-search="step narration a running text log — &quot;compared a[3]=5 and a[4]=3, swapped&quot; — generated from each step snapshot. gives screen-reader accessibility, a copy-pasteable trace, and searchable step text from one feature. almost nothing in this space is accessible today, and the app already has the `line`/pseudocode tagging to hang it on.">
+      data-zone="D"
+      data-search="step narration a running text log — &quot;compared a[3]=5 and a[4]=3, swapped&quot; — generated from each step snapshot. gives screen-reader accessibility, a copy-pasteable trace, and searchable step text from one feature. almost nothing in this space is accessible today, and the app already has the `line`/pseudocode tagging to hang it on. d d · instruments">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0042</span>
         <span class="card-title">Step narration</span>
@@ -898,6 +944,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P1">P1</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">D · Instruments</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -922,7 +969,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="new category: dynamic programming knapsack, longest common subsequence, edit distance, coin change: animate the dp table filling cell by cell, highlighting the recurrence that produced each cell.">
+      data-zone="A"
+      data-search="new category: dynamic programming knapsack, longest common subsequence, edit distance, coin change: animate the dp table filling cell by cell, highlighting the recurrence that produced each cell. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0002</span>
         <span class="card-title">New category: Dynamic Programming</span>
@@ -930,6 +978,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -954,7 +1003,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="new category: union-find + kruskal's mst visualize path compression and union-by-rank, then kruskal's minimum spanning tree, reusing the existing graph model directly.">
+      data-zone="A"
+      data-search="new category: union-find + kruskal's mst visualize path compression and union-by-rank, then kruskal's minimum spanning tree, reusing the existing graph model directly. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0006</span>
         <span class="card-title">New category: Union-Find + Kruskal's MST</span>
@@ -962,6 +1012,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -986,7 +1037,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="new category: hash table insertion with collision resolution — chaining vs. open addressing — visualizing bucket state and load factor as it climbs.">
+      data-zone="A"
+      data-search="new category: hash table insertion with collision resolution — chaining vs. open addressing — visualizing bucket state and load factor as it climbs. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0008</span>
         <span class="card-title">New category: Hash Table</span>
@@ -994,6 +1046,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1018,7 +1071,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="guided &quot;learn&quot; mode a scripted walkthrough — auto-paused at key moments with an explanatory tooltip — for one algorithm per category, aimed at first-time visitors.">
+      data-zone="A"
+      data-search="guided &quot;learn&quot; mode a scripted walkthrough — auto-paused at key moments with an explanatory tooltip — for one algorithm per category, aimed at first-time visitors. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0012</span>
         <span class="card-title">Guided &quot;Learn&quot; mode</span>
@@ -1026,6 +1080,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1050,7 +1105,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="S"
-      data-search="predict-the-step quiz guess the next comparison or swap before it's revealed — lightweight gamification that reinforces attention instead of passive watching.">
+      data-zone="A"
+      data-search="predict-the-step quiz guess the next comparison or swap before it's revealed — lightweight gamification that reinforces attention instead of passive watching. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0013</span>
         <span class="card-title">Predict-the-step quiz</span>
@@ -1058,6 +1114,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1082,7 +1139,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="compare mode, extended sorting already races two algorithms side by side; extend the same pattern to pathfinding — two algorithms solving the same maze at once.">
+      data-zone="A"
+      data-search="compare mode, extended sorting already races two algorithms side by side; extend the same pattern to pathfinding — two algorithms solving the same maze at once. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0014</span>
         <span class="card-title">Compare mode, extended</span>
@@ -1090,6 +1148,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1114,7 +1173,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="export a run gif / webm / image export via canvas capture. right now only the configuration is shareable through the url, never the resulting animation itself.">
+      data-zone="A"
+      data-search="export a run gif / webm / image export via canvas capture. right now only the configuration is shareable through the url, never the resulting animation itself. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0015</span>
         <span class="card-title">Export a run</span>
@@ -1122,6 +1182,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1146,7 +1207,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="guess-the-algorithm mode hide the name and pseudocode; show only the bars moving. user guesses which algorithm it is from the shape of its comparisons/swaps. could become a daily challenge since everything is already seed-driven.">
+      data-zone="B"
+      data-search="guess-the-algorithm mode hide the name and pseudocode; show only the bars moving. user guesses which algorithm it is from the shape of its comparisons/swaps. could become a daily challenge since everything is already seed-driven. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0020</span>
         <span class="card-title">Guess-the-algorithm mode</span>
@@ -1154,6 +1216,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1178,7 +1241,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="break it on purpose let users inject a bug into a known algorithm — a flipped comparison, a dropped swap, an off-by-one — and watch it fail or blow up to o(n²). turns the visualizer into a debugging trainer instead of a demonstration reel; pairs naturally with the existing code panel.">
+      data-zone="B"
+      data-search="break it on purpose let users inject a bug into a known algorithm — a flipped comparison, a dropped swap, an off-by-one — and watch it fail or blow up to o(n²). turns the visualizer into a debugging trainer instead of a demonstration reel; pairs naturally with the existing code panel. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0021</span>
         <span class="card-title">Break it on purpose</span>
@@ -1186,6 +1250,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1210,7 +1275,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="adversarial input / complexity cliff let users construct or auto-search the worst-case input for an algorithm and watch the operation counter and timer diverge live against the theoretical big-o curve — makes the complexity cliff a felt experience, not a static badge.">
+      data-zone="B"
+      data-search="adversarial input / complexity cliff let users construct or auto-search the worst-case input for an algorithm and watch the operation counter and timer diverge live against the theoretical big-o curve — makes the complexity cliff a felt experience, not a static badge. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0022</span>
         <span class="card-title">Adversarial input / complexity cliff</span>
@@ -1218,6 +1284,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1242,7 +1309,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="sonification as the main event push the existing web audio cue system further into a real per-algorithm audio signature — &quot;this is what merge sort sounds like&quot; — exportable as a short audio clip. the &quot;sound of sorting&quot; genre, built natively on plumbing the app already has (`audio/engine.ts`, `useaudiocues`).">
+      data-zone="B"
+      data-search="sonification as the main event push the existing web audio cue system further into a real per-algorithm audio signature — &quot;this is what merge sort sounds like&quot; — exportable as a short audio clip. the &quot;sound of sorting&quot; genre, built natively on plumbing the app already has (`audio/engine.ts`, `useaudiocues`). b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0023</span>
         <span class="card-title">Sonification as the main event</span>
@@ -1250,6 +1318,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1274,7 +1343,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="S"
-      data-search="algorithm personalities a one-line character per algorithm (quicksort: &quot;cocky gambler that occasionally faceplants&quot;) with a reactive quip at milestones (worst pivot, final pass). content-only, costs nothing structurally.">
+      data-zone="B"
+      data-search="algorithm personalities a one-line character per algorithm (quicksort: &quot;cocky gambler that occasionally faceplants&quot;) with a reactive quip at milestones (worst pivot, final pass). content-only, costs nothing structurally. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0026</span>
         <span class="card-title">Algorithm personalities</span>
@@ -1282,6 +1352,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1306,7 +1377,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="L"
-      data-search="new domain: operating systems cpu scheduling (fcfs/sjf/rr/priority/mlfq) as a gantt chart, page replacement (fifo/lru/clock/optimal) with live fault counters, memory allocation and fragmentation, banker's algorithm, disk scheduling. highest curriculum overlap of any domain researched — every cs program teaches this and most existing tools for it are abandoned student projects.">
+      data-zone="C"
+      data-search="new domain: operating systems cpu scheduling (fcfs/sjf/rr/priority/mlfq) as a gantt chart, page replacement (fifo/lru/clock/optimal) with live fault counters, memory allocation and fragmentation, banker's algorithm, disk scheduling. highest curriculum overlap of any domain researched — every cs program teaches this and most existing tools for it are abandoned student projects. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0029</span>
         <span class="card-title">New domain: Operating Systems</span>
@@ -1314,6 +1386,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1338,7 +1411,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="L"
-      data-search="new domain: networking tcp handshake, sliding window, congestion control (slow start / aimd with injected loss — watch cwnd collapse and recover), retransmission, dns resolution chain, tls handshake, http request lifecycle.">
+      data-zone="C"
+      data-search="new domain: networking tcp handshake, sliding window, congestion control (slow start / aimd with injected loss — watch cwnd collapse and recover), retransmission, dns resolution chain, tls handshake, http request lifecycle. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0032</span>
         <span class="card-title">New domain: Networking</span>
@@ -1346,6 +1420,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1370,7 +1445,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="L"
-      data-search="new domain: distributed systems raft leader election and log replication, consistent hashing ring (add a node, watch what rebalances), vector clocks, quorum reads/writes, partition tolerance, plus rate limiters (token bucket, leaky bucket, sliding window) that people implement at work directly.">
+      data-zone="C"
+      data-search="new domain: distributed systems raft leader election and log replication, consistent hashing ring (add a node, watch what rebalances), vector clocks, quorum reads/writes, partition tolerance, plus rate limiters (token bucket, leaky bucket, sliding window) that people implement at work directly. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0033</span>
         <span class="card-title">New domain: Distributed systems</span>
@@ -1378,6 +1454,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1402,7 +1479,8 @@
       data-status="ready"
       data-priority="P2"
       data-effort="M"
-      data-search="plugin contract &amp; i18n document &quot;add a visualizer&quot; as a well-defined 3-file pr (generator module, composable on `usestepplayer`, view added to `navroutes`), and translate the ui. what turns this from a personal project into a community repo.">
+      data-zone="D"
+      data-search="plugin contract &amp; i18n document &quot;add a visualizer&quot; as a well-defined 3-file pr (generator module, composable on `usestepplayer`, view added to `navroutes`), and translate the ui. what turns this from a personal project into a community repo. d d · instruments">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0043</span>
         <span class="card-title">Plugin contract &amp; i18n</span>
@@ -1410,6 +1488,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P2">P2</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">D · Instruments</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1434,7 +1513,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="M"
-      data-search="new category: recursion &amp; backtracking n-queens, sudoku solver, subset/permutation generation: render the call tree growing live alongside the board/array state. pairs naturally with the existing &quot;code panel + yield highlight&quot; feature.">
+      data-zone="A"
+      data-search="new category: recursion &amp; backtracking n-queens, sudoku solver, subset/permutation generation: render the call tree growing live alongside the board/array state. pairs naturally with the existing &quot;code panel + yield highlight&quot; feature. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0003</span>
         <span class="card-title">New category: Recursion &amp; Backtracking</span>
@@ -1442,6 +1522,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1466,7 +1547,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="S"
-      data-search="new category: string matching naive search, kmp, rabin-karp: animate the pattern sliding over text with match/mismatch highlighting.">
+      data-zone="A"
+      data-search="new category: string matching naive search, kmp, rabin-karp: animate the pattern sliding over text with match/mismatch highlighting. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0004</span>
         <span class="card-title">New category: String Matching</span>
@@ -1474,6 +1556,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1498,7 +1581,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="S"
-      data-search="new category: linked list / stack / queue insert/delete/reverse animations; a natural &quot;intro&quot; category for beginners, cheap to build.">
+      data-zone="A"
+      data-search="new category: linked list / stack / queue insert/delete/reverse animations; a natural &quot;intro&quot; category for beginners, cheap to build. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0005</span>
         <span class="card-title">New category: Linked List / Stack / Queue</span>
@@ -1506,6 +1590,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1530,7 +1615,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="S"
-      data-search="new category: trie insert / search / prefix-match, animated as a growing tree.">
+      data-zone="A"
+      data-search="new category: trie insert / search / prefix-match, animated as a growing tree. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0007</span>
         <span class="card-title">New category: Trie</span>
@@ -1538,6 +1624,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1562,7 +1649,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="M"
-      data-search="new category: avl / red-black tree rotations after insert, built directly on the existing `usebst` driver pattern rather than a new one.">
+      data-zone="A"
+      data-search="new category: avl / red-black tree rotations after insert, built directly on the existing `usebst` driver pattern rather than a new one. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0009</span>
         <span class="card-title">New category: AVL / Red-Black Tree</span>
@@ -1570,6 +1658,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1594,7 +1683,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="S"
-      data-search="personal notes / journal a persisted per-algorithm scratchpad — useful if this doubles as a study tool rather than a pure demo.">
+      data-zone="A"
+      data-search="personal notes / journal a persisted per-algorithm scratchpad — useful if this doubles as a study tool rather than a pure demo. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0016</span>
         <span class="card-title">Personal notes / journal</span>
@@ -1602,6 +1692,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1626,7 +1717,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="S"
-      data-search="pwa / offline installable, works offline — low effort given the app is already a static spa with no backend.">
+      data-zone="A"
+      data-search="pwa / offline installable, works offline — low effort given the app is already a static spa with no backend. a a · extend the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0018</span>
         <span class="card-title">PWA / offline</span>
@@ -1634,6 +1726,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">A · Extend the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1658,7 +1751,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="M"
-      data-search="solve it yourself, then get graded for pathfinding: let the user manually click out a path before running bfs/a*, then score their route against optimal and show exactly where they diverged. turns a passive demo into a game.">
+      data-zone="B"
+      data-search="solve it yourself, then get graded for pathfinding: let the user manually click out a path before running bfs/a*, then score their route against optimal and show exactly where they diverged. turns a passive demo into a game. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0027</span>
         <span class="card-title">Solve it yourself, then get graded</span>
@@ -1666,6 +1760,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1690,7 +1785,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="S"
-      data-search="presenter mode + qr handoff a big-screen-optimized layout with an auto-generated qr code of the current url state, so a class or audience can pull up the exact same run on their own devices instantly. since config already round-trips through the url, this is mostly presentation.">
+      data-zone="B"
+      data-search="presenter mode + qr handoff a big-screen-optimized layout with an auto-generated qr code of the current url state, so a class or audience can pull up the exact same run on their own devices instantly. since config already round-trips through the url, this is mostly presentation. b b · off the map">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0028</span>
         <span class="card-title">Presenter mode + QR handoff</span>
@@ -1698,6 +1794,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          <span class="badge zone-badge">B · Off the map</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1722,7 +1819,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="L"
-      data-search="new domain: compilers &amp; regex engines tokenizer → ast → evaluation for a toy expression language, shunting-yard, recursive descent. plus a regex engine as nfa/dfa where users paste their own pattern and watch catastrophic backtracking blow up — a production debugging tool, not just a lesson.">
+      data-zone="C"
+      data-search="new domain: compilers &amp; regex engines tokenizer → ast → evaluation for a toy expression language, shunting-yard, recursive descent. plus a regex engine as nfa/dfa where users paste their own pattern and watch catastrophic backtracking blow up — a production debugging tool, not just a lesson. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0034</span>
         <span class="card-title">New domain: Compilers &amp; regex engines</span>
@@ -1730,6 +1828,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1754,7 +1853,8 @@
       data-status="ready"
       data-priority="P3"
       data-effort="M"
-      data-search="new domain: also viable (grab-bag) compression (huffman tree construction, lz77 window), error correction (crc, hamming), crypto (sha-256 rounds, diffie-hellman, jwt anatomy), and git's own object model and commit dag.">
+      data-zone="C"
+      data-search="new domain: also viable (grab-bag) compression (huffman tree construction, lz77 window), error correction (crc, hamming), crypto (sha-256 rounds, diffie-hellman, jwt anatomy), and git's own object model and commit dag. c c · new territories">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0037</span>
         <span class="card-title">New domain: Also viable (grab-bag)</span>
@@ -1762,6 +1862,7 @@
           <span class="pill status-ready">Ready</span>
           <span class="badge priority-P3">P3</span>
           <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="badge zone-badge">C · New territories</span>
         </span>
         <span class="chevron" aria-hidden="true">&#9656;</span>
       </button>
@@ -1798,6 +1899,7 @@
   var statusSelect = document.getElementById('filter-status');
   var prioritySelect = document.getElementById('filter-priority');
   var effortSelect = document.getElementById('filter-effort');
+  var zoneSelect = document.getElementById('filter-zone');
   var searchInput = document.getElementById('filter-search');
   var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
   var resultCount = document.getElementById('result-count');
@@ -1806,6 +1908,7 @@
     var status = statusSelect.value;
     var priority = prioritySelect.value;
     var effort = effortSelect.value;
+    var zone = zoneSelect.value;
     var query = searchInput.value.trim().toLowerCase();
     var visible = 0;
 
@@ -1814,6 +1917,7 @@
         (!status || card.dataset.status === status) &&
         (!priority || card.dataset.priority === priority) &&
         (!effort || card.dataset.effort === effort) &&
+        (!zone || card.dataset.zone === zone) &&
         (!query || card.dataset.search.indexOf(query) !== -1);
       card.hidden = !matches;
       if (matches) visible++;
@@ -1825,6 +1929,7 @@
   statusSelect.addEventListener('change', applyFilters);
   prioritySelect.addEventListener('change', applyFilters);
   effortSelect.addEventListener('change', applyFilters);
+  zoneSelect.addEventListener('change', applyFilters);
   searchInput.addEventListener('input', applyFilters);
 
   document.querySelectorAll('.card-header').forEach(function (header) {

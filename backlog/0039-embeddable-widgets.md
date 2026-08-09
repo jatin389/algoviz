@@ -4,6 +4,7 @@ title: Embeddable widgets
 status: ready
 priority: P0
 effort: S
+zone: D
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

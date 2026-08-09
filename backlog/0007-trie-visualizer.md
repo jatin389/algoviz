@@ -4,6 +4,7 @@ title: "New category: Trie"
 status: ready
 priority: P3
 effort: S
+zone: A
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

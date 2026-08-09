@@ -4,6 +4,7 @@ title: "New domain: Concurrency & interleavings"
 status: ready
 priority: P0
 effort: L
+zone: C
 created: 2026-08-09
 refined_at: 2026-08-09
 ---
