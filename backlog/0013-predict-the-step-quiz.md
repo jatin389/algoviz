@@ -3,6 +3,7 @@ id: 0013
 title: Predict-the-step quiz
 status: ready
 priority: P2
+effort: S
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

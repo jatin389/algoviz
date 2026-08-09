@@ -3,6 +3,7 @@ id: 0004
 title: "New category: String Matching"
 status: ready
 priority: P3
+effort: S
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

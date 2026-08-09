@@ -3,6 +3,7 @@ id: 0022
 title: Adversarial input / complexity cliff
 status: ready
 priority: P2
+effort: M
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

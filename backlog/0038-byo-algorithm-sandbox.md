@@ -3,6 +3,7 @@ id: 0038
 title: Bring-your-own-algorithm sandbox
 status: ready
 priority: P0
+effort: L
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

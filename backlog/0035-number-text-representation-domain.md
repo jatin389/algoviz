@@ -3,6 +3,7 @@ id: 0035
 title: "New domain: Number & text representation"
 status: ready
 priority: P1
+effort: S
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

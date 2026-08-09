@@ -3,6 +3,7 @@ id: 0001
 title: Landing page
 status: ready
 priority: P0
+effort: S
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

@@ -3,6 +3,7 @@ id: 0016
 title: Personal notes / journal
 status: ready
 priority: P3
+effort: S
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

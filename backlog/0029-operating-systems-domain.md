@@ -3,6 +3,7 @@ id: 0029
 title: "New domain: Operating Systems"
 status: ready
 priority: P2
+effort: L
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

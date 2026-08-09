@@ -3,6 +3,7 @@ id: 0034
 title: "New domain: Compilers & regex engines"
 status: ready
 priority: P3
+effort: L
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

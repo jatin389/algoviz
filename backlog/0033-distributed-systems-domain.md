@@ -3,6 +3,7 @@ id: 0033
 title: "New domain: Distributed systems"
 status: ready
 priority: P2
+effort: L
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

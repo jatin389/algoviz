@@ -3,6 +3,7 @@ id: 0009
 title: "New category: AVL / Red-Black Tree"
 status: ready
 priority: P3
+effort: M
 created: 2026-08-09
 refined_at: 2026-08-09
 ---
