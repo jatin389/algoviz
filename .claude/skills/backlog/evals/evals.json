@@ -1,0 +1,26 @@
+{
+  "skill_name": "backlog",
+  "evals": [
+    {
+      "id": 1,
+      "name": "capture-mid-task",
+      "prompt": "quick note before I forget -- we should eventually add a keyboard shortcut to step the timeline frame-by-frame instead of only dragging the scrubber. save that for later, don't want to lose the thread on what I'm doing right now",
+      "expected_output": "Creates backlog/ (Backlogs.md + DONE.md) if missing, adds one Inbox row + a task file capturing the idea, asks no clarifying questions, replies with a short one-line confirmation.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "gate-refuses-unrefined",
+      "prompt": "let's start on the next backlog item",
+      "expected_output": "The only backlog item is an unrefined Inbox entry with no priority. The assistant must NOT start implementation work on it -- it should say it hasn't been scoped yet and offer to brainstorm/refine it first.",
+      "files": ["backlog/Backlogs.md", "backlog/DONE.md", "backlog/0001-add-dark-mode-toggle.md"]
+    },
+    {
+      "id": 3,
+      "name": "counts-and-refine",
+      "prompt": "how many tasks do we have pending right now? also let's flesh out the safari scrub investigation one, I have more context on it now",
+      "expected_output": "Reports counts broken down by status (2 inbox, 1 ready, 0 in-progress), not a single number, and does not count the done item. For the refinement request, it asks clarifying questions about scope/acceptance criteria rather than inventing them.",
+      "files": ["backlog/Backlogs.md", "backlog/DONE.md", "backlog/0001-initial-scrubber-prototype.md", "backlog/0002-investigate-slow-scrub-on-safari.md", "backlog/0003-export-compare-mode-results-as-csv.md", "backlog/0004-add-unit-tests-for-rng-seeding.md"]
+    }
+  ]
+}
