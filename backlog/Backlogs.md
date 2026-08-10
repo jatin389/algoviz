@@ -13,6 +13,7 @@ Captured but not yet scoped. Refine these before starting them.
 
 | ID | Title | Description |
 |----|-------|--------------|
+| 0044 | Check and implement loop engineering | |
 
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
