@@ -9,12 +9,14 @@ Zone legend (see the skill's "Zones (optional)" section for the full definition)
 - **B — Off the map**: a creative departure from the standard playbook for this kind of product.
 - **C — New territories**: an entirely new domain/subject area beyond the product's current scope.
 - **D — Instruments**: platform/infrastructure work that multiplies the value of other features.
+- **E — Technical improvement**: internal quality work on what already exists — refactors, correctness/perf fixes, dev-workflow and agent-tooling upkeep.
 
 ## Inbox
 Captured but not yet scoped. Refine these before starting them.
 
 | ID | Title | Description |
 |----|-------|--------------|
+| 0046 | Check and implement loop engineering | user-set P1 / S / Zone E at capture; subject still ambiguous — needs scoping before it can move to Ready |
 
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.

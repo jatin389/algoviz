@@ -486,12 +486,13 @@ ${BOARD_CSS}
   var originalOrder = cards.slice();
   var resultCount = document.getElementById('result-count');
 
-  var ZONE_ORDER = ['A', 'B', 'C', 'D', 'none'];
+  var ZONE_ORDER = ['A', 'B', 'C', 'D', 'E', 'none'];
   var ZONE_GROUP_LABELS = {
     A: 'Zone A — Extend the map',
     B: 'Zone B — Off the map',
     C: 'Zone C — New territories',
     D: 'Zone D — Instruments',
+    E: 'Zone E — Technical improvement',
     none: 'No zone assigned'
   };
 
