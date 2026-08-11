@@ -5,6 +5,7 @@ status: ready
 priority: P3
 effort: M
 zone: B
+cluster: sequence-diff
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

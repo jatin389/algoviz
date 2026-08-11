@@ -5,6 +5,8 @@ status: ready
 priority: P1
 effort: L
 zone: C
+depends_on: 0030
+cluster: interleaving-domains
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

@@ -5,6 +5,8 @@ status: ready
 priority: P2
 effort: M
 zone: B
+depends_on: 0010
+cluster: seed-challenge
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

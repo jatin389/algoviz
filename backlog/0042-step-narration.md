@@ -5,6 +5,8 @@ status: ready
 priority: P1
 effort: S
 zone: D
+depends_on: 0010
+cluster: snapshot-to-text
 created: 2026-08-09
 refined_at: 2026-08-09
 ---

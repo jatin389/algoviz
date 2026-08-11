@@ -5,6 +5,7 @@ status: ready
 priority: P0
 effort: S
 zone: D
+cluster: alternate-shell
 created: 2026-08-09
 refined_at: 2026-08-09
 ---
