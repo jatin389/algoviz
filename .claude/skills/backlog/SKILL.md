@@ -42,6 +42,22 @@ A task only ever has one status at a time, and it lives in exactly one table acr
 
 Orthogonal to status, a task has a **lab status** — whether anyone has actually researched *how* to build it. This is tracked in `backlog/labs/NNNN-slug.md`, not in the task file, and it's what tells you whether "ready" really means ready.
 
+## Zones (optional)
+
+Zone classifies *where* an idea sits relative to the product's current shipped scope — a different axis from priority (urgency) and effort (size). It's most useful after a broad idea-generation/research pass (like the one that produced the current backlog); a routine one-line inbox capture usually doesn't need one.
+
+Current zones:
+- **A — Extend the map**: deepens or completes something the product already does. Lower risk, compounds on existing surface area.
+- **B — Off the map**: a creative departure from the standard playbook for this kind of product — novel framings/modes/mechanics that aren't just "more of the same."
+- **C — New territories**: an entirely new domain/subject area beyond the product's current scope. Highest novelty, usually highest effort.
+- **D — Instruments**: platform/infrastructure work that isn't a feature itself but multiplies the value of other features (tooling, extensibility, meta-capabilities).
+
+This list is open-ended — a later research pass can introduce Zone E, F, and so on. Any new zone letter must be documented here, with a one-line description, before it's ever used; this section is the single source of truth for what each letter means, so never invent an undocumented zone letter on a task file or in `Backlogs.md`.
+
+When zones are in use, record `zone: <letter>` in the task file's frontmatter and add a Zone column to the relevant table in `Backlogs.md`.
+
+The board generator treats this list as display names, **not** as a whitelist: an undocumented letter still appears in the Zone filter, labelled with the bare letter. So a new zone can be used before this section catches up — but document it here anyway, because nothing else will.
+
 ## `Backlogs.md` format
 
 Three sections, each a table. Skip a section's table rows (but keep the heading) when it's empty.
@@ -60,9 +76,9 @@ Captured but not yet scoped. Refine these before starting them.
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
 
-| ID | Priority | Effort | Title | Description |
-|----|----------|--------|-------|--------------|
-| 0003 | P1 | S | Seeded RNG follow-up | revisit after revert of #14 |
+| ID | Priority | Effort | Zone | Title | Description |
+|----|----------|--------|------|-------|--------------|
+| 0003 | P1 | M | A | Seeded RNG follow-up | revisit after revert of #14 |
 
 ## In Progress
 
@@ -116,19 +132,13 @@ Field reference — all of these are read by the board generator, so keep the ke
 |---|---|---|
 | `priority` | `P0`–`P3` | urgency, see scale below |
 | `effort` | `S` / `M` / `L` | rough size |
-| `zone` | `A` / `B` / `C` / `D` | what *kind* of work it is — see below |
+| `zone` | a documented letter | where the idea sits relative to current scope — see "Zones (optional)" above, which is the single source of truth for the letters |
 | `depends_on` | comma-separated ids, e.g. `0042, 0010` | hard or strong-soft prerequisites only |
 | `cluster` | a slug, e.g. `snapshot-to-text` | names a group of items sharing an implementation substrate |
 
-**Zones** classify work by kind, independently of priority:
-- **A — Extend the map**: deepens or broadens the existing gallery using established patterns.
-- **B — Off the map**: novel modes/mechanics wrapped around existing surfaces.
-- **C — New territories**: entirely new top-level domains.
-- **D — Instruments**: cross-cutting platform capability — "tools that make tools."
-
 Record only dependencies that are real and stateable in one sentence. **Never record `unblocks`** — the generator derives it by inverting every item's `depends_on`, so a stored copy could only drift.
 
-`priority`, `effort` and `refined_at` stay blank until the task moves to `ready`. `zone` can be set at capture time if it's obvious; `depends_on` and `cluster` are usually discovered during refinement or in a lab. When it closes, add `closed: <date>` and set `status` to `done` or `dropped` — but leave the file at its original path. Only the index *row* moves to `DONE.md`; the file itself doesn't move, so links and history stay stable.
+`priority`, `effort`, and `refined_at` stay blank until the task moves to `ready`. `zone` is optional even then — set it only when the idea's relationship to the product's current scope is relevant; a plain one-line inbox capture may never get one. `depends_on` and `cluster` are usually discovered during refinement or in a lab, not at capture. When it closes, add `closed: <date>` and set `status` to `done` or `dropped` — but leave the file at its original path. Only the index *row* moves to `DONE.md`; the file itself doesn't move, so links and history stay stable.
 
 ## Assigning IDs and slugs
 
@@ -185,7 +195,7 @@ If you're unsure which it is, that uncertainty is itself the signal to write one
 Trigger: "note this for later", "add to the backlog", "let's deal with that after this", or the user just musing about a future improvement mid-task.
 
 1. Assign the next ID and slug.
-2. Create `backlog/NNNN-slug.md` with `status: inbox`, `priority` and `refined_at` blank, and the idea written into `## Idea` in the user's own words.
+2. Create `backlog/NNNN-slug.md` with `status: inbox`, `priority`/`effort`/`zone`/`refined_at` blank, and the idea written into `## Idea` in the user's own words.
 3. Add one row to the **Inbox** table in `Backlogs.md` — description only if the user actually gave one, otherwise leave it blank.
 4. Confirm in one short line and get back to what you were doing. Don't ask clarifying questions, don't assign a priority, don't start refining unless the user explicitly asks — the whole point of the inbox is that capture costs nothing.
 
@@ -211,14 +221,19 @@ Report counts broken down by status — e.g. "3 in the inbox, 2 ready, 1 in prog
 This is a conversation, not a form. Ask about goal, scope boundaries, acceptance criteria, and anything that seems ambiguous — the same way you'd brainstorm any other task with the user. Then:
 
 1. Fill in `## Refinement` in the task file (scope, acceptance criteria, subtasks, open questions).
-2. Set `priority` (see scale below) and `refined_at` to today's date, and flip `status` to `ready`.
-3. Move the row from **Inbox** to **Ready** in `Backlogs.md`, adding the priority column.
+2. Set `priority` (see scale below) and `refined_at` to today's date, and flip `status` to `ready`. Set `effort` too when it's reasonably clear (see scale below); set `zone` when it's relevant (see "Zones (optional)") — same "ask, don't invent" rule as priority.
+3. Move the row from **Inbox** to **Ready** in `Backlogs.md`, adding the priority (and, when set, effort/zone) columns.
 
 Priority scale — ask the user which bucket fits if it's not obvious, rather than guessing:
 - **P0** — urgent / blocking something
 - **P1** — high value, do soon
 - **P2** — normal
 - **P3** — nice-to-have / someday
+
+Effort scale — a rough size estimate, not a rigorous one:
+- **S** — small
+- **M** — medium
+- **L** — large
 
 "Let's triage the backlog" means doing this for each inbox item in turn, one at a time, not batch-guessing all of them.
 
@@ -230,5 +245,5 @@ Priority scale — ask the user which bucket fits if it's not obvious, rather th
 ## Style notes
 
 - `Backlogs.md` is meant to be opened directly in an editor too, not just read by Claude — keep it skimmable, not just machine-parseable.
-- Never invent a priority or acceptance criteria on the user's behalf. If they're not offered, ask.
+- Never invent a priority, zone, or acceptance criteria on the user's behalf. If they're not offered, ask — and never invent a zone *letter* that isn't already documented in "Zones (optional)". Effort is a rougher, lower-stakes estimate; proposing one is fine when it's reasonably clear from context, but don't stick a confident number/letter on something genuinely ambiguous.
 - Don't over-ask at capture time. Capture is cheap on purpose; refinement is where the thinking happens.

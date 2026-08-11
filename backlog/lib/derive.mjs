@@ -17,6 +17,11 @@ export const STATUS_ORDER = ['ready', 'in-progress', 'inbox', 'done', 'dropped']
 
 export const EFFORT_ORDER = ['S', 'M', 'L'];
 
+// Display names for the zones documented today. The list is deliberately NOT a
+// whitelist: zones are open-ended and a later research pass can introduce E, F,
+// … so an unrecognised letter must still reach the board rather than being
+// filtered out of existence. ZONE_ORDER only fixes the *display order* of the
+// known letters; unknown ones sort after them (see presentZones below).
 export const ZONE_ORDER = ['A', 'B', 'C', 'D'];
 export const ZONE_LABELS = {
   A: 'Extend the map',
@@ -24,6 +29,13 @@ export const ZONE_LABELS = {
   C: 'New territories',
   D: 'Instruments',
 };
+
+/** Known zones first in canonical order, then any undocumented letters, sorted. */
+function orderZones(zones) {
+  const known = ZONE_ORDER.filter((z) => zones.includes(z));
+  const unknown = zones.filter((z) => !ZONE_ORDER.includes(z)).sort();
+  return [...known, ...unknown];
+}
 
 export const LAB_STATUS_ORDER = ['unresearched', 'researching', 'planned'];
 export const LAB_STATUS_LABELS = {
@@ -165,7 +177,7 @@ export function buildIndex(tasks, labs) {
 
   const presentPriorities = PRIORITY_ORDER.filter((p) => priorityCounts[p]);
   const presentEfforts = EFFORT_ORDER.filter((e) => effortCounts[e]);
-  const presentZones = ZONE_ORDER.filter((z) => zoneCounts[z]);
+  const presentZones = orderZones(Object.keys(zoneCounts));
   const presentLabStatuses = Object.keys(labStatusCounts).sort((a, b) => {
     const rankA = LAB_STATUS_ORDER.indexOf(a);
     const rankB = LAB_STATUS_ORDER.indexOf(b);
