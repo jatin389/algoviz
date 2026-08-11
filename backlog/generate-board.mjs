@@ -207,6 +207,7 @@ const ZONE_NAMES = {
   B: 'Off the map',
   C: 'New territories',
   D: 'Instruments',
+  E: 'Technical improvement',
 };
 
 function zoneLabel(zone) {
