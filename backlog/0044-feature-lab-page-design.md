@@ -1,7 +1,7 @@
 ---
 id: 0044
 title: Designed Feature Lab pages
-status: in-progress
+status: done
 priority: P0
 effort: M
 zone: D
@@ -9,6 +9,7 @@ depends_on:
 cluster: lab-presentation
 created: 2026-08-11
 refined_at: 2026-08-11
+closed: 2026-08-11
 ---
 
 ## Idea
@@ -133,3 +134,20 @@ design. Real, but scope creep here; capture separately if it bites.
 - 2026-08-11: This item was checked against the lab gate and does **not** need a lab — the
   renderer has been read, the data is all present, and there are no load-bearing unknowns.
   That is the gate working correctly, not being skipped.
+- 2026-08-11: **Done.** All six acceptance criteria verified: dark tokens present in all three
+  forms on both surfaces; Constraints/Phases/Relationships each render through a dedicated
+  component; unresearched pages gained the graph, toggle and a styled gap view; `backlog/labs/`
+  has zero diff, so the zero-per-feature-authoring criterion holds literally; `package.json`
+  untouched; both renderers import the one `THEME_CSS`. Generator is deterministic — two runs
+  differ only in the timestamp.
+- 2026-08-11: Degradation was tested with a throwaway fixture lab written in deliberately
+  non-matching prose (no bold leads, no phase table, a Risks table with no Gate column). Both
+  parsers returned `null` and every section fell back to the generic markdown renderer with the
+  page fully intact. Fixture removed after the test. This mattered more than the components:
+  43 of 45 labs are still unwritten and may use any style.
+- 2026-08-11: The theme agent drew a distinction that wasn't specified and is right —
+  text-only tokens (`--accent`, `--p0`–`--p3`, `--leverage`, `--blocked`) were brightened for
+  legibility on the dark ground, while fill-only tokens sitting under solid white pill text
+  (`--zone-*`, `--lab-*`, `--ready`, `--inbox`) were kept mid-dark so that white text stays
+  readable. It also replaced two hardcoded rgba tints with `--leverage-bg`/`--blocked-bg` so no
+  colour lives outside the token layer.

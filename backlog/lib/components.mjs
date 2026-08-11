@@ -159,7 +159,7 @@ export function labToLabLink(id, text) {
 // unescaped.
 // ---------------------------------------------------------------------------
 
-function renderInline(rawLine) {
+export function renderInline(rawLine) {
   return escapeHtml(rawLine)
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/`([^`]+?)`/g, '<code>$1</code>');
@@ -290,3 +290,158 @@ export function renderMarkdownSubset(text) {
 
   return blocks.join('\n');
 }
+
+// ---------------------------------------------------------------------------
+// Lab structure components
+//
+// These render structure that already exists in lab markdown but was
+// previously flattened into uniform prose by the generic markdown renderer.
+// Each one takes the output of a lib/sections.mjs parser and returns null when
+// it can't confidently render — the caller then falls back to the generic
+// renderer, so a lab written in a different style degrades instead of breaking.
+// ---------------------------------------------------------------------------
+
+/**
+ * Constraint cards. A constraint is a fact plus its consequence; that split is
+ * the whole value of the section, so the consequence gets its own treatment
+ * rather than trailing the prose as another sentence.
+ */
+export function constraintCards(entries) {
+  if (!Array.isArray(entries) || entries.length === 0) return null;
+  const cards = entries
+    .map(
+      (entry) => `
+      <li class="constraint-card">
+        <p class="constraint-lead">${renderInline(entry.lead)}</p>
+        ${entry.body ? `<p class="constraint-body">${renderInline(entry.body)}</p>` : ''}
+        <p class="constraint-consequence"><strong>Consequence:</strong> ${renderInline(entry.consequence)}</p>
+      </li>`,
+    )
+    .join('');
+  return `<ol class="constraint-list">${cards}\n    </ol>`;
+}
+
+/**
+ * Phase tape. The Gate column states "don't proceed until this is true" and is
+ * the most decision-relevant field in a lab, so it is emphasised rather than
+ * left as a third table cell. Returns null when the table has no Gate column,
+ * which is the signal to render it as an ordinary table instead.
+ */
+export function phaseTape(table) {
+  if (!table || !Array.isArray(table.headers) || !Array.isArray(table.rows)) return null;
+  if (table.rows.length === 0) return null;
+
+  const gateIdx = table.headers.findIndex((h) => /gate/i.test(h));
+  if (gateIdx === -1) return null;
+  const numIdx = table.headers.findIndex((h) => /^(#|no\.?|phase)$/i.test(String(h).trim()));
+  const descIdx = table.headers.findIndex((_, i) => i !== gateIdx && i !== numIdx);
+  if (descIdx === -1) return null;
+
+  const steps = table.rows
+    .map((row, i) => {
+      const num = (numIdx >= 0 ? row[numIdx] : '') || String(i);
+      const desc = row[descIdx] ?? '';
+      const gate = row[gateIdx] ?? '';
+      return `
+      <li class="phase-step">
+        <span class="phase-num">${renderInline(num)}</span>
+        <div class="phase-deliverable">${renderInline(desc)}</div>
+        ${gate ? `<div class="phase-gate"><span class="phase-gate-label">Gate</span> ${renderInline(gate)}</div>` : ''}
+      </li>`;
+    })
+    .join('');
+  return `<ol class="phase-tape">${steps}\n    </ol>`;
+}
+
+/**
+ * Dependency graph: depends-on on the left, this item in the middle, unblocks
+ * on the right, cluster siblings underneath. CSS/DOM rather than SVG so it
+ * stays token-driven, reflows on narrow screens, and is made of real links
+ * with real text.
+ */
+export function dependencyGraph(item, itemsById) {
+  const node = (id, modifier = '') => {
+    const target = itemsById.get(id);
+    if (!target) {
+      return `<div class="dep-node${modifier}"><span class="dep-node-id">${escapeHtml(id)}</span> <span class="muted">(not found)</span></div>`;
+    }
+    const title = modifier.includes('is-self')
+      ? `<span class="dep-node-title">${escapeHtml(target.title)}</span>`
+      : `<a class="dep-node-title" href="${escapeHtml(target.id)}.html">${escapeHtml(target.title)}</a>`;
+    return `<div class="dep-node${modifier}">
+          <span class="dep-node-id">${escapeHtml(target.id)}</span>
+          ${title}
+          ${labStatusPill(target.labStatus)}
+        </div>`;
+  };
+
+  const column = (label, ids, emptyText) => `
+      <div class="dep-col">
+        <span class="dep-col-label">${escapeHtml(label)}</span>
+        ${ids.length ? ids.map((id) => node(id)).join('') : `<p class="muted">${escapeHtml(emptyText)}</p>`}
+      </div>`;
+
+  const siblings = item.clusterSiblings ?? [];
+  const siblingsHtml = siblings.length
+    ? `
+    <div class="cluster-siblings">
+      <span class="dep-col-label">Shares the <code>${escapeHtml(item.cluster)}</code> substrate with</span>
+      ${siblings.map((id) => node(id)).join('')}
+    </div>`
+    : '';
+
+  return `
+    <div class="dep-graph">
+      ${column('Depends on', item.dependsOn, 'Nothing — this can start on its own.')}
+      <span class="dep-arrow" aria-hidden="true">&rarr;</span>
+      <div class="dep-col">
+        <span class="dep-col-label">This item</span>
+        ${node(item.id, ' is-self')}
+      </div>
+      <span class="dep-arrow" aria-hidden="true">&rarr;</span>
+      ${column('Unblocks', item.unblocks, 'Nothing else is waiting on this.')}
+    </div>${siblingsHtml}`;
+}
+
+// ---------------------------------------------------------------------------
+// Theme toggle
+//
+// Nothing sets data-theme on a file:// page, so without this the explicit
+// override half of the theme layer would be unreachable. THEME_INIT_SCRIPT
+// must run in <head>, before first paint, or a stored dark preference flashes
+// light on every load.
+// ---------------------------------------------------------------------------
+
+export const THEME_STORAGE_KEY = 'algoviz-backlog-theme';
+
+export const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('${THEME_STORAGE_KEY}');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`;
+
+export function themeToggle() {
+  return `<button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Toggle light / dark theme">
+    <span class="theme-toggle-icon" aria-hidden="true"></span>
+    <span class="theme-toggle-text">Theme</span>
+  </button>`;
+}
+
+export const THEME_TOGGLE_SCRIPT = `(function(){
+  var root = document.documentElement;
+  var btn = document.querySelector('[data-theme-toggle]');
+  if (!btn) return;
+  function current() {
+    var explicit = root.getAttribute('data-theme');
+    if (explicit === 'dark' || explicit === 'light') return explicit;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function sync() {
+    var mode = current();
+    btn.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
+    btn.title = mode === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+  }
+  btn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('${THEME_STORAGE_KEY}', next); } catch (e) {}
+    sync();
+  });
+  sync();
+})();`;

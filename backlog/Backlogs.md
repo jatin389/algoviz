@@ -66,4 +66,3 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 
 | ID | Priority | Effort | Title | Description |
 |----|----------|--------|-------|--------------|
-| 0044 | P0 | M | Designed Feature Lab pages | plan written and open questions resolved; implementation not started |

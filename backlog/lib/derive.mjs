@@ -91,6 +91,7 @@ export function buildIndex(tasks, labs) {
       unblocks: [],
       leverage: 0,
       blocked: false,
+      clusterSiblings: [],
     };
   });
 
@@ -105,6 +106,23 @@ export function buildIndex(tasks, labs) {
   }
   for (const item of items) {
     item.leverage = item.unblocks.length;
+  }
+
+  // Cluster siblings: the other items sharing this item's `cluster` slug.
+  // Derived here rather than in a renderer so the dependency view can show the
+  // whole neighbourhood — hard prerequisites *and* shared-substrate relatives —
+  // without a second pass over every item.
+  const byCluster = new Map();
+  for (const item of items) {
+    if (!item.cluster) continue;
+    const bucket = byCluster.get(item.cluster);
+    if (bucket) bucket.push(item.id);
+    else byCluster.set(item.cluster, [item.id]);
+  }
+  for (const item of items) {
+    item.clusterSiblings = item.cluster
+      ? (byCluster.get(item.cluster) ?? []).filter((id) => id !== item.id)
+      : [];
   }
 
   // blocked: true if any depends_on target is itself unresearched.

@@ -16,6 +16,9 @@ import {
   labStatusPill,
   boardToLabLink,
   statCard,
+  themeToggle,
+  THEME_INIT_SCRIPT,
+  THEME_TOGGLE_SCRIPT,
 } from './components.mjs';
 import { statusLabel, effortLabel } from './components.mjs';
 
@@ -24,6 +27,13 @@ const BOARD_CSS = `
     padding: 1.5rem 1.75rem 1.25rem;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
+  }
+
+  .board-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
   header.board-header h1 {
@@ -368,11 +378,15 @@ export function renderBoardPage({
 ${THEME_CSS}
 ${BOARD_CSS}
 </style>
+<script>${THEME_INIT_SCRIPT}</script>
 </head>
 <body>
 
 <header class="board-header">
-  <h1>AlgoViz Backlog Board</h1>
+  <div class="board-header-top">
+    <h1>AlgoViz Backlog Board</h1>
+    ${themeToggle()}
+  </div>
   <p class="subtitle">${items.length} tracked task${items.length === 1 ? '' : 's'} &middot; ${researchedCount} with a lab &middot; ${unresearchedCount} unresearched &middot; generated ${escapeHtml(generatedAt)}</p>
   <div class="stats">${statCards}</div>
 </header>
@@ -538,6 +552,7 @@ ${BOARD_CSS}
   applyGrouping();
 })();
 </script>
+<script>${THEME_TOGGLE_SCRIPT}</script>
 </body>
 </html>
 `;

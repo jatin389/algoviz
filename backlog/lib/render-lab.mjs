@@ -4,6 +4,7 @@
 // for a single merged+derived item produced by lib/derive.mjs's buildIndex().
 
 import { THEME_CSS } from './theme.mjs';
+import { parseConstraints, parseTable } from './sections.mjs';
 import {
   escapeHtml,
   statusPill,
@@ -11,10 +12,17 @@ import {
   effortBadge,
   zoneChip,
   labStatusPill,
+  leverageMarker,
+  blockedMarker,
   meter,
   labToBoardLink,
-  labToLabLink,
   renderMarkdownSubset,
+  constraintCards,
+  phaseTape,
+  dependencyGraph,
+  themeToggle,
+  THEME_INIT_SCRIPT,
+  THEME_TOGGLE_SCRIPT,
 } from './components.mjs';
 
 const LAB_CSS = `
@@ -94,37 +102,15 @@ const LAB_CSS = `
     font-size: 0.94rem;
   }
 
-  .relationship-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1.25rem;
-  }
-
-  .relationship-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .relationship-list li {
+  .lab-header-top {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.5rem 0.7rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.7rem;
   }
 
-  .relationship-list .rel-id {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.78rem;
-    color: var(--text-muted);
-  }
+  .lab-header-top .back-link { margin-bottom: 0; }
 
   .open-question-text {
     margin: 0 0 0.7rem;
@@ -181,45 +167,40 @@ const LAB_SECTIONS = [
   ['outOfScope', 'Out of scope'],
 ];
 
+/**
+ * Enhanced renderers for the two sections whose markdown carries structure the
+ * generic renderer throws away. Each returns null when the prose doesn't match
+ * the expected shape — only 2 of 45 labs exist today, so anything written
+ * later must degrade to the generic renderer rather than break.
+ */
+const SECTION_ENHANCERS = {
+  constraints: (text) => {
+    const parsed = parseConstraints(text);
+    return parsed ? constraintCards(parsed) : null;
+  },
+  phases: (text) => {
+    const parsed = parseTable(text);
+    return parsed ? phaseTape(parsed) : null;
+  },
+};
+
 function renderLabSection(item, key, title) {
   const text = item.lab?.[key];
   if (!text || !text.trim()) return '';
+  const enhanced = SECTION_ENHANCERS[key]?.(text) ?? null;
+  const bodyHtml = enhanced ?? `<div class="md-body">${renderMarkdownSubset(text)}</div>`;
   return `
-  <section class="lab-section">
+  <section class="lab-section lab-section-${escapeHtml(key)}">
     <h2>${escapeHtml(title)}</h2>
-    <div class="md-body">${renderMarkdownSubset(text)}</div>
+    ${bodyHtml}
   </section>`;
 }
 
-function relationshipItem(id, itemsById) {
-  const target = itemsById.get(id);
-  if (!target) {
-    return `<li><span class="rel-id">${escapeHtml(id)}</span> <span class="muted">(not found)</span></li>`;
-  }
-  return `<li><span class="rel-id">${escapeHtml(target.id)}</span> ${labToLabLink(target.id, target.title)} ${labStatusPill(target.labStatus)}</li>`;
-}
-
 function renderRelationships(item, itemsById) {
-  const dependsOnHtml = item.dependsOn.length
-    ? `<ul class="relationship-list">${item.dependsOn.map((id) => relationshipItem(id, itemsById)).join('')}</ul>`
-    : '<p class="muted">This item has no recorded dependencies.</p>';
-  const unblocksHtml = item.unblocks.length
-    ? `<ul class="relationship-list">${item.unblocks.map((id) => relationshipItem(id, itemsById)).join('')}</ul>`
-    : '<p class="muted">No other item currently depends on this one.</p>';
-
   return `
-  <section class="lab-section">
+  <section class="lab-section lab-section-relationships">
     <h2>Relationships</h2>
-    <div class="relationship-columns">
-      <div>
-        <h3>Depends on</h3>
-        ${dependsOnHtml}
-      </div>
-      <div>
-        <h3>Unblocks</h3>
-        ${unblocksHtml}
-      </div>
-    </div>
+    ${dependencyGraph(item, itemsById)}
   </section>`;
 }
 
@@ -333,11 +314,15 @@ export function renderLabPage(item, itemsById, generatedAt) {
 ${THEME_CSS}
 ${LAB_CSS}
 </style>
+<script>${THEME_INIT_SCRIPT}</script>
 </head>
 <body>
 
 <header class="lab-header">
-  ${labToBoardLink()}
+  <div class="lab-header-top">
+    ${labToBoardLink()}
+    ${themeToggle()}
+  </div>
   <div class="lab-title-row">
     <span class="card-id">${escapeHtml(item.id)}</span>
     <h1>${escapeHtml(item.title)}</h1>
@@ -348,6 +333,8 @@ ${LAB_CSS}
     ${priorityBadge(item.priority)}
     ${effortBadge(item.effort)}
     ${labStatusPill(item.labStatus)}
+    ${leverageMarker(item.leverage)}
+    ${item.blocked ? blockedMarker() : ''}
   </div>
   <div class="completeness-row">
     ${meter(item.completeness, 6, `Lab completeness: ${item.completeness} of 6 sections`)}
@@ -365,6 +352,7 @@ ${LAB_CSS}
   } &middot; Regenerate with <code>npm run backlog:board</code> &middot; ${labToBoardLink('Back to board')}
 </footer>
 
+<script>${THEME_TOGGLE_SCRIPT}</script>
 </body>
 </html>
 `;

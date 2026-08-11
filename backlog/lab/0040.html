@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T17:50:08.495Z">
+<meta name="generated-at" content="2026-08-11T18:01:27.435Z">
 <title>0040 &middot; Empirical complexity lab — Lab</title>
 <style>
 
@@ -39,6 +39,134 @@
 
     --leverage: #1f8a57;
     --blocked: #b3261e;
+    --leverage-bg: rgba(31, 138, 87, 0.08);
+    --blocked-bg: rgba(179, 38, 30, 0.08);
+
+    /* Type scale -- consolidates the ad hoc sizes (0.72/0.78/0.82/0.85/0.9/0.94/1/1.4/1.5rem)
+       scattered across the render modules into a single 6-step scale. Sizes are
+       theme-independent so they live only in the base :root, not the dark blocks. */
+    --fs-xs: 0.72rem;
+    --fs-sm: 0.8rem;
+    --fs-base: 0.9rem;
+    --fs-lg: 1rem;
+    --fs-xl: 1.4rem;
+    --fs-2xl: 1.5rem;
+
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  /* Dark theme, hand-picked (not inverted) so every semantic colour stays
+     legible and mutually distinct on a dark ground:
+       - P0/P1/P2/P3 and --accent are TEXT/border colours (never a solid
+         fill), so they're brightened for contrast against the dark surface.
+       - --ready/--inbox/--progress/--done and the zone/lab-status colours
+         are always used as a SOLID fill under white pill/chip text, so they
+         stay mid-dark and saturated rather than pastel-bright -- a pale fill
+         would wash the white text out.
+       - --leverage/--blocked are TEXT/border colours (via .leverage-marker /
+         .blocked-marker and inside dep-graph nodes), so they get the bright
+         treatment; their soft tint backgrounds live in the separate
+         --leverage-bg / --blocked-bg tokens so nothing is hardcoded outside
+         the token layer. */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171c;
+      --surface: #1b1f26;
+      --surface-alt: #232a35;
+      --border: #333c4a;
+      --text: #e8ebf0;
+      --text-muted: #98a2b3;
+      --accent: #6ea8ff;
+      --p0: #ff6b6b;
+      --p1: #f5a35a;
+      --p2: #6ea8ff;
+      --p3: #98a2b3;
+      --ready: #17864f;
+      --inbox: #7d6be0;
+      --progress: #a06818;
+      --done: #6f7887;
+      --shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.35);
+
+      --zone-a: #3d7fe0;
+      --zone-b: #7d6be0;
+      --zone-c: #17864f;
+      --zone-d: #b5651d;
+
+      --lab-unresearched: #cc3b3b;
+      --lab-researching: #a06818;
+      --lab-planned: #17864f;
+
+      --leverage: #3ddc8a;
+      --blocked: #ff6b6b;
+      --leverage-bg: rgba(61, 220, 138, 0.15);
+      --blocked-bg: rgba(255, 107, 107, 0.15);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #14171c;
+    --surface: #1b1f26;
+    --surface-alt: #232a35;
+    --border: #333c4a;
+    --text: #e8ebf0;
+    --text-muted: #98a2b3;
+    --accent: #6ea8ff;
+    --p0: #ff6b6b;
+    --p1: #f5a35a;
+    --p2: #6ea8ff;
+    --p3: #98a2b3;
+    --ready: #17864f;
+    --inbox: #7d6be0;
+    --progress: #a06818;
+    --done: #6f7887;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.35);
+
+    --zone-a: #3d7fe0;
+    --zone-b: #7d6be0;
+    --zone-c: #17864f;
+    --zone-d: #b5651d;
+
+    --lab-unresearched: #cc3b3b;
+    --lab-researching: #a06818;
+    --lab-planned: #17864f;
+
+    --leverage: #3ddc8a;
+    --blocked: #ff6b6b;
+    --leverage-bg: rgba(61, 220, 138, 0.15);
+    --blocked-bg: rgba(255, 107, 107, 0.15);
+  }
+
+  :root[data-theme="light"] {
+    --bg: #f6f7f9;
+    --surface: #ffffff;
+    --surface-alt: #eef0f3;
+    --border: #d9dce1;
+    --text: #1b1f24;
+    --text-muted: #5b636e;
+    --accent: #2f6fed;
+    --p0: #c62828;
+    --p1: #e0812a;
+    --p2: #2f6fed;
+    --p3: #5b636e;
+    --ready: #1f8a57;
+    --inbox: #7a6ff0;
+    --progress: #d8973c;
+    --done: #6b7280;
+    --shadow: 0 1px 2px rgba(16, 20, 24, 0.06), 0 1px 1px rgba(16, 20, 24, 0.04);
+
+    --zone-a: #2f6fed;
+    --zone-b: #7a6ff0;
+    --zone-c: #1f8a57;
+    --zone-d: #b8590f;
+
+    --lab-unresearched: #b3261e;
+    --lab-researching: #d8973c;
+    --lab-planned: #1f8a57;
+
+    --leverage: #1f8a57;
+    --blocked: #b3261e;
+    --leverage-bg: rgba(31, 138, 87, 0.08);
+    --blocked-bg: rgba(179, 38, 30, 0.08);
   }
 
   * { box-sizing: border-box; }
@@ -49,16 +177,23 @@
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.45;
+    transition: background-color 0.15s ease, color 0.15s ease;
   }
 
   a { color: var(--accent); }
   code {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-family: var(--font-mono);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   /* Pills (status, lab status) */
   .pill {
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     font-weight: 600;
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
@@ -80,7 +215,7 @@
 
   /* Badges (priority, effort) */
   .badge {
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     font-weight: 700;
     padding: 0.15rem 0.5rem;
     border-radius: 6px;
@@ -123,7 +258,7 @@
 
   /* Chips: zone, leverage, blocked */
   .chip {
-    font-size: 0.72rem;
+    font-size: var(--fs-xs);
     font-weight: 600;
     padding: 0.15rem 0.55rem;
     border-radius: 6px;
@@ -140,15 +275,15 @@
   .zone-chip.zone-C { background: var(--zone-c); }
   .zone-chip.zone-D { background: var(--zone-d); }
 
-  .leverage-marker { color: var(--leverage); border-color: var(--leverage); background: rgba(31, 138, 87, 0.08); }
-  .blocked-marker { color: var(--blocked); border-color: var(--blocked); background: rgba(179, 38, 30, 0.08); }
+  .leverage-marker { color: var(--leverage); border-color: var(--leverage); background: var(--leverage-bg); }
+  .blocked-marker { color: var(--blocked); border-color: var(--blocked); background: var(--blocked-bg); }
 
   /* Meter (lab completeness, n/6) */
   .meter {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.78rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
   }
 
@@ -166,6 +301,7 @@
     display: block;
     height: 100%;
     background: var(--accent);
+    transition: width 0.2s ease;
   }
 
   .meter-label {
@@ -187,12 +323,12 @@
   }
 
   .stat-count {
-    font-size: 1.3rem;
+    font-size: var(--fs-xl);
     font-weight: 700;
   }
 
   .stat-label {
-    font-size: 0.78rem;
+    font-size: var(--fs-sm);
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.03em;
@@ -221,7 +357,8 @@
     border-radius: 8px;
     padding: 0.7rem 0.85rem;
     overflow-x: auto;
-    font-size: 0.85rem;
+    font-family: var(--font-mono);
+    font-size: var(--fs-base);
     margin: 0 0 0.9rem;
   }
 
@@ -234,7 +371,7 @@
     border-collapse: collapse;
     width: 100%;
     min-width: 28rem;
-    font-size: 0.85rem;
+    font-size: var(--fs-base);
   }
 
   table.md-table th, table.md-table td {
@@ -246,7 +383,7 @@
 
   table.md-table th {
     background: var(--surface-alt);
-    font-size: 0.75rem;
+    font-size: var(--fs-xs);
     text-transform: uppercase;
     letter-spacing: 0.02em;
     color: var(--text-muted);
@@ -257,7 +394,7 @@
     white-space: pre-wrap;
     word-wrap: break-word;
     font-family: inherit;
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
     margin: 0;
     background: var(--surface-alt);
     border: 1px solid var(--border);
@@ -267,11 +404,249 @@
 
   .empty-state, .muted {
     color: var(--text-muted);
-    font-size: 0.9rem;
+    font-size: var(--fs-base);
+  }
+
+  /* Theme toggle button (page header, top-right) */
+  .theme-toggle {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font: inherit;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+
+  .theme-toggle:hover { background: var(--surface-alt); }
+  .theme-toggle:active { transform: translateY(1px); }
+
+  /* Constraint cards: lead statement -> body prose -> consequence payoff.
+     The consequence is the point, so it gets the tinted, accent-bordered
+     treatment rather than reading like trailing footnote text. */
+  .constraint-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .constraint-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.9rem 1.05rem;
+    box-shadow: var(--shadow);
+  }
+
+  .constraint-lead {
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 0.35rem;
+  }
+
+  .constraint-body {
+    font-size: var(--fs-base);
+    color: var(--text-muted);
+    margin: 0 0 0.75rem;
+  }
+
+  .constraint-consequence {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: var(--fs-base);
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface-alt);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 0.6rem 0.8rem;
+  }
+
+  .constraint-consequence::before {
+    content: "\2192";
+    flex: none;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* Phase tape: a vertical sequence of numbered steps. The gate is the most
+     important element in each step -- it must visually dominate the
+     deliverable text, not sit beside it as an equal. */
+  .phase-tape {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+  }
+
+  .phase-step {
+    position: relative;
+    margin-left: 0.9rem;
+    padding: 0 0 1.4rem 2.5rem;
+    border-left: 2px solid var(--border);
+  }
+
+  .phase-step:last-child {
+    border-left-color: transparent;
+    padding-bottom: 0;
+  }
+
+  .phase-num {
+    position: absolute;
+    left: -1rem;
+    top: 0;
+    width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phase-deliverable {
+    font-size: var(--fs-base);
+    color: var(--text-muted);
+    margin: 0.1rem 0 0.65rem;
+  }
+
+  .phase-gate {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.65rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--leverage);
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .phase-gate-label {
+    flex: none;
+    font-size: var(--fs-xs);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--leverage);
+    background: var(--leverage-bg);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+  }
+
+  /* Dependency graph: depends-on <- this item -> unblocks, with cluster
+     siblings below. Reflows to stacked on narrow screens. The generic
+     .leverage-marker / .blocked-marker chips (above) are the intended way
+     to flag a relevant dep-node with --leverage / --blocked. */
+  .dep-graph {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: 0.6rem 1rem;
+    margin: 0 0 1rem;
+    overflow-x: auto;
+  }
+
+  .dep-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .dep-col-label {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 0.1rem;
+  }
+
+  .dep-node {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .dep-node.is-self {
+    background: var(--surface-alt);
+    border: 2px solid var(--accent);
+    padding: 0.5rem 0.7rem;
+  }
+
+  .dep-node-id {
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+  }
+
+  .dep-node-title {
+    font-size: var(--fs-base);
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .dep-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    color: var(--text-muted);
+    font-size: var(--fs-xl);
+    line-height: 1;
+    padding: 0 0.15rem;
+  }
+
+  .cluster-siblings {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+    padding-top: 0.75rem;
+    border-top: 1px dashed var(--border);
+  }
+
+  @media (max-width: 640px) {
+    .dep-graph {
+      grid-template-columns: 1fr;
+    }
+
+    .dep-arrow {
+      transform: rotate(90deg);
+      padding: 0.2rem 0;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .meter-fill { transition: none; }
+    body { transition: none; }
+    .theme-toggle { transition: none; }
   }
 
 
@@ -351,37 +726,15 @@
     font-size: 0.94rem;
   }
 
-  .relationship-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-    gap: 1.25rem;
-  }
-
-  .relationship-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .relationship-list li {
+  .lab-header-top {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    padding: 0.5rem 0.7rem;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.7rem;
   }
 
-  .relationship-list .rel-id {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.78rem;
-    color: var(--text-muted);
-  }
+  .lab-header-top .back-link { margin-bottom: 0; }
 
   .open-question-text {
     margin: 0 0 0.7rem;
@@ -429,11 +782,18 @@
   }
 
 </style>
+<script>(function(){try{var t=localStorage.getItem('algoviz-backlog-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();</script>
 </head>
 <body>
 
 <header class="lab-header">
-  <a class="back-link" href="../board.html">Back to board</a>
+  <div class="lab-header-top">
+    <a class="back-link" href="../board.html">Back to board</a>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" title="Toggle light / dark theme">
+    <span class="theme-toggle-icon" aria-hidden="true"></span>
+    <span class="theme-toggle-text">Theme</span>
+  </button>
+  </div>
   <div class="lab-title-row">
     <span class="card-id">0040</span>
     <h1>Empirical complexity lab</h1>
@@ -444,6 +804,8 @@
     <span class="badge priority-P1">P1</span>
     <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
     <span class="pill lab-status-unresearched">Unresearched</span>
+    
+    <span class="chip blocked-marker" title="Depends on an item with no lab yet">&#9888; blocked</span>
   </div>
   <div class="completeness-row">
     <span class="meter" role="img" aria-label="Lab completeness: 0 of 6 sections">
@@ -471,17 +833,46 @@
     <ul class="clause-list"><li>Acceptance criteria</li><li>charting approach not yet scoped.</li></ul>
   </section>
   
-  <section class="lab-section">
+  <section class="lab-section lab-section-relationships">
     <h2>Relationships</h2>
-    <div class="relationship-columns">
-      <div>
-        <h3>Depends on</h3>
-        <ul class="relationship-list"><li><span class="rel-id">0011</span> <a href="0011.html">Complexity cheat-sheet page</a> <span class="pill lab-status-unresearched">Unresearched</span></li></ul>
+    
+    <div class="dep-graph">
+      
+      <div class="dep-col">
+        <span class="dep-col-label">Depends on</span>
+        <div class="dep-node">
+          <span class="dep-node-id">0011</span>
+          <a class="dep-node-title" href="0011.html">Complexity cheat-sheet page</a>
+          <span class="pill lab-status-unresearched">Unresearched</span>
+        </div>
       </div>
-      <div>
-        <h3>Unblocks</h3>
-        <p class="muted">No other item currently depends on this one.</p>
+      <span class="dep-arrow" aria-hidden="true">&rarr;</span>
+      <div class="dep-col">
+        <span class="dep-col-label">This item</span>
+        <div class="dep-node is-self">
+          <span class="dep-node-id">0040</span>
+          <span class="dep-node-title">Empirical complexity lab</span>
+          <span class="pill lab-status-unresearched">Unresearched</span>
+        </div>
       </div>
+      <span class="dep-arrow" aria-hidden="true">&rarr;</span>
+      
+      <div class="dep-col">
+        <span class="dep-col-label">Unblocks</span>
+        <p class="muted">Nothing else is waiting on this.</p>
+      </div>
+    </div>
+    <div class="cluster-siblings">
+      <span class="dep-col-label">Shares the <code>complexity-measurement</code> substrate with</span>
+      <div class="dep-node">
+          <span class="dep-node-id">0011</span>
+          <a class="dep-node-title" href="0011.html">Complexity cheat-sheet page</a>
+          <span class="pill lab-status-unresearched">Unresearched</span>
+        </div><div class="dep-node">
+          <span class="dep-node-id">0022</span>
+          <a class="dep-node-title" href="0022.html">Adversarial input / complexity cliff</a>
+          <span class="pill lab-status-unresearched">Unresearched</span>
+        </div>
     </div>
   </section>
 </main>
@@ -490,5 +881,27 @@
   Source: <code>backlog/0040-empirical-complexity-lab.md</code> &middot; Regenerate with <code>npm run backlog:board</code> &middot; <a class="back-link" href="../board.html">Back to board</a>
 </footer>
 
+<script>(function(){
+  var root = document.documentElement;
+  var btn = document.querySelector('[data-theme-toggle]');
+  if (!btn) return;
+  function current() {
+    var explicit = root.getAttribute('data-theme');
+    if (explicit === 'dark' || explicit === 'light') return explicit;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  function sync() {
+    var mode = current();
+    btn.setAttribute('aria-pressed', mode === 'dark' ? 'true' : 'false');
+    btn.title = mode === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+  }
+  btn.addEventListener('click', function () {
+    var next = current() === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('algoviz-backlog-theme', next); } catch (e) {}
+    sync();
+  });
+  sync();
+})();</script>
 </body>
 </html>
