@@ -143,6 +143,7 @@ export function parseLabFile(fileName, dir) {
     architecture: extractSection(body, 'Architecture'),
     phases: extractSection(body, 'Phases'),
     risks: extractSection(body, 'Risks'),
+    flows: extractSection(body, 'Flows'),
     outOfScope: extractSection(body, 'Out of scope'),
     file: fileName,
   };

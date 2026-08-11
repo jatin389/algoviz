@@ -53,6 +53,18 @@ only viable encode path, and `mediabunny` needs no such headers.
 to land in a 30-second Reel. Consequence: a timeline layer that both holds and decimates, with
 terminal and milestone steps pinned so the last frame is always the sorted array.
 
+## Flows
+
+| Path | Today | With this change |
+|---|---|---|
+| Render | `BarChart` (DOM) → CSS transitions → **screen** | seeded generator → offscreen canvas → **encoder** → `.mp4` |
+| Audio | oscillator → envelope → master gain → **`ctx.destination`** | master gain → `OfflineAudioContext` → **AAC mux** |
+| Narration | `speechSynthesis.speak()` ╳ `MediaStreamTrack` | `Narrator` → **burned-in captions** → `.srt` |
+
+The narration row is the whole reason this lab exists: that hop cannot be made, so the feature
+routes around it rather than through it. The render row shows the second surprise — today's
+path ends at the screen and has no pixel source to tap, which is why export builds its own.
+
 ## Architecture
 
 ```

@@ -1,7 +1,7 @@
 ---
 id: 0045
 title: Mechanism flow diagrams on lab pages
-status: ready
+status: done
 priority: P1
 effort: M
 zone: D
@@ -9,6 +9,7 @@ depends_on: 0044
 cluster: lab-presentation
 created: 2026-08-11
 refined_at: 2026-08-11
+closed: 2026-08-11
 ---
 
 ## Idea
@@ -95,3 +96,14 @@ nodes, decidable while building.
   source of truth and gets reviewed in diffs.
 - 2026-08-11: Depends on 0044 only in the weak sense that it renders into the same page and
   should use its token set and component vocabulary. Not worth starting before 0044 lands.
+- 2026-08-11: **Done.** All acceptance criteria verified. `## Flows` is a counted seventh
+  section; `LAB_SECTION_COUNT` is exported from `derive.mjs` so no renderer hardcodes the
+  denominator — adding an eighth section is now a one-line change. Flows authored for 0012 and
+  0015, both back to 7/7. Fallback re-tested with a fixture whose Flows section is plain prose:
+  `parseFlows` returned null and the section fell back to the generic renderer. Still one
+  `addEventListener` on the page (the theme toggle), no new dependencies, generator
+  deterministic. `sections.mjs` self-test 41/41.
+- 2026-08-11: Authoring the two flows was the real test of the format, and it held: the
+  narration row of each lab turned out to be the row carrying the discovery — `speechSynthesis
+  ╳ MediaStreamTrack` for 0015, `onAdvance ╳ correct after scrub` for 0012. The impossible-hop
+  marker earns its place; it is the densest thing on either page.

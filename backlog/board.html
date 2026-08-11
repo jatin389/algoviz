@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T18:16:40.731Z">
+<meta name="generated-at" content="2026-08-11T18:27:01.051Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -277,7 +277,7 @@
   .leverage-marker { color: var(--leverage); border-color: var(--leverage); background: var(--leverage-bg); }
   .blocked-marker { color: var(--blocked); border-color: var(--blocked); background: var(--blocked-bg); }
 
-  /* Meter (lab completeness, n/6) */
+  /* Meter (lab completeness, n of LAB_SECTION_COUNT) */
   .meter {
     display: inline-flex;
     align-items: center;
@@ -642,6 +642,146 @@
     }
   }
 
+  /* Mechanism flow diagram (lab "Flows" section): row label | today |
+     proposed, as a single CSS grid so all three columns stay aligned across
+     every row a lab authors. .flow-head / .flow-row are display:contents
+     wrappers -- their children (col-heads / label + two cells) become
+     direct grid items of .flow-table, so column alignment is automatic
+     regardless of row count; nth-of-type still resolves correctly against
+     the underlying DOM since display:contents only affects box generation,
+     not selector matching.
+     Below ~700px the grid collapses to one column and stacks label -> today
+     cell -> proposed cell; because the column headers are no longer
+     adjacent to explain which cell is which, each .flow-cell grows a
+     "Today" / "With this change" label of its own via ::before. */
+  .flow-table {
+    display: grid;
+    grid-template-columns: minmax(6rem, auto) minmax(11rem, 1fr) minmax(11rem, 1fr);
+    column-gap: 0.85rem;
+    row-gap: 0.55rem;
+    margin: 0 0 1rem;
+    overflow-x: auto;
+  }
+
+  .flow-head,
+  .flow-row {
+    display: contents;
+  }
+
+  .flow-col-head {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0 0 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flow-row-label {
+    display: flex;
+    align-items: center;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem 0.15rem 0;
+  }
+
+  .flow-cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .flow-node {
+    display: inline-flex;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    font-size: var(--fs-sm);
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* Dominant without shouting: same border+text treatment the priority
+     badges use for "this is the one that matters", not a loud solid fill. */
+  .flow-node.is-emphasis {
+    background: var(--surface);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .flow-connector {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: var(--fs-base);
+    line-height: 1;
+    padding: 0 0.1rem;
+  }
+
+  /* The highest-value mark on the page: this hop is impossible. Reuses the
+     --blocked / --blocked-bg pair (same tokens as .blocked-marker) so it
+     reads as a hard stop, never confusable with the plain arrow above. */
+  .flow-connector.is-cut {
+    color: var(--blocked);
+    background: var(--blocked-bg);
+    border: 1px solid var(--blocked);
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.1rem 0.3rem;
+  }
+
+  @media (max-width: 700px) {
+    .flow-table {
+      grid-template-columns: 1fr;
+      row-gap: 0.5rem;
+    }
+
+    .flow-head {
+      display: none;
+    }
+
+    .flow-row-label {
+      padding-top: 0.2rem;
+    }
+
+    .flow-cell::before {
+      flex: 1 0 100%;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .flow-cell:nth-of-type(1)::before {
+      content: "Today";
+    }
+
+    .flow-cell:nth-of-type(2)::before {
+      content: "With this change";
+    }
+
+    .flow-cell:nth-of-type(2) {
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px dashed var(--border);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .meter-fill { transition: none; }
     body { transition: none; }
@@ -916,14 +1056,14 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:16:40.731Z</p>
+  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:27:01.051Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">44</span>
+          <span class="stat-count">43</span>
           <span class="stat-label">Ready</span>
         </div>
         <div class="stat">
-          <span class="stat-count">1</span>
+          <span class="stat-count">2</span>
           <span class="stat-label">Done</span>
         </div></div>
 </header>
@@ -933,8 +1073,8 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (44)</option>
-            <option value="done">Done (1)</option>
+      <option value="ready">Ready (43)</option>
+            <option value="done">Done (2)</option>
     </select>
   </label>
   <label>
@@ -1626,65 +1766,6 @@
 **Effort:** S
 **Priority rationale:** Recommended route step 3; cheap, and closes a real accessibility gap that's a genuine differentiator versus other visualizers in this space.
 **Open questions:** Acceptance criteria and narration copy templates per category not yet scoped.</pre>
-      </div>
-    </article>
-
-    <article class="card"
-      data-status="ready"
-      data-priority="P1"
-      data-effort="M"
-      data-zone="D"
-      data-lab="unresearched"
-      data-search="mechanism flow diagrams on lab pages generalize the live/export toggle from the hand-authored feature lab artifact into something
-any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
-today and how the feature would change it. in the artifact this was three stacked flows —
-render, audio, narration — that swapped together when you flipped between live view and
-export capture, and it carried more of the design than any prose did. instruments lab-presentation">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0045</span>
-        <span class="card-title">Mechanism flow diagrams on lab pages</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
-          <span class="pill status-ready">Ready</span>
-          <span class="badge priority-P1">P1</span>
-          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
-          
-          <span class="chip blocked-marker" title="Depends on an item with no lab yet">&#9888; blocked</span>
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0045-lab-mechanism-flow.md</code></span>
-          <span>Created: 2026-08-11</span>
-          <span>Refined: 2026-08-11</span>
-          <span>Cluster: <code>lab-presentation</code></span>
-          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
-          <span><a class="lab-link" href="lab/0045.html">Open lab page →</a></span>
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">Generalize the Live/Export toggle from the hand-authored Feature Lab artifact into something
-any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
-today and how the feature would change it. In the artifact this was three stacked flows —
-render, audio, narration — that swapped together when you flipped between Live view and
-Export capture, and it carried more of the design than any prose did.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">**Goal:** Let a lab show how a mechanism works today beside how the feature would change it,
-in a format that stays readable as raw markdown.
-
-**Zone:** D — Instruments
-
-**Authoring format — a markdown table, not a custom syntax.** Three candidates were considered:
-a fenced mini-DSL, a table, and sub-headings plus lists. The table wins on the contract 0044
-established rather than on looks:
-- `sections.mjs`'s `parseTable` already exists and is tested — **zero new parsing**.
-- `renderInline` already handles `**bold**` and backticks inside cells.
-- It degrades perfectly: a legible table even where the flow component never fires, which is
-  the same fallback rule every other lab component follows.
-- It reviews cleanly in a diff. A fenced DSL would not.
-
-Shape:
-```markdown</pre>
       </div>
     </article>
 
@@ -2846,10 +2927,69 @@ freely.
 **Open questions:** all resolved 2026-08-11 — see *Plan* below.</pre>
       </div>
     </article>
+
+    <article class="card"
+      data-status="done"
+      data-priority="P1"
+      data-effort="M"
+      data-zone="D"
+      data-lab="unresearched"
+      data-search="mechanism flow diagrams on lab pages generalize the live/export toggle from the hand-authored feature lab artifact into something
+any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
+today and how the feature would change it. in the artifact this was three stacked flows —
+render, audio, narration — that swapped together when you flipped between live view and
+export capture, and it carried more of the design than any prose did. instruments lab-presentation">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0045</span>
+        <span class="card-title">Mechanism flow diagrams on lab pages</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
+          <span class="pill status-done">Done</span>
+          <span class="badge priority-P1">P1</span>
+          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          
+          <span class="chip blocked-marker" title="Depends on an item with no lab yet">&#9888; blocked</span>
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0045-lab-mechanism-flow.md</code></span>
+          <span>Created: 2026-08-11</span>
+          <span>Refined: 2026-08-11</span>
+          <span>Cluster: <code>lab-presentation</code></span>
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0045.html">Open lab page →</a></span>
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Generalize the Live/Export toggle from the hand-authored Feature Lab artifact into something
+any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
+today and how the feature would change it. In the artifact this was three stacked flows —
+render, audio, narration — that swapped together when you flipped between Live view and
+Export capture, and it carried more of the design than any prose did.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** Let a lab show how a mechanism works today beside how the feature would change it,
+in a format that stays readable as raw markdown.
+
+**Zone:** D — Instruments
+
+**Authoring format — a markdown table, not a custom syntax.** Three candidates were considered:
+a fenced mini-DSL, a table, and sub-headings plus lists. The table wins on the contract 0044
+established rather than on looks:
+- `sections.mjs`'s `parseTable` already exists and is tested — **zero new parsing**.
+- `renderInline` already handles `**bold**` and backticks inside cells.
+- It degrades perfectly: a legible table even where the flow component never fires, which is
+  the same fallback rule every other lab component follows.
+- It reviews cleanly in a diff. A fenced DSL would not.
+
+Shape:
+```markdown</pre>
+      </div>
+    </article>
   </div>
 
   <div class="group">
-    <h2 class="group-title">Done / Dropped (1)</h2>
+    <h2 class="group-title">Done / Dropped (2)</h2>
     <table class="done-table">
       <thead>
         <tr><th>ID</th><th>Resolution</th><th>Title</th><th>Closed</th></tr>
@@ -2859,6 +2999,12 @@ freely.
           <td>0044</td>
           <td>done</td>
           <td>Designed Feature Lab pages</td>
+          <td>2026-08-11</td>
+        </tr>
+        <tr>
+          <td>0045</td>
+          <td>done</td>
+          <td>Mechanism flow diagrams on lab pages</td>
           <td>2026-08-11</td>
         </tr>
       </tbody>

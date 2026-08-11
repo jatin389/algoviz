@@ -4,7 +4,8 @@
 // for a single merged+derived item produced by lib/derive.mjs's buildIndex().
 
 import { THEME_CSS } from './theme.mjs';
-import { parseConstraints, parseTable } from './sections.mjs';
+import { parseConstraints, parseTable, parseFlows } from './sections.mjs';
+import { LAB_SECTION_COUNT } from './derive.mjs';
 import {
   escapeHtml,
   statusPill,
@@ -19,6 +20,7 @@ import {
   renderMarkdownSubset,
   constraintCards,
   phaseTape,
+  flowDiagram,
   dependencyGraph,
   themeToggle,
   THEME_INIT_SCRIPT,
@@ -161,6 +163,7 @@ const LAB_CSS = `
 const LAB_SECTIONS = [
   ['verdict', 'Verdict'],
   ['constraints', 'Constraints'],
+  ['flows', 'Flows'],
   ['architecture', 'Architecture'],
   ['phases', 'Phases'],
   ['risks', 'Risks'],
@@ -168,7 +171,7 @@ const LAB_SECTIONS = [
 ];
 
 /**
- * Enhanced renderers for the two sections whose markdown carries structure the
+ * Enhanced renderers for the sections whose markdown carries structure the
  * generic renderer throws away. Each returns null when the prose doesn't match
  * the expected shape — only 2 of 45 labs exist today, so anything written
  * later must degrade to the generic renderer rather than break.
@@ -181,6 +184,10 @@ const SECTION_ENHANCERS = {
   phases: (text) => {
     const parsed = parseTable(text);
     return parsed ? phaseTape(parsed) : null;
+  },
+  flows: (text) => {
+    const parsed = parseFlows(text);
+    return parsed ? flowDiagram(parsed) : null;
   },
 };
 
@@ -337,7 +344,7 @@ ${LAB_CSS}
     ${item.blocked ? blockedMarker() : ''}
   </div>
   <div class="completeness-row">
-    ${meter(item.completeness, 6, `Lab completeness: ${item.completeness} of 6 sections`)}
+    ${meter(item.completeness, LAB_SECTION_COUNT, `Lab completeness: ${item.completeness} of ${LAB_SECTION_COUNT} sections`)}
     <span class="muted"> lab sections complete</span>
   </div>
 </header>

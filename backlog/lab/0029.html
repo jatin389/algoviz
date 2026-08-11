@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T18:16:40.731Z">
+<meta name="generated-at" content="2026-08-11T18:27:01.051Z">
 <title>0029 &middot; New domain: Operating Systems — Lab</title>
 <style>
 
@@ -278,7 +278,7 @@
   .leverage-marker { color: var(--leverage); border-color: var(--leverage); background: var(--leverage-bg); }
   .blocked-marker { color: var(--blocked); border-color: var(--blocked); background: var(--blocked-bg); }
 
-  /* Meter (lab completeness, n/6) */
+  /* Meter (lab completeness, n of LAB_SECTION_COUNT) */
   .meter {
     display: inline-flex;
     align-items: center;
@@ -643,6 +643,146 @@
     }
   }
 
+  /* Mechanism flow diagram (lab "Flows" section): row label | today |
+     proposed, as a single CSS grid so all three columns stay aligned across
+     every row a lab authors. .flow-head / .flow-row are display:contents
+     wrappers -- their children (col-heads / label + two cells) become
+     direct grid items of .flow-table, so column alignment is automatic
+     regardless of row count; nth-of-type still resolves correctly against
+     the underlying DOM since display:contents only affects box generation,
+     not selector matching.
+     Below ~700px the grid collapses to one column and stacks label -> today
+     cell -> proposed cell; because the column headers are no longer
+     adjacent to explain which cell is which, each .flow-cell grows a
+     "Today" / "With this change" label of its own via ::before. */
+  .flow-table {
+    display: grid;
+    grid-template-columns: minmax(6rem, auto) minmax(11rem, 1fr) minmax(11rem, 1fr);
+    column-gap: 0.85rem;
+    row-gap: 0.55rem;
+    margin: 0 0 1rem;
+    overflow-x: auto;
+  }
+
+  .flow-head,
+  .flow-row {
+    display: contents;
+  }
+
+  .flow-col-head {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 0 0 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flow-row-label {
+    display: flex;
+    align-items: center;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    color: var(--text-muted);
+    padding: 0.15rem 0.5rem 0.15rem 0;
+  }
+
+  .flow-cell {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .flow-node {
+    display: inline-flex;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.15rem 0.5rem;
+    font-size: var(--fs-sm);
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  /* Dominant without shouting: same border+text treatment the priority
+     badges use for "this is the one that matters", not a loud solid fill. */
+  .flow-node.is-emphasis {
+    background: var(--surface);
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .flow-connector {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: var(--fs-base);
+    line-height: 1;
+    padding: 0 0.1rem;
+  }
+
+  /* The highest-value mark on the page: this hop is impossible. Reuses the
+     --blocked / --blocked-bg pair (same tokens as .blocked-marker) so it
+     reads as a hard stop, never confusable with the plain arrow above. */
+  .flow-connector.is-cut {
+    color: var(--blocked);
+    background: var(--blocked-bg);
+    border: 1px solid var(--blocked);
+    border-radius: 999px;
+    font-weight: 700;
+    padding: 0.1rem 0.3rem;
+  }
+
+  @media (max-width: 700px) {
+    .flow-table {
+      grid-template-columns: 1fr;
+      row-gap: 0.5rem;
+    }
+
+    .flow-head {
+      display: none;
+    }
+
+    .flow-row-label {
+      padding-top: 0.2rem;
+    }
+
+    .flow-cell::before {
+      flex: 1 0 100%;
+      font-size: var(--fs-xs);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .flow-cell:nth-of-type(1)::before {
+      content: "Today";
+    }
+
+    .flow-cell:nth-of-type(2)::before {
+      content: "With this change";
+    }
+
+    .flow-cell:nth-of-type(2) {
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px dashed var(--border);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .meter-fill { transition: none; }
     body { transition: none; }
@@ -808,9 +948,9 @@
     
   </div>
   <div class="completeness-row">
-    <span class="meter" role="img" aria-label="Lab completeness: 0 of 6 sections">
+    <span class="meter" role="img" aria-label="Lab completeness: 0 of 7 sections">
       <span class="meter-track"><span class="meter-fill" style="width:0%"></span></span>
-      <span class="meter-label">0/6</span>
+      <span class="meter-label">0/7</span>
     </span>
     <span class="muted"> lab sections complete</span>
   </div>

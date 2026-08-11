@@ -47,6 +47,18 @@ it as optional enrichment. This is the coupling to **0010**.
 `docs/step-playback-and-sharing-plan.md` already decided against unifying them. Consequence:
 those two categories are out of scope here, not merely deprioritised.
 
+## Flows
+
+| Path | Today | With this change |
+|---|---|---|
+| Narration | step advances → `onAdvance` → **side effect** ╳ correct after scrub | `current` step → `computed` → **pure `Narrator`** → sentence |
+| Pausing | `tick()` → `applyStep` → `setTimeout` next step | `tick()` → `applyStep` → **`shouldPause`** → hold before scheduling |
+| Voice | — ╳ nothing reads the step aloud | `Narration.key` → `speechSynthesis` + **`aria-live`** |
+
+The narration row is the discovery: `onAdvance` fires forward-only, so anything hung off it is
+wrong the moment the learner scrubs back. Deriving instead of emitting is what makes the
+sentence correct at any step, and testable with no DOM.
+
 ## Architecture
 
 Three pure layers, all testable with no DOM.

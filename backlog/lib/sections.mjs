@@ -167,6 +167,87 @@ export function parseTable(text) {
   return { headers, rows: normalizedRows };
 }
 
+// ---------------------------------------------------------------------------
+// parseFlows
+// ---------------------------------------------------------------------------
+//
+// Splits a flow cell into nodes on the two connector glyphs (or their ASCII
+// fallbacks). The `X`-for-cut fallback requires whitespace on both sides —
+// checked via the regex itself rather than a separate word-boundary pass —
+// so a bare `X` inside a word (`MediaStreamTrack`, `Xerox`) can never be
+// mistaken for a connector; only a standalone `X` token splits.
+const FLOW_CONNECTOR_RE = /(→|╳|->|\sX\s)/;
+
+function parseFlowCell(cell) {
+  const trimmed = cell.trim();
+  if (!trimmed) return null;
+
+  const parts = trimmed.split(FLOW_CONNECTOR_RE);
+  const nodes = [];
+  const connectors = [];
+
+  for (let i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      const nodeText = parts[i].trim();
+      if (!nodeText) return null; // e.g. "A → → B" — an empty hop, not a real cell
+
+      // A node wholly wrapped in "**...**" is the emphasised one; strip the
+      // markers but leave any other inline markdown (backticks) for
+      // renderInline to handle later.
+      const boldMatch = nodeText.match(/^\*\*(.+)\*\*$/);
+      nodes.push(
+        boldMatch ? { text: boldMatch[1].trim(), emphasis: true } : { text: nodeText, emphasis: false },
+      );
+    } else {
+      // Captured token is either a bare glyph/ASCII arrow or "\sX\s" with its
+      // surrounding whitespace still attached — trim before comparing.
+      const token = parts[i].trim();
+      connectors.push(token === '╳' || token === 'X' ? 'cut' : 'arrow');
+    }
+  }
+
+  return { nodes, connectors };
+}
+
+/**
+ * Parse a lab's `## Flows` section text into a side-by-side mechanism
+ * diagram: a table whose first column is a row label and whose other two
+ * columns are each a chain of nodes joined by arrows (`→`/`->`) or a cut
+ * marker (`╳`/a whitespace-bounded `X`) where the change breaks a hop.
+ *
+ * Reuses `parseTable` for the table shape itself — this function only adds
+ * the flow-cell grammar on top. Returns `null` for anything parseTable
+ * can't confidently read, any header count other than 3, any row whose
+ * label or either flow cell is empty, or any row that doesn't have exactly
+ * the 3 columns the shape requires (parseTable pads short rows but keeps
+ * ragged-long ones, so that's checked here).
+ */
+export function parseFlows(text) {
+  const table = parseTable(text);
+  if (!table) return null;
+
+  const { headers, rows } = table;
+  if (headers.length !== 3) return null;
+
+  const parsedRows = [];
+  for (const row of rows) {
+    if (row.length !== 3) return null;
+    const [rawLabel, rawFlowA, rawFlowB] = row;
+
+    const label = rawLabel.trim();
+    if (!label) return null;
+    if (!rawFlowA.trim() || !rawFlowB.trim()) return null;
+
+    const flowA = parseFlowCell(rawFlowA);
+    const flowB = parseFlowCell(rawFlowB);
+    if (!flowA || !flowB) return null;
+
+    parsedRows.push({ label, flows: [flowA, flowB] });
+  }
+
+  return { headers, rows: parsedRows };
+}
+
 // --- self-test ---
 if (import.meta.url === `file://${process.argv[1]}`) {
   const { readFileSync } = await import('node:fs');
@@ -238,6 +319,77 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   check('parseTable("") is null', parseTable('') === null);
   check('parseConstraints(null) is null', parseConstraints(null) === null);
   check('parseTable(undefined) is null', parseTable(undefined) === null);
+
+  // --- parseFlows: fixtures are inline strings — no lab has a ## Flows
+  // section yet (see 0045's Refinement).
+
+  const wellFormedFlows = [
+    '| Path | Today | With this change |',
+    '|---|---|---|',
+    '| Render | `BarChart` (DOM) → CSS transitions → **screen** | seeded generator → offscreen canvas → **encoder** → `.mp4` |',
+    '| Narration | `speechSynthesis.speak()` ╳ `MediaStreamTrack` | burned-in captions + `.srt` |',
+  ].join('\n');
+
+  const flows = parseFlows(wellFormedFlows);
+  check('parseFlows(well-formed) is non-null', flows !== null);
+  if (flows) {
+    check('parseFlows: 2 rows', flows.rows.length === 2);
+
+    const renderRow = flows.rows[0];
+    check('parseFlows: row 0 label is "Render"', renderRow.label === 'Render');
+    check('parseFlows: row 0 flow A has 3 nodes / 2 arrow connectors', renderRow.flows[0].nodes.length === 3 && renderRow.flows[0].connectors.every((c) => c === 'arrow'));
+    check('parseFlows: row 0 flow B has 4 nodes / 3 arrow connectors', renderRow.flows[1].nodes.length === 4 && renderRow.flows[1].connectors.every((c) => c === 'arrow'));
+
+    // Emphasis stripped, backticks survive untouched.
+    const screenNode = renderRow.flows[0].nodes[2];
+    check('parseFlows: "**screen**" node is emphasised with markers stripped', screenNode.emphasis === true && screenNode.text === 'screen');
+    const barChartNode = renderRow.flows[0].nodes[0];
+    check('parseFlows: backticked node keeps its backticks', barChartNode.emphasis === false && barChartNode.text === '`BarChart` (DOM)');
+
+    const narrationRow = flows.rows[1];
+    check('parseFlows: row 1 label is "Narration"', narrationRow.label === 'Narration');
+    check('parseFlows: "╳" produces a single "cut" connector', narrationRow.flows[0].connectors.length === 1 && narrationRow.flows[0].connectors[0] === 'cut');
+    check('parseFlows: row 1 flow B is a single node, zero connectors', narrationRow.flows[1].nodes.length === 1 && narrationRow.flows[1].connectors.length === 0);
+  }
+
+  // ASCII fallbacks: "->" for arrow, whitespace-bounded "X" for cut — but a
+  // bare X glued to a word must not split.
+  const asciiFlows = [
+    '| Step | A | B |',
+    '|---|---|---|',
+    '| One | start -> middle -> end | left X right |',
+    '| Two | MediaStreamTrack works fine | OSXProcess stays one node |',
+  ].join('\n');
+  const asciiParsed = parseFlows(asciiFlows);
+  check('parseFlows: ASCII "->" fallback parses as non-null', asciiParsed !== null);
+  if (asciiParsed) {
+    check('parseFlows: "->" fallback yields 3 nodes, all arrows', asciiParsed.rows[0].flows[0].nodes.length === 3 && asciiParsed.rows[0].flows[0].connectors.every((c) => c === 'arrow'));
+    check('parseFlows: whitespace-bounded "X" fallback yields a cut', asciiParsed.rows[0].flows[1].nodes.length === 2 && asciiParsed.rows[0].flows[1].connectors[0] === 'cut');
+    check('parseFlows: bare X glued to a word does not split ("MediaStreamTrack")', asciiParsed.rows[1].flows[0].nodes.length === 1);
+    check('parseFlows: bare X glued to a word does not split ("OSXProcess")', asciiParsed.rows[1].flows[1].nodes.length === 1);
+  }
+
+  // Wrong column counts must fall back to null.
+  const twoColumnFlows = ['| A | B |', '|---|---|', '| x | y |'].join('\n');
+  check('parseFlows(2-column table) is null', parseFlows(twoColumnFlows) === null);
+
+  const fourColumnFlows = ['| A | B | C | D |', '|---|---|---|---|', '| w | x | y | z |'].join('\n');
+  check('parseFlows(4-column table) is null', parseFlows(fourColumnFlows) === null);
+
+  // Plain prose, no table at all.
+  check('parseFlows(junk) is null', parseFlows(junk) === null);
+
+  // Empty / non-string input must not throw.
+  check('parseFlows("") is null', parseFlows('') === null);
+  check('parseFlows(null) is null', parseFlows(null) === null);
+  check('parseFlows(undefined) is null', parseFlows(undefined) === null);
+
+  // Empty label or empty flow cell invalidates the whole table.
+  const emptyLabelFlows = ['| Path | A | B |', '|---|---|---|', '|  | one → two | three → four |'].join('\n');
+  check('parseFlows(empty label) is null', parseFlows(emptyLabelFlows) === null);
+
+  const emptyCellFlows = ['| Path | A | B |', '|---|---|---|', '| Render |  | three → four |'].join('\n');
+  check('parseFlows(empty flow cell) is null', parseFlows(emptyCellFlows) === null);
 
   console.log(`sections.mjs self-test: ${passCount} passed, ${failures.length} failed`);
   if (failures.length) {

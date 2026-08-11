@@ -445,3 +445,56 @@ export const THEME_TOGGLE_SCRIPT = `(function(){
   });
   sync();
 })();`;
+
+/**
+ * Mechanism flow diagram: how something works today, beside how it works with
+ * the proposed change. Side by side rather than toggled — a lab is a reference
+ * document, and a toggle would hide half the comparison behind a click.
+ *
+ * Node text keeps its inline markdown (backticks especially) and goes through
+ * renderInline; `emphasis` has already had its `**` stripped by the parser, so
+ * the two never double up.
+ */
+export function flowDiagram(flows) {
+  if (!flows || !Array.isArray(flows.rows) || flows.rows.length === 0) return null;
+
+  const renderFlow = (flow) => {
+    if (!flow || !Array.isArray(flow.nodes) || flow.nodes.length === 0) return '';
+    const parts = [];
+    flow.nodes.forEach((node, i) => {
+      const emphasis = node.emphasis ? ' is-emphasis' : '';
+      parts.push(`<span class="flow-node${emphasis}">${renderInline(node.text)}</span>`);
+      const connector = flow.connectors?.[i];
+      if (connector) {
+        const cut = connector === 'cut';
+        parts.push(
+          `<span class="flow-connector${cut ? ' is-cut' : ''}"${cut ? ' title="This hop is not possible"' : ''}>${
+            cut ? '&#10007;' : '&rarr;'
+          }</span>`,
+        );
+      }
+    });
+    return `<div class="flow-cell">${parts.join('')}</div>`;
+  };
+
+  const [, leftHead, rightHead] = flows.headers;
+  const rows = flows.rows
+    .map(
+      (row) => `
+      <div class="flow-row">
+        <span class="flow-row-label">${renderInline(row.label)}</span>
+        ${renderFlow(row.flows[0])}
+        ${renderFlow(row.flows[1])}
+      </div>`,
+    )
+    .join('');
+
+  return `
+    <div class="flow-table">
+      <div class="flow-head">
+        <span class="flow-col-head"></span>
+        <span class="flow-col-head">${renderInline(leftHead ?? 'Today')}</span>
+        <span class="flow-col-head">${renderInline(rightHead ?? 'Proposed')}</span>
+      </div>${rows}
+    </div>`;
+}

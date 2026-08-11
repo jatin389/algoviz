@@ -32,15 +32,20 @@ export const LAB_STATUS_LABELS = {
   planned: 'Planned',
 };
 
-// The six lab sections whose non-emptiness makes up `completeness` (0-6).
-const LAB_SECTION_KEYS = [
+// The lab sections whose non-emptiness makes up `completeness`. Exported as a
+// count so no renderer has to hardcode the denominator — adding a section here
+// moves every meter in one edit.
+export const LAB_SECTION_KEYS = [
   'verdict',
   'constraints',
+  'flows',
   'architecture',
   'phases',
   'risks',
   'outOfScope',
 ];
+
+export const LAB_SECTION_COUNT = LAB_SECTION_KEYS.length;
 
 function priorityRank(priority) {
   const idx = PRIORITY_ORDER.indexOf(priority);
@@ -55,7 +60,7 @@ function statusRank(status) {
 /**
  * Merge parsed tasks with parsed labs and compute every derived field:
  * unblocks (inverse of depends_on), leverage (unblocks.length),
- * completeness (0-6 non-empty lab sections), blocked (any depends_on
+ * completeness (non-empty lab sections, see LAB_SECTION_COUNT), blocked (any depends_on
  * target is itself unresearched), plus counts/present-option lists and the
  * default display sort order.
  *
