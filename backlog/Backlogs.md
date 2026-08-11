@@ -9,7 +9,6 @@ Captured but not yet scoped. Refine these before starting them.
 
 | ID | Title | Description |
 |----|-------|--------------|
-| 0045 | Mechanism flow diagrams on lab pages | "current path vs proposed path" diagrams; split from 0044 because it needs per-lab authoring |
 
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
@@ -22,6 +21,7 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 | 0039 | P0 | S | Embeddable widgets | iframe-able `/embed/...` routes reusing existing URL state; pairs with the sandbox |
 | 0030 | P0 | L | New domain: Concurrency & interleavings | race conditions + an interleaving explorer scrubbing to the schedule that broke an invariant — strongest idea researched |
 | 0001 | P0 | S | Landing page | front door instead of a redirect straight into Sorting |
+| 0045 | P1 | M | Mechanism flow diagrams on lab pages | side-by-side "today vs. with this change" tables on lab pages; makes the completeness meter /7 |
 | 0010 | P1 | M | Fill the existing gaps | tag remaining sorts, add pathfinding/search/graph algorithms already scoped in the app |
 | 0011 | P1 | S | Complexity cheat-sheet page | one sortable table of every algorithm's complexity/stability |
 | 0017 | P1 | S | Dataset presets | nearly-sorted, reverse-sorted, few-unique, real-world-ish array presets |

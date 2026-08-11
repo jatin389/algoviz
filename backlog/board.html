@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T18:12:48.887Z">
+<meta name="generated-at" content="2026-08-11T18:16:40.731Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -916,15 +916,11 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:12:48.887Z</p>
+  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:16:40.731Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">43</span>
+          <span class="stat-count">44</span>
           <span class="stat-label">Ready</span>
-        </div>
-        <div class="stat">
-          <span class="stat-count">1</span>
-          <span class="stat-label">Inbox</span>
         </div>
         <div class="stat">
           <span class="stat-count">1</span>
@@ -937,8 +933,7 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (43)</option>
-            <option value="inbox">Inbox (1)</option>
+      <option value="ready">Ready (44)</option>
             <option value="done">Done (1)</option>
     </select>
   </label>
@@ -1631,6 +1626,65 @@
 **Effort:** S
 **Priority rationale:** Recommended route step 3; cheap, and closes a real accessibility gap that's a genuine differentiator versus other visualizers in this space.
 **Open questions:** Acceptance criteria and narration copy templates per category not yet scoped.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="ready"
+      data-priority="P1"
+      data-effort="M"
+      data-zone="D"
+      data-lab="unresearched"
+      data-search="mechanism flow diagrams on lab pages generalize the live/export toggle from the hand-authored feature lab artifact into something
+any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
+today and how the feature would change it. in the artifact this was three stacked flows —
+render, audio, narration — that swapped together when you flipped between live view and
+export capture, and it carried more of the design than any prose did. instruments lab-presentation">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0045</span>
+        <span class="card-title">Mechanism flow diagrams on lab pages</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
+          <span class="pill status-ready">Ready</span>
+          <span class="badge priority-P1">P1</span>
+          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          
+          <span class="chip blocked-marker" title="Depends on an item with no lab yet">&#9888; blocked</span>
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0045-lab-mechanism-flow.md</code></span>
+          <span>Created: 2026-08-11</span>
+          <span>Refined: 2026-08-11</span>
+          <span>Cluster: <code>lab-presentation</code></span>
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0045.html">Open lab page →</a></span>
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Generalize the Live/Export toggle from the hand-authored Feature Lab artifact into something
+any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
+today and how the feature would change it. In the artifact this was three stacked flows —
+render, audio, narration — that swapped together when you flipped between Live view and
+Export capture, and it carried more of the design than any prose did.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** Let a lab show how a mechanism works today beside how the feature would change it,
+in a format that stays readable as raw markdown.
+
+**Zone:** D — Instruments
+
+**Authoring format — a markdown table, not a custom syntax.** Three candidates were considered:
+a fenced mini-DSL, a table, and sub-headings plus lists. The table wins on the contract 0044
+established rather than on looks:
+- `sections.mjs`'s `parseTable` already exists and is tested — **zero new parsing**.
+- `renderInline` already handles `**bold**` and backticks inside cells.
+- It degrades perfectly: a legible table even where the flow component never fires, which is
+  the same fallback rule every other lab component follows.
+- It reviews cleanly in a diff. A fenced DSL would not.
+
+Shape:
+```markdown</pre>
       </div>
     </article>
 
@@ -2711,50 +2765,6 @@
 **Effort:** M
 **Priority rationale:** Each sub-idea is plausible but none was researched as deeply as the primary 8 domains; backlog placeholder.
 **Open questions:** Whether this splits into separate tasks once any sub-idea is prioritized — not yet decided.</pre>
-      </div>
-    </article>
-
-    <article class="card"
-      data-status="inbox"
-      data-priority="none"
-      data-effort="none"
-      data-zone="D"
-      data-lab="unresearched"
-      data-search="mechanism flow diagrams on lab pages generalize the live/export toggle from the hand-authored feature lab artifact into something
-any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
-today and how the feature would change it. in the artifact this was three stacked flows —
-render, audio, narration — that swapped together when you flipped between live view and
-export capture, and it carried more of the design than any prose did. instruments lab-presentation">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0045</span>
-        <span class="card-title">Mechanism flow diagrams on lab pages</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
-          <span class="pill status-inbox">Inbox</span>
-          
-          
-          
-          <span class="chip blocked-marker" title="Depends on an item with no lab yet">&#9888; blocked</span>
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0045-lab-mechanism-flow.md</code></span>
-          <span>Created: 2026-08-11</span>
-          
-          <span>Cluster: <code>lab-presentation</code></span>
-          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
-          <span><a class="lab-link" href="lab/0045.html">Open lab page →</a></span>
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">Generalize the Live/Export toggle from the hand-authored Feature Lab artifact into something
-any lab can declare: a &quot;current path vs proposed path&quot; diagram showing how a mechanism works
-today and how the feature would change it. In the artifact this was three stacked flows —
-render, audio, narration — that swapped together when you flipped between Live view and
-Export capture, and it carried more of the design than any prose did.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">(not yet scoped — needs a priority, effort, an authoring format, and acceptance criteria)</pre>
       </div>
     </article>
 
