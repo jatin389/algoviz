@@ -7,13 +7,13 @@ Zone legend (see the skill's "Zones (optional)" section for the full definition)
 - **B — Off the map**: a creative departure from the standard playbook for this kind of product.
 - **C — New territories**: an entirely new domain/subject area beyond the product's current scope.
 - **D — Instruments**: platform/infrastructure work that multiplies the value of other features.
+- **E — Technical improvement**: internal engineering quality work on the existing codebase, with no user-visible change.
 
 ## Inbox
 Captured but not yet scoped. Refine these before starting them.
 
 | ID | Title | Description |
 |----|-------|--------------|
-| 0044 | Check and implement loop engineering | |
 
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
@@ -38,6 +38,7 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 | 0040 | P1 | M | D | Empirical complexity lab | measure real runtimes across n, plot against the theoretical curve |
 | 0041 | P1 | M | D | Challenge layer | LearnGitBranching-style levels with verified, seed-graded goal states |
 | 0042 | P1 | S | D | Step narration | live text log of each step — accessibility + copyable trace |
+| 0044 | P1 | S | E | Check and implement loop engineering | scope still open — what "loop engineering" covers here needs pinning down before starting |
 | 0002 | P2 | M | A | New category: Dynamic Programming | Knapsack/LCS/Edit Distance/Coin Change with animated table fills |
 | 0006 | P2 | M | A | New category: Union-Find + Kruskal's MST | reuses the existing graph model |
 | 0008 | P2 | M | A | New category: Hash Table | chaining vs open addressing, live load factor |
