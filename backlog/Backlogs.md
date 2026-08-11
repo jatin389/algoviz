@@ -18,7 +18,6 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 
 | ID | Priority | Effort | Title | Description |
 |----|----------|--------|-------|--------------|
-| 0044 | P0 | M | Designed Feature Lab pages | render constraints/phases/dependency-graph as components + dark theme; zero per-feature authoring |
 | 0038 | P0 | L | Bring-your-own-algorithm sandbox | editor + worker runs a user-authored generator against the existing snapshot contract — biggest multiplier researched |
 | 0039 | P0 | S | Embeddable widgets | iframe-able `/embed/...` routes reusing existing URL state; pairs with the sandbox |
 | 0030 | P0 | L | New domain: Concurrency & interleavings | race conditions + an interleaving explorer scrubbing to the schedule that broke an invariant — strongest idea researched |
@@ -65,5 +64,6 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 
 ## In Progress
 
-| ID | Priority | Title | Description |
-|----|----------|-------|--------------|
+| ID | Priority | Effort | Title | Description |
+|----|----------|--------|-------|--------------|
+| 0044 | P0 | M | Designed Feature Lab pages | plan written and open questions resolved; implementation not started |

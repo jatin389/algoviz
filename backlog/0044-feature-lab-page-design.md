@@ -1,7 +1,7 @@
 ---
 id: 0044
 title: Designed Feature Lab pages
-status: ready
+status: in-progress
 priority: P0
 effort: M
 zone: D
@@ -55,11 +55,58 @@ the pages, and today they don't invite reading.
 **Effort:** M — roughly a day. Estimate carried over from the 2026-08-11 brainstorm; adjust
 freely.
 
-**Open questions:**
-- Does the **board** page also adopt the dark theme, or only lab pages? Shared `theme.mjs`
-  makes "both" the path of least resistance, but it changes an existing surface.
-- Does the dependency graph render as inline SVG or as a CSS/DOM layout? Affects nothing
-  architecturally; pick whichever stays legible in both themes.
+**Open questions:** all resolved 2026-08-11 — see *Plan* below.
+
+## Plan
+Written 2026-08-11 after reading `render-lab.mjs`, `theme.mjs` and `components.mjs` end to end.
+
+**Precondition verified.** The enhanced components only work if lab prose is machine-readable,
+and it is — consistently across both labs: 5 bold-led constraint paragraphs each, all 5
+containing `Consequence:`; Phases and Risks are markdown tables (10/11 and 6/8 rows) that
+`components.mjs`'s existing `splitTableCells` already handles. No lab markdown needs editing.
+
+**1 — Theme (`lib/theme.mjs`).** Dark tokens defined three ways so the toggle wins in both
+directions: `@media (prefers-color-scheme: dark)` guarded as `:root:not([data-theme="light"])`,
+then explicit `:root[data-theme="dark"]` and `:root[data-theme="light"]`. Semantic colours get
+hand-picked dark variants rather than inversion — `--p0: #c62828` and `--zone-d: #b8590f` are
+tuned for a white ground and will muddy otherwise. Type sizes become scale tokens; they are
+currently ad hoc (0.72 / 0.78 / 0.82 / 0.9 / 0.94 / 1 / 1.5rem), which is part of why the pages
+read unconsidered.
+
+**2 — Section parsers (new `lib/sections.mjs`).** Pure text→structure, no HTML:
+`parseConstraints(text)` → `[{lead, body, consequence}] | null`, `parseTable(text)` →
+`{headers, rows} | null`. **`null` is the contract** — any lab whose prose doesn't match falls
+back to the existing `renderMarkdownSubset`. With only 2 of 45 labs written this matters more
+than the components themselves: a future lab in a different style must never render broken.
+
+**3 — Components (`lib/components.mjs`).** `constraintCard()` renders the lead as a heading with
+the consequence as a visually distinct callout — the fact→consequence split is the whole value
+of the section. `phaseTape()` detects a `Gate` column by header name and emphasises it as a rule
+rather than a table cell; no Gate column falls back to a table. `dependencyGraph()` renders
+depends-on ← this ← unblocks, with cluster siblings below.
+
+**4 — Wiring (`render-lab.mjs`).** Constraints, Phases and Relationships come out of the generic
+`LAB_SECTIONS` loop; Verdict, Architecture and Out of scope stay on it.
+
+**Decisions:**
+- **Dark theme covers board *and* lab pages** (user, 2026-08-11). Forking the tokens would lose
+  the shared-token property the acceptance criteria exist to protect.
+- **A theme toggle is in scope** (user, 2026-08-11). Nothing sets `data-theme` on a `file://`
+  page, so without it the override half of the criteria can't be exercised. ~15 lines plus
+  `localStorage`; the only JS on the page.
+- **Graph renders as CSS/DOM, not inline SVG.** It is small, and DOM keeps it token-driven,
+  reflowing, and made of real links with real text. SVG would need manual text metrics and
+  wouldn't wrap.
+- **`derive.mjs` gains cluster siblings** — it computes the graph today but doesn't expose who
+  shares a `cluster`.
+
+**Verification:** run the generator twice and confirm only the timestamp differs; confirm 45
+pages; assert dark tokens exist in all three forms; feed a fixture lab with non-matching prose
+to prove the fallback fires; confirm no new npm dependencies.
+
+**Deliberately not in this item:** `blocked` currently conflates "waiting on unknown work" with
+"waiting on known work" — 0045 reads as blocked by 0044 even though 0044 is unresearched by
+design. Real, but scope creep here; capture separately if it bites.
 
 ## Notes
 - 2026-08-11: Brainstormed after comparing the hand-authored artifact against the generated

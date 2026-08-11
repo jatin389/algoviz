@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T17:42:05.140Z">
+<meta name="generated-at" content="2026-08-11T17:50:08.495Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -527,11 +527,15 @@
 
 <header class="board-header">
   <h1>AlgoViz Backlog Board</h1>
-  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T17:42:05.140Z</p>
+  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T17:50:08.495Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">44</span>
+          <span class="stat-count">43</span>
           <span class="stat-label">Ready</span>
+        </div>
+        <div class="stat">
+          <span class="stat-count">1</span>
+          <span class="stat-label">In Progress</span>
         </div>
         <div class="stat">
           <span class="stat-count">1</span>
@@ -544,7 +548,8 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (44)</option>
+      <option value="ready">Ready (43)</option>
+            <option value="in-progress">In Progress (1)</option>
             <option value="inbox">Inbox (1)</option>
     </select>
   </label>
@@ -757,89 +762,6 @@
 **Effort:** S
 **Priority rationale:** Recommended route step 1, paired with the sandbox — cheap given existing URL-state infrastructure, and a genuine growth/discovery lever.
 **Open questions:** Acceptance criteria and which categories get embed routes first not yet scoped.</pre>
-      </div>
-    </article>
-
-    <article class="card"
-      data-status="ready"
-      data-priority="P0"
-      data-effort="M"
-      data-zone="D"
-      data-lab="unresearched"
-      data-search="designed feature lab pages the generated feature lab pages are &quot;only html doc and looks pale&quot; compared to the
-hand-authored artifact that prototyped the concept — which had a real visual identity,
-animations and working demos. raise the generated pages to a designed reference doc:
-all 44 pages, no per-feature hand-authoring. instruments lab-presentation">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0044</span>
-        <span class="card-title">Designed Feature Lab pages</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
-          <span class="pill status-ready">Ready</span>
-          <span class="badge priority-P0">P0</span>
-          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
-          <span class="chip leverage-marker" title="Unblocks 1 other item once researched">&#9650; unblocks 1</span>
-          
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0044-feature-lab-page-design.md</code></span>
-          <span>Created: 2026-08-11</span>
-          <span>Refined: 2026-08-11</span>
-          <span>Cluster: <code>lab-presentation</code></span>
-          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
-          <span><a class="lab-link" href="lab/0044.html">Open lab page →</a></span>
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">The generated Feature Lab pages are &quot;only html doc and looks pale&quot; compared to the
-hand-authored artifact that prototyped the concept — which had a real visual identity,
-animations and working demos. Raise the generated pages to a designed reference doc:
-all 44 pages, no per-feature hand-authoring.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">**Goal:** Make `backlog/lab/*.html` read as designed reference documents rather than dumped
-markdown, by rendering structure that is already present in the data but currently flattened
-into uniform prose.
-
-**Zone:** D — Instruments
-
-**Scope — four changes, all generator-side:**
-1. **Dark theme + type scale.** `lib/theme.mjs` has zero `prefers-color-scheme`; both page
-   types are light-only. One token set, consumed by board and lab pages alike so they cannot
-   drift.
-2. **Constraint cards.** Both existing labs write constraints as `fact → consequence`. Render
-   that structure instead of paragraphs, and make Constraints visually distinct from the other
-   five sections — today all six render through one `[key, label]` loop, so the highest-value
-   section looks identical to *Out of scope*.
-3. **Phase tape with gates.** The `Gate` column states &quot;don't proceed until this is true&quot; and
-   currently renders as a plain table cell. Surface it as the emphasized element.
-4. **Dependency graph.** `lib/derive.mjs` already computes `dependsOn`, inverted `unblocks`,
-   `leverage`, `blocked` and cluster siblings; `render-lab.mjs` renders two `&lt;ul&gt;`s. Show the
-   graph.
-
-**Acceptance criteria:**
-- All 44 lab pages honour the viewer's colour-scheme preference, including the `data-theme`
-  override, in both directions.
-- Constraints, Phases and Relationships each render through a dedicated component, not the
-  generic section loop.
-- Unresearched items visibly improve too — the gap view is a designed page, not a blank one.
-- Zero per-feature authoring: no lab markdown needs editing for any of this to take effect.
-- `npm run backlog:board` remains deterministic (re-running leaves the tree clean apart from
-  the timestamp) and adds **no npm dependencies**.
-- Board and lab pages import the same token set from `lib/theme.mjs`.
-
-**Priority rationale:** P0 per user. The lab layer only earns its keep if people actually read
-the pages, and today they don't invite reading.
-
-**Effort:** M — roughly a day. Estimate carried over from the 2026-08-11 brainstorm; adjust
-freely.
-
-**Open questions:**
-- Does the **board** page also adopt the dark theme, or only lab pages? Shared `theme.mjs`
-  makes &quot;both&quot; the path of least resistance, but it changes an existing surface.
-- Does the dependency graph render as inline SVG or as a CSS/DOM layout? Affects nothing
-  architecturally; pick whichever stays legible in both themes.</pre>
       </div>
     </article>
 
@@ -2400,6 +2322,85 @@ freely.
 **Effort:** M
 **Priority rationale:** Each sub-idea is plausible but none was researched as deeply as the primary 8 domains; backlog placeholder.
 **Open questions:** Whether this splits into separate tasks once any sub-idea is prioritized — not yet decided.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="in-progress"
+      data-priority="P0"
+      data-effort="M"
+      data-zone="D"
+      data-lab="unresearched"
+      data-search="designed feature lab pages the generated feature lab pages are &quot;only html doc and looks pale&quot; compared to the
+hand-authored artifact that prototyped the concept — which had a real visual identity,
+animations and working demos. raise the generated pages to a designed reference doc:
+all 44 pages, no per-feature hand-authoring. instruments lab-presentation">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0044</span>
+        <span class="card-title">Designed Feature Lab pages</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
+          <span class="pill status-in-progress">In Progress</span>
+          <span class="badge priority-P0">P0</span>
+          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="chip leverage-marker" title="Unblocks 1 other item once researched">&#9650; unblocks 1</span>
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0044-feature-lab-page-design.md</code></span>
+          <span>Created: 2026-08-11</span>
+          <span>Refined: 2026-08-11</span>
+          <span>Cluster: <code>lab-presentation</code></span>
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0044.html">Open lab page →</a></span>
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">The generated Feature Lab pages are &quot;only html doc and looks pale&quot; compared to the
+hand-authored artifact that prototyped the concept — which had a real visual identity,
+animations and working demos. Raise the generated pages to a designed reference doc:
+all 44 pages, no per-feature hand-authoring.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** Make `backlog/lab/*.html` read as designed reference documents rather than dumped
+markdown, by rendering structure that is already present in the data but currently flattened
+into uniform prose.
+
+**Zone:** D — Instruments
+
+**Scope — four changes, all generator-side:**
+1. **Dark theme + type scale.** `lib/theme.mjs` has zero `prefers-color-scheme`; both page
+   types are light-only. One token set, consumed by board and lab pages alike so they cannot
+   drift.
+2. **Constraint cards.** Both existing labs write constraints as `fact → consequence`. Render
+   that structure instead of paragraphs, and make Constraints visually distinct from the other
+   five sections — today all six render through one `[key, label]` loop, so the highest-value
+   section looks identical to *Out of scope*.
+3. **Phase tape with gates.** The `Gate` column states &quot;don't proceed until this is true&quot; and
+   currently renders as a plain table cell. Surface it as the emphasized element.
+4. **Dependency graph.** `lib/derive.mjs` already computes `dependsOn`, inverted `unblocks`,
+   `leverage`, `blocked` and cluster siblings; `render-lab.mjs` renders two `&lt;ul&gt;`s. Show the
+   graph.
+
+**Acceptance criteria:**
+- All 44 lab pages honour the viewer's colour-scheme preference, including the `data-theme`
+  override, in both directions.
+- Constraints, Phases and Relationships each render through a dedicated component, not the
+  generic section loop.
+- Unresearched items visibly improve too — the gap view is a designed page, not a blank one.
+- Zero per-feature authoring: no lab markdown needs editing for any of this to take effect.
+- `npm run backlog:board` remains deterministic (re-running leaves the tree clean apart from
+  the timestamp) and adds **no npm dependencies**.
+- Board and lab pages import the same token set from `lib/theme.mjs`.
+
+**Priority rationale:** P0 per user. The lab layer only earns its keep if people actually read
+the pages, and today they don't invite reading.
+
+**Effort:** M — roughly a day. Estimate carried over from the 2026-08-11 brainstorm; adjust
+freely.
+
+**Open questions:** all resolved 2026-08-11 — see *Plan* below.</pre>
       </div>
     </article>
 
