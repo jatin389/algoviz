@@ -28,6 +28,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BACKLOG_DIR = __dirname;
 const LABS_DIR = path.join(BACKLOG_DIR, 'labs');
 const LAB_OUTPUT_DIR = path.join(BACKLOG_DIR, 'lab');
+const ORIGINAL_LABS_DIR = path.join(BACKLOG_DIR, 'original_labs');
 const BOARD_OUTPUT_PATH = path.join(BACKLOG_DIR, 'board.html');
 
 /** List `.md` files in a directory; [] if the directory doesn't exist. */
@@ -55,6 +56,27 @@ const labs = labFiles.map((name) => parseLabFile(name, LABS_DIR));
 
 const doneRows = parseDoneTable('DONE.md', BACKLOG_DIR);
 
+/**
+ * Hand-authored Feature Lab pages, written by the `lab-creator` skill rather
+ * than by this generator. Discovered on disk and keyed by the item id in the
+ * filename, so the skill owns the naming and this only has to notice.
+ */
+function findOriginalLabs(dir) {
+  const byId = new Map();
+  try {
+    for (const name of readdirSync(dir).sort()) {
+      if (!name.endsWith('.html')) continue;
+      const id = name.match(/^(\d{4})/)?.[1];
+      if (id) byId.set(id, name);
+    }
+  } catch {
+    /* directory absent — no hand-authored labs yet */
+  }
+  return byId;
+}
+
+const originalLabs = findOriginalLabs(ORIGINAL_LABS_DIR);
+
 // ---------------------------------------------------------------------------
 // Derive
 // ---------------------------------------------------------------------------
@@ -66,7 +88,7 @@ const generatedAt = new Date().toISOString();
 // Render + write
 // ---------------------------------------------------------------------------
 
-const boardHtml = renderBoardPage({ ...index, doneRows, generatedAt });
+const boardHtml = renderBoardPage({ ...index, doneRows, generatedAt, originalLabs });
 writeFileSync(BOARD_OUTPUT_PATH, boardHtml, 'utf8');
 
 mkdirSync(LAB_OUTPUT_DIR, { recursive: true });

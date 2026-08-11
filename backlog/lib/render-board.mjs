@@ -15,6 +15,7 @@ import {
   blockedMarker,
   labStatusPill,
   boardToLabLink,
+  boardToOriginalLabLink,
   statCard,
   themeToggle,
   THEME_INIT_SCRIPT,
@@ -231,6 +232,10 @@ const BOARD_CSS = `
   }
 
   .card-meta .lab-link { font-weight: 600; }
+  .card-meta .original-lab-link {
+    color: var(--accent);
+    font-weight: 700;
+  }
 
   .card-body h3 {
     font-size: 0.8rem;
@@ -278,7 +283,7 @@ const BOARD_CSS = `
   }
 `;
 
-function renderCard(item) {
+function renderCard(item, originalLabs) {
   const searchText = `${item.title} ${item.idea} ${item.zoneLabel} ${item.cluster}`.toLowerCase();
   const priorityAttr = item.priority || 'none';
   const effortAttr = item.effort || 'none';
@@ -314,6 +319,7 @@ function renderCard(item) {
           ${item.cluster ? `<span>Cluster: <code>${escapeHtml(item.cluster)}</code></span>` : ''}
           <span>Lab: ${labStatusPill(item.labStatus)}</span>
           <span>${boardToLabLink(item.id, 'Open lab page →')}</span>
+          ${originalLabs?.has(item.id) ? `<span>${boardToOriginalLabLink(originalLabs.get(item.id))}</span>` : ''}
         </div>
         <h3>Idea</h3>
         <pre class="section-text">${escapeHtml(item.idea || '(none)')}</pre>
@@ -335,6 +341,7 @@ function renderDoneRow(row) {
 
 export function renderBoardPage({
   items,
+  originalLabs,
   doneRows,
   generatedAt,
   statusCounts,
@@ -442,7 +449,7 @@ ${BOARD_CSS}
 
 <main>
   <div class="cards" id="card-list">
-    ${items.map(renderCard).join('\n')}
+    ${items.map((item) => renderCard(item, originalLabs)).join('\n')}
   </div>
 
   <div class="group">

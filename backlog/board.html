@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T18:27:01.051Z">
+<meta name="generated-at" content="2026-08-11T18:41:40.048Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -997,6 +997,10 @@
   }
 
   .card-meta .lab-link { font-weight: 600; }
+  .card-meta .original-lab-link {
+    color: var(--accent);
+    font-weight: 700;
+  }
 
   .card-body h3 {
     font-size: 0.8rem;
@@ -1056,7 +1060,7 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:27:01.051Z</p>
+  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:41:40.048Z</p>
   <div class="stats">
         <div class="stat">
           <span class="stat-count">43</span>
@@ -1157,6 +1161,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0001.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Right now the router redirects straight into `/sorting` — there's no front door. Add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localStorage.</pre>
@@ -1197,6 +1202,7 @@
           <span>Cluster: <code>interleaving-domains</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0030.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Race conditions, mutex/semaphore, producer-consumer, dining philosophers. The killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. The seeded RNG makes each bug a shareable URL. Flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it.</pre>
@@ -1237,6 +1243,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0038.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">An in-browser editor (CodeMirror) plus a Web Worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. Converts AlgoViz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves.</pre>
@@ -1277,6 +1284,7 @@
           <span>Cluster: <code>alternate-shell</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0039.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">An iframe-able `/embed/sorting?algo=quick&amp;seed=…` route. The existing URL state and hash router already do the hard part. Every blog post or lecture deck that embeds one becomes a discovery channel/backlink rather than a one-time visit.</pre>
@@ -1317,6 +1325,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0010.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add Bellman-Ford, Floyd-Warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph.</pre>
@@ -1357,6 +1366,7 @@
           <span>Cluster: <code>complexity-measurement</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0011.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">One sortable table of every algorithm's time/space complexity, stability, and in-place-ness — today that information is scattered one card at a time across categories.</pre>
@@ -1397,6 +1407,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0017.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Nearly-sorted, reverse-sorted, few-unique-values, real-world-ish presets — shows *why* insertion sort shines on nearly-sorted data instead of just asserting it in a complexity card.</pre>
@@ -1437,6 +1448,7 @@
           <span>Cluster: <code>output-adapter</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0019.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">The same generator renders as book spines, race cars, a hand of cards, or people lining up by height — a picker, zero changes to any algorithm's logic. Exploits the fact that step-snapshot logic (`array`/`comparing`/`swapping`/`sorted`) already knows nothing about `BarChart.vue`.</pre>
@@ -1477,6 +1489,7 @@
           <span>Cluster: <code>sequence-diff</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0024.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Full step history is already recorded for scrubbing (`useStepPlayer`'s tape). Let a user pick two arbitrary steps and show a diff of exactly what changed between them — &quot;what did these 50 steps actually accomplish.&quot;</pre>
@@ -1517,6 +1530,7 @@
           <span>Cluster: <code>seed-challenge</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0025.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Derive a deterministic seed from the date (seeding is already the app's whole reproducibility model) so everyone gets the same dataset today — &quot;quicksort took 41 comparisons on today's array, beat that with a different pivot rule.&quot;</pre>
@@ -1557,6 +1571,7 @@
           <span>Cluster: <code>interleaving-domains</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0031.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">B+tree page splits, join-strategy races (nested loop vs. hash vs. merge), WAL and crash recovery, and isolation anomalies as two interleaved transactions you can step — dirty read, non-repeatable read, phantom, write skew. Existing tools in this space are scattered vendor blog widgets and research prototypes, not a coherent app.</pre>
@@ -1597,6 +1612,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0035.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">IEEE-754 with toggleable bits (the &quot;why is 0.1 + 0.2 !== 0.3&quot; page basically writes its own traffic), two's complement, endianness, UTF-8 byte-level encoding, grapheme clusters vs. code points, base64. Flagged as the cheapest build researched, with disproportionate reach.</pre>
@@ -1637,6 +1653,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0036.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Cache lines, associativity, hit/miss, false sharing, and the row-major vs. column-major loop-order demo where identical work runs 10x slower purely from memory access pattern. Flagged as the best &quot;aha&quot; moment available for a working engineer.</pre>
@@ -1677,6 +1694,7 @@
           <span>Cluster: <code>complexity-measurement</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0040.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Actually measure runtimes across increasing input sizes in the browser, plot measured performance against the theoretical Big-O curve, and expose constant factors — e.g. why insertion sort wins below n≈20, why real-world sorts are hybrids. Turns Big-O from a badge into evidence.</pre>
@@ -1717,6 +1735,7 @@
           <span>Cluster: <code>seed-challenge</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0041.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">LearnGitBranching became the canonical way people learn git through levels with verified goal states, not animation quality — &quot;reach this heap in ≤5 ops,&quot; &quot;craft an input making quicksort O(n²),&quot; &quot;fix the sabotaged generator.&quot; Deterministic seeds make grading trivial here.</pre>
@@ -1757,6 +1776,7 @@
           <span>Cluster: <code>snapshot-to-text</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0042.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">A running text log — &quot;compared a[3]=5 and a[4]=3, swapped&quot; — generated from each step snapshot. Gives screen-reader accessibility, a copy-pasteable trace, and searchable step text from one feature. Almost nothing in this space is accessible today, and the app already has the `line`/pseudocode tagging to hang it on.</pre>
@@ -1797,6 +1817,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0002.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Knapsack, Longest Common Subsequence, Edit Distance, Coin Change: animate the DP table filling cell by cell, highlighting the recurrence that produced each cell.</pre>
@@ -1837,6 +1858,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0006.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Visualize path compression and union-by-rank, then Kruskal's minimum spanning tree, reusing the existing graph model directly.</pre>
@@ -1877,6 +1899,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0008.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Insertion with collision resolution — chaining vs. open addressing — visualizing bucket state and load factor as it climbs.</pre>
@@ -1917,6 +1940,7 @@
           <span>Cluster: <code>snapshot-to-text</code></span>
           <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
           <span><a class="lab-link" href="lab/0012.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">A scripted walkthrough — auto-paused at key moments with an explanatory tooltip — for one algorithm per category, aimed at first-time visitors.</pre>
@@ -1957,6 +1981,7 @@
           <span>Cluster: <code>snapshot-to-text</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0013.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Guess the next comparison or swap before it's revealed — lightweight gamification that reinforces attention instead of passive watching.</pre>
@@ -1997,6 +2022,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0014.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Sorting already races two algorithms side by side; extend the same pattern to pathfinding — two algorithms solving the same maze at once.</pre>
@@ -2037,6 +2063,7 @@
           <span>Cluster: <code>output-adapter</code></span>
           <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
           <span><a class="lab-link" href="lab/0015.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">GIF / WebM / image export via canvas capture. Right now only the configuration is shareable through the URL, never the resulting animation itself.</pre>
@@ -2077,6 +2104,7 @@
           <span>Cluster: <code>seed-challenge</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0020.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Hide the name and pseudocode; show only the bars moving. User guesses which algorithm it is from the shape of its comparisons/swaps. Could become a daily challenge since everything is already seed-driven.</pre>
@@ -2117,6 +2145,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0021.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Let users inject a bug into a known algorithm — a flipped comparison, a dropped swap, an off-by-one — and watch it fail or blow up to O(n²). Turns the visualizer into a debugging trainer instead of a demonstration reel; pairs naturally with the existing code panel.</pre>
@@ -2157,6 +2186,7 @@
           <span>Cluster: <code>complexity-measurement</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0022.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Let users construct or auto-search the worst-case input for an algorithm and watch the operation counter and timer diverge live against the theoretical Big-O curve — makes the complexity cliff a felt experience, not a static badge.</pre>
@@ -2197,6 +2227,7 @@
           <span>Cluster: <code>output-adapter</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0023.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Push the existing Web Audio cue system further into a real per-algorithm audio signature — &quot;this is what merge sort sounds like&quot; — exportable as a short audio clip. The &quot;sound of sorting&quot; genre, built natively on plumbing the app already has (`audio/engine.ts`, `useAudioCues`).</pre>
@@ -2237,6 +2268,7 @@
           <span>Cluster: <code>snapshot-to-text</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0026.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">A one-line character per algorithm (Quicksort: &quot;cocky gambler that occasionally faceplants&quot;) with a reactive quip at milestones (worst pivot, final pass). Content-only, costs nothing structurally.</pre>
@@ -2277,6 +2309,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0029.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">CPU scheduling (FCFS/SJF/RR/priority/MLFQ) as a Gantt chart, page replacement (FIFO/LRU/Clock/Optimal) with live fault counters, memory allocation and fragmentation, Banker's algorithm, disk scheduling. Highest curriculum overlap of any domain researched — every CS program teaches this and most existing tools for it are abandoned student projects.</pre>
@@ -2317,6 +2350,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0032.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">TCP handshake, sliding window, congestion control (slow start / AIMD with injected loss — watch cwnd collapse and recover), retransmission, DNS resolution chain, TLS handshake, HTTP request lifecycle.</pre>
@@ -2357,6 +2391,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0033.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Raft leader election and log replication, consistent hashing ring (add a node, watch what rebalances), vector clocks, quorum reads/writes, partition tolerance, plus rate limiters (token bucket, leaky bucket, sliding window) that people implement at work directly.</pre>
@@ -2397,6 +2432,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0043.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Document &quot;add a visualizer&quot; as a well-defined 3-file PR (generator module, composable on `useStepPlayer`, view added to `navRoutes`), and translate the UI. What turns this from a personal project into a community repo.</pre>
@@ -2437,6 +2473,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0003.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">N-Queens, Sudoku solver, subset/permutation generation: render the call tree growing live alongside the board/array state. Pairs naturally with the existing &quot;code panel + yield highlight&quot; feature.</pre>
@@ -2477,6 +2514,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0004.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Naive search, KMP, Rabin-Karp: animate the pattern sliding over text with match/mismatch highlighting.</pre>
@@ -2517,6 +2555,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0005.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Insert/delete/reverse animations; a natural &quot;intro&quot; category for beginners, cheap to build.</pre>
@@ -2557,6 +2596,7 @@
           <span>Cluster: <code>tree-rendering</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0007.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Insert / search / prefix-match, animated as a growing tree.</pre>
@@ -2597,6 +2637,7 @@
           <span>Cluster: <code>tree-rendering</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0009.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Rotations after insert, built directly on the existing `useBST` driver pattern rather than a new one.</pre>
@@ -2637,6 +2678,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0016.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">A persisted per-algorithm scratchpad — useful if this doubles as a study tool rather than a pure demo.</pre>
@@ -2677,6 +2719,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0018.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Installable, works offline — low effort given the app is already a static SPA with no backend.</pre>
@@ -2717,6 +2760,7 @@
           <span>Cluster: <code>sequence-diff</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0027.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">For pathfinding: let the user manually click out a path before running BFS/A*, then score their route against optimal and show exactly where they diverged. Turns a passive demo into a game.</pre>
@@ -2757,6 +2801,7 @@
           <span>Cluster: <code>alternate-shell</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0028.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">A big-screen-optimized layout with an auto-generated QR code of the current URL state, so a class or audience can pull up the exact same run on their own devices instantly. Since config already round-trips through the URL, this is mostly presentation.</pre>
@@ -2797,6 +2842,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0034.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Tokenizer → AST → evaluation for a toy expression language, shunting-yard, recursive descent. Plus a regex engine as NFA/DFA where users paste their own pattern and watch catastrophic backtracking blow up — a production debugging tool, not just a lesson.</pre>
@@ -2837,6 +2883,7 @@
           
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0037.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Compression (Huffman tree construction, LZ77 window), error correction (CRC, Hamming), crypto (SHA-256 rounds, Diffie-Hellman, JWT anatomy), and git's own object model and commit DAG.</pre>
@@ -2880,6 +2927,7 @@ all 44 pages, no per-feature hand-authoring. instruments lab-presentation">
           <span>Cluster: <code>lab-presentation</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0044.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">The generated Feature Lab pages are &quot;only html doc and looks pale&quot; compared to the
@@ -2960,6 +3008,7 @@ export capture, and it carried more of the design than any prose did. instrument
           <span>Cluster: <code>lab-presentation</code></span>
           <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
           <span><a class="lab-link" href="lab/0045.html">Open lab page →</a></span>
+          
         </div>
         <h3>Idea</h3>
         <pre class="section-text">Generalize the Live/Export toggle from the hand-authored Feature Lab artifact into something

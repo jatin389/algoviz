@@ -142,6 +142,15 @@ export function boardToLabLink(id, text) {
   return `<a class="lab-link" href="lab/${escapeHtml(id)}.html">${escapeHtml(text)}</a>`;
 }
 
+/**
+ * Link from board.html to a hand-authored Feature Lab in original_labs/, when
+ * one exists. These are written by the `lab-creator` skill rather than by this
+ * generator, so the filename is discovered on disk, not derived.
+ */
+export function boardToOriginalLabLink(fileName, text = 'Feature Lab &rarr;') {
+  return `<a class="lab-link original-lab-link" href="original_labs/${escapeHtml(fileName)}">${text}</a>`;
+}
+
 /** Link from a lab page back up to the board. */
 export function labToBoardLink(text = 'Back to board') {
   return `<a class="back-link" href="../board.html">${escapeHtml(text)}</a>`;
