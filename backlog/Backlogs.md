@@ -9,6 +9,7 @@ Captured but not yet scoped. Refine these before starting them.
 
 | ID | Title | Description |
 |----|-------|--------------|
+| 0044 | Designed Feature Lab pages | generated lab pages are plain docs; render constraints/phases/graph as components + dark theme |
 
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
