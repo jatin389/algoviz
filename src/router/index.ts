@@ -1,5 +1,10 @@
 import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
+import { algorithms as sortAlgorithms } from '@/algorithms';
+import { algorithms as searchAlgorithms } from '@/algorithms/search';
+import { algorithms as pathAlgorithms } from '@/algorithms/pathfinding';
+import { algorithms as graphAlgorithms } from '@/algorithms/graph';
+import LandingView from '@/views/LandingView.vue';
 import SortingView from '@/views/SortingView.vue';
 import SearchView from '@/views/SearchView.vue';
 import PathfindingView from '@/views/PathfindingView.vue';
@@ -8,10 +13,17 @@ import HeapView from '@/views/HeapView.vue';
 import GraphView from '@/views/GraphView.vue';
 
 // Every route carries the label the nav renders, so the tab bar is derived
-// from this array rather than duplicating it.
+// from this array rather than duplicating it. `pitch` and `count` extend that
+// same principle to the landing grid: adding a category to `navRoutes` is the
+// only edit needed for it to appear on both the tab bar and the front door.
+//
+// `count` is optional because it is not universally meaningful — BST and Heap
+// are operation-driven views with no algorithm registry to count.
 declare module 'vue-router' {
   interface RouteMeta {
     label: string;
+    pitch: string;
+    count?: number;
   }
 }
 
@@ -24,17 +36,64 @@ declare module 'vue-router' {
  * rather than `router.getRoutes()`, whose ordering is not guaranteed to match.
  */
 export const navRoutes: RouteRecordRaw[] = [
-  { path: '/sorting', name: 'sorting', component: SortingView, meta: { label: 'Sorting' } },
-  { path: '/searching', name: 'searching', component: SearchView, meta: { label: 'Searching' } },
+  {
+    path: '/sorting',
+    name: 'sorting',
+    component: SortingView,
+    meta: {
+      label: 'Sorting',
+      pitch: 'Watch bars compare and swap their way into order.',
+      count: Object.keys(sortAlgorithms).length,
+    },
+  },
+  {
+    path: '/searching',
+    name: 'searching',
+    component: SearchView,
+    meta: {
+      label: 'Searching',
+      pitch: 'Narrow down a target and see how many probes it takes.',
+      count: Object.keys(searchAlgorithms).length,
+    },
+  },
   {
     path: '/pathfinding',
     name: 'pathfinding',
     component: PathfindingView,
-    meta: { label: 'Pathfinding' },
+    meta: {
+      label: 'Pathfinding',
+      pitch: 'Paint walls on a grid and race algorithms to the exit.',
+      count: Object.keys(pathAlgorithms).length,
+    },
   },
-  { path: '/bst', name: 'bst', component: BstView, meta: { label: 'BST' } },
-  { path: '/heap', name: 'heap', component: HeapView, meta: { label: 'Heap' } },
-  { path: '/graph', name: 'graph', component: GraphView, meta: { label: 'Graph' } },
+  {
+    path: '/bst',
+    name: 'bst',
+    component: BstView,
+    meta: {
+      label: 'BST',
+      pitch: 'Insert, search and delete nodes in a binary search tree.',
+    },
+  },
+  {
+    path: '/heap',
+    name: 'heap',
+    component: HeapView,
+    meta: {
+      label: 'Heap',
+      pitch: 'Sift values up and down to keep the heap property.',
+    },
+  },
+  {
+    path: '/graph',
+    name: 'graph',
+    component: GraphView,
+    meta: {
+      label: 'Graph',
+      pitch: 'Traverse nodes and edges breadth- or depth-first.',
+      count: Object.keys(graphAlgorithms).length,
+    },
+  },
 ];
 
 /**
@@ -44,9 +103,12 @@ export const navRoutes: RouteRecordRaw[] = [
  * leak into the tab bar.
  */
 export const routes: RouteRecordRaw[] = [
+  // The front door. Deliberately not part of `navRoutes` — it is reached via the
+  // header logo, not a tab, and it is not a category to list on its own grid.
+  { path: '/', name: 'landing', component: LandingView, meta: { label: 'Home', pitch: '' } },
   ...navRoutes,
-  // Anything unrecognized lands on the default view rather than a blank page.
-  { path: '/:pathMatch(.*)*', redirect: '/sorting' },
+  // Anything unrecognized lands on the front door rather than a blank page.
+  { path: '/:pathMatch(.*)*', redirect: '/' },
 ];
 
 /**

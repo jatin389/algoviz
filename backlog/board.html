@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T20:16:57.014Z">
+<meta name="generated-at" content="2026-08-12T09:28:56.418Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,11 +1060,15 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">46 tracked tasks &middot; 2 with a lab &middot; 44 unresearched &middot; generated 2026-08-11T20:16:57.014Z</p>
+  <p class="subtitle">46 tracked tasks &middot; 2 with a lab &middot; 44 unresearched &middot; generated 2026-08-12T09:28:56.418Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">43</span>
+          <span class="stat-count">42</span>
           <span class="stat-label">Ready</span>
+        </div>
+        <div class="stat">
+          <span class="stat-count">1</span>
+          <span class="stat-label">In Progress</span>
         </div>
         <div class="stat">
           <span class="stat-count">1</span>
@@ -1081,7 +1085,8 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (43)</option>
+      <option value="ready">Ready (42)</option>
+            <option value="in-progress">In Progress (1)</option>
             <option value="inbox">Inbox (1)</option>
             <option value="done">Done (2)</option>
     </select>
@@ -1139,47 +1144,6 @@
 <main>
   <div class="cards" id="card-list">
     
-    <article class="card"
-      data-status="ready"
-      data-priority="P0"
-      data-effort="S"
-      data-zone="A"
-      data-lab="unresearched"
-      data-search="landing page right now the router redirects straight into `/sorting` — there's no front door. add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localstorage. extend the map ">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0001</span>
-        <span class="card-title">Landing page</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-A" title="Zone A — Extend the map">A &middot; Extend the map</span>
-          <span class="pill status-ready">Ready</span>
-          <span class="badge priority-P0">P0</span>
-          <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
-          
-          
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0001-landing-page.md</code></span>
-          <span>Created: 2026-08-09</span>
-          <span>Refined: 2026-08-09</span>
-          
-          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
-          <span><a class="lab-link" href="lab/0001.html">Open lab page →</a></span>
-          
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">Right now the router redirects straight into `/sorting` — there's no front door. Add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localStorage.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">**Goal:** Fix the &quot;this is just one page&quot; first impression with minimal new architecture — a new route + view, no changes to existing categories.
-**Zone:** A — Extend the map
-**Effort:** S
-**Priority rationale:** Cheapest, highest-visibility fix; also the literal complaint that kicked off this whole research pass.
-**Open questions:** Acceptance criteria and exact card content not yet defined — scope in a dedicated pass before starting.</pre>
-      </div>
-    </article>
-
     <article class="card"
       data-status="ready"
       data-priority="P0"
@@ -2899,6 +2863,90 @@
 **Effort:** M
 **Priority rationale:** Each sub-idea is plausible but none was researched as deeply as the primary 8 domains; backlog placeholder.
 **Open questions:** Whether this splits into separate tasks once any sub-idea is prioritized — not yet decided.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="in-progress"
+      data-priority="P0"
+      data-effort="M"
+      data-zone="A"
+      data-lab="unresearched"
+      data-search="landing page right now the router redirects straight into `/sorting` — there's no front door. add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localstorage. extend the map ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0001</span>
+        <span class="card-title">Landing page</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-A" title="Zone A — Extend the map">A &middot; Extend the map</span>
+          <span class="pill status-in-progress">In Progress</span>
+          <span class="badge priority-P0">P0</span>
+          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0001-landing-page.md</code></span>
+          <span>Created: 2026-08-09</span>
+          <span>Refined: 2026-08-12</span>
+          
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0001.html">Open lab page →</a></span>
+          
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Right now the router redirects straight into `/sorting` — there's no front door. Add a `/` landing view: a category grid (cards linking to each visualizer with a one-line pitch + complexity badge), a short &quot;how this works&quot; blurb, and a &quot;continue where you left off&quot; pick sourced from localStorage.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** Fix the &quot;this is just one page&quot; first impression with minimal new architecture — a new route + view, no changes to existing categories.
+**Zone:** A — Extend the map
+**Effort:** S
+**Priority rationale:** Cheapest, highest-visibility fix; also the literal complaint that kicked off this whole research pass.
+**Open questions:** ~~Acceptance criteria and exact card content not yet defined~~ — closed in the 2026-08-12 scoping pass below.
+
+### Scoping pass (2026-08-12)
+
+**Effort revised S → M.** The grid and blurb are presentation-only, but &quot;continue
+where you left off&quot; needs persistence that does not exist yet (see decision 1),
+which is new behaviour rather than a new view.
+
+**Decisions:**
+1. **Full scope, including resume.** Nothing in the app records a last-visited
+   route today — `localStorage` is used only by `useTheme.ts` and
+   `useAudioCues.ts`. A `useLastVisited` composable is new work, modelled on
+   `useTheme`'s pattern (module-level ref, `STORAGE_KEY` const, try/catch around
+   every `localStorage` call so private mode degrades instead of throwing).
+2. **Card content lives in `navRoutes.meta`.** Extends the existing `meta.label`
+   with `pitch`. `src/router/index.ts` already states the tab bar is derived from
+   this array &quot;rather than duplicating it&quot; — a second content module would
+   reintroduce exactly the duplication that comment rules out.
+3. **Count badge, not a complexity badge.** The original idea called for a
+   complexity badge per card, but `complexity` is defined per *algorithm*
+   (`src/algorithms/index.ts` et al.), not per category — bubble sort and merge
+   sort sit in the same category with different complexities, so no single value
+   is truthful. The badge shows the category's algorithm count instead, derived
+   from each registry's `algorithms` record. BST and Heap export no such registry
+   (they are operation-driven), so those two cards render without a badge.
+4. **`/` becomes a real route**; the catch-all redirects to `/` rather than
+   `/sorting`, so an unrecognised URL lands on the front door.
+
+**Acceptance criteria:**
+- [ ] Visiting `/` renders the landing view, not a redirect into `/sorting`.
+- [ ] A card grid derived from `navRoutes` links to all six categories, each with
+      a one-line pitch; the four categories with an `algorithms` registry also
+      show an algorithm-count badge.
+- [ ] A short &quot;how this works&quot; blurb explains the generator/step-snapshot model.
+- [ ] Visiting a category records it; returning to `/` offers a &quot;continue where
+      you left off&quot; card. Absent or unreadable storage renders no resume card and
+      throws nothing.
+- [ ] An unrecognised URL redirects to `/`.
+- [ ] Adding a future category to `navRoutes` makes it appear on the landing grid
+      with no edit to the landing view.
+- [ ] `npm run lint`, `npm run test`, `npm run build` all pass.
+
+**Out of scope:** no changes to any existing category view; no per-algorithm deep
+links from cards (category-level only).</pre>
       </div>
     </article>
 

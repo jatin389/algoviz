@@ -19,7 +19,7 @@ import ThemeToggle from './components/ThemeToggle.vue';
     <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <!-- Header -->
       <header class="mb-6 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+        <RouterLink to="/" class="flex items-center gap-3 rounded-2xl transition-opacity hover:opacity-80">
           <div
             class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/30"
           >
@@ -41,7 +41,7 @@ import ThemeToggle from './components/ThemeToggle.vue';
             <h1 class="text-xl font-bold tracking-tight sm:text-2xl">AlgoViz</h1>
             <p class="text-xs text-slate-400 sm:text-sm">Interactive algorithm visualizer</p>
           </div>
-        </div>
+        </RouterLink>
         <ThemeToggle />
       </header>
 
