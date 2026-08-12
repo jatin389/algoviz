@@ -22,12 +22,13 @@ export const EFFORT_ORDER = ['S', 'M', 'L'];
 // … so an unrecognised letter must still reach the board rather than being
 // filtered out of existence. ZONE_ORDER only fixes the *display order* of the
 // known letters; unknown ones sort after them (see presentZones below).
-export const ZONE_ORDER = ['A', 'B', 'C', 'D'];
+export const ZONE_ORDER = ['A', 'B', 'C', 'D', 'E'];
 export const ZONE_LABELS = {
   A: 'Extend the map',
   B: 'Off the map',
   C: 'New territories',
   D: 'Instruments',
+  E: 'Technical improvement',
 };
 
 /** Known zones first in canonical order, then any undocumented letters, sorted. */

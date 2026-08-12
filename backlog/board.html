@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-11T18:57:45.569Z">
+<meta name="generated-at" content="2026-08-11T20:16:57.014Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,11 +1060,15 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">45 tracked tasks &middot; 2 with a lab &middot; 43 unresearched &middot; generated 2026-08-11T18:57:45.569Z</p>
+  <p class="subtitle">46 tracked tasks &middot; 2 with a lab &middot; 44 unresearched &middot; generated 2026-08-11T20:16:57.014Z</p>
   <div class="stats">
         <div class="stat">
           <span class="stat-count">43</span>
           <span class="stat-label">Ready</span>
+        </div>
+        <div class="stat">
+          <span class="stat-count">1</span>
+          <span class="stat-label">Inbox</span>
         </div>
         <div class="stat">
           <span class="stat-count">2</span>
@@ -1078,6 +1082,7 @@
     <select id="filter-status">
       <option value="">All statuses</option>
       <option value="ready">Ready (43)</option>
+            <option value="inbox">Inbox (1)</option>
             <option value="done">Done (2)</option>
     </select>
   </label>
@@ -1108,6 +1113,7 @@
             <option value="B">B — Off the map (10)</option>
             <option value="C">C — New territories (9)</option>
             <option value="D">D — Instruments (8)</option>
+            <option value="E">E — Technical improvement (1)</option>
     </select>
   </label>
   <label>
@@ -1115,7 +1121,7 @@
     <select id="filter-lab">
       <option value="">All items</option>
       <option value="researched">Researched (2)</option>
-      <option value="unresearched">Unresearched (43)</option>
+      <option value="unresearched">Unresearched (44)</option>
     </select>
   </label>
   <label class="checkbox-field">
@@ -2897,6 +2903,63 @@
     </article>
 
     <article class="card"
+      data-status="inbox"
+      data-priority="P1"
+      data-effort="S"
+      data-zone="E"
+      data-lab="unresearched"
+      data-search="check and implement loop engineering &quot;check and implement loop engineering.&quot;
+
+captured verbatim — the user supplied priority (p1), effort (s) and a new zone
+(e — technical improvement) at capture time, but no scope or acceptance criteria. technical improvement ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0046</span>
+        <span class="card-title">Check and implement loop engineering</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-E" title="Zone E — Technical improvement">E &middot; Technical improvement</span>
+          <span class="pill status-inbox">Inbox</span>
+          <span class="badge priority-P1">P1</span>
+          <span class="badge effort-S" title="Small effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar"></span><span class="effort-bar"></span></span>S</span>
+          
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0046-check-and-implement-loop-engineering.md</code></span>
+          <span>Created: 2026-08-11</span>
+          
+          
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0046.html">Open lab page →</a></span>
+          
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">&quot;Check and implement loop engineering.&quot;
+
+Captured verbatim — the user supplied priority (P1), effort (S) and a new zone
+(E — Technical Improvement) at capture time, but no scope or acceptance criteria.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">Not yet refined. The title itself contains the unknown: &quot;check&quot; is a prerequisite step,
+and what gets implemented depends on what that check finds.
+
+**Open questions — all load-bearing, none answered:**
+- What does &quot;loop engineering&quot; refer to here? The repo has a `loop` skill
+  (`.claude/skills/loop`) that re-runs a prompt or slash command on a recurring interval,
+  which is the nearest match in-tree — but the term could equally mean a rendering/animation
+  loop concern in the visualizer, or a build/CI loop. Nothing in the capture disambiguates it.
+- Is &quot;check&quot; a research/audit step producing a recommendation, or a verification that an
+  existing mechanism still works?
+- What would &quot;implemented&quot; look like — what changes, and how would we know it's done?
+
+Answering the first question is what turns this into a scopeable item; the effort estimate of
+S is the user's and should be re-tested once the subject is pinned down, since an audit-then-
+implement item can easily outgrow S.</pre>
+      </div>
+    </article>
+
+    <article class="card"
       data-status="done"
       data-priority="P0"
       data-effort="M"
@@ -3079,12 +3142,13 @@ Shape:
   var originalOrder = cards.slice();
   var resultCount = document.getElementById('result-count');
 
-  var ZONE_ORDER = ['A', 'B', 'C', 'D', 'none'];
+  var ZONE_ORDER = ['A', 'B', 'C', 'D', 'E', 'none'];
   var ZONE_GROUP_LABELS = {
     A: 'Zone A — Extend the map',
     B: 'Zone B — Off the map',
     C: 'Zone C — New territories',
     D: 'Zone D — Instruments',
+    E: 'Zone E — Technical improvement',
     none: 'No zone assigned'
   };
 

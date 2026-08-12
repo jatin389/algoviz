@@ -51,6 +51,7 @@ Current zones:
 - **B — Off the map**: a creative departure from the standard playbook for this kind of product — novel framings/modes/mechanics that aren't just "more of the same."
 - **C — New territories**: an entirely new domain/subject area beyond the product's current scope. Highest novelty, usually highest effort.
 - **D — Instruments**: platform/infrastructure work that isn't a feature itself but multiplies the value of other features (tooling, extensibility, meta-capabilities).
+- **E — Technical improvement**: internal quality work on what already exists — refactors, correctness/perf fixes, dev-workflow and agent-tooling upkeep. Changes how the product is built rather than what it does.
 
 This list is open-ended — a later research pass can introduce Zone E, F, and so on. Any new zone letter must be documented here, with a one-line description, before it's ever used; this section is the single source of truth for what each letter means, so never invent an undocumented zone letter on a task file or in `Backlogs.md`.
 
