@@ -34,16 +34,16 @@ export function* combSort(input: number[]): Generator<SortStep, void, undefined>
 
     for (let i = 0; i + gap < n; i++) {
       comparisons++;
-      yield snap(a, [i, i + gap], [], sorted, comparisons, swaps);
+      yield snap(a, [i, i + gap], [], sorted, comparisons, swaps, 5);
 
       if (a[i] > a[i + gap]) {
         [a[i], a[i + gap]] = [a[i + gap], a[i]];
         swaps++;
         swappedLastPass = true;
-        yield snap(a, [], [i, i + gap], sorted, comparisons, swaps);
+        yield snap(a, [], [i, i + gap], sorted, comparisons, swaps, 6);
       }
     }
   }
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 7);
 }

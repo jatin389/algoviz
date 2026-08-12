@@ -24,12 +24,12 @@ export function* shellSort(input: number[]): Generator<SortStep, void, undefined
       let j = i;
       while (j >= gap) {
         comparisons++;
-        yield snap(a, [j - gap, j], [], sorted, comparisons, swaps);
+        yield snap(a, [j - gap, j], [], sorted, comparisons, swaps, 3);
 
         if (a[j - gap] > a[j]) {
           [a[j - gap], a[j]] = [a[j], a[j - gap]];
           swaps++;
-          yield snap(a, [], [j - gap, j], sorted, comparisons, swaps);
+          yield snap(a, [], [j - gap, j], sorted, comparisons, swaps, 4);
           j -= gap;
         } else {
           break;
@@ -38,5 +38,5 @@ export function* shellSort(input: number[]): Generator<SortStep, void, undefined
     }
   }
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 6);
 }

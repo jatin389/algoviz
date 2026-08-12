@@ -93,8 +93,15 @@ describe('step tags resolve to source lines', () => {
     });
   }
 
+  // Every sort is tagged today, so this loop has nothing to iterate. The count
+  // is asserted rather than left implicit because a bare loop over an empty list
+  // passes while asserting nothing — the emptiness has to be the claim, not an
+  // accident. `pseudocode` is deliberately `Partial`, so a sort shipped ahead of
+  // its pseudocode bumps this back above zero and puts the loop back to work.
   it('leaves the untagged algorithms with an empty map', () => {
-    for (const key of keys.filter((k) => !(k in pseudocode))) {
+    const untagged = keys.filter((k) => !(k in pseudocode));
+    expect(untagged).toHaveLength(0);
+    for (const key of untagged) {
       expect(sourceMap(key).size).toBe(0);
     }
   });

@@ -26,7 +26,10 @@ export function* radixSort(input: number[]): Generator<SortStep, void, undefined
   let swaps = 0;
 
   if (n === 0) {
-    yield done(a, comparisons, swaps);
+    // Tagged with the same final pseudocode line as the ordinary exit below.
+    // The empty-array path is a second terminal yield, and the code panel would
+    // otherwise clear its highlight on the one step it is guaranteed to show.
+    yield done(a, comparisons, swaps, 11);
     return;
   }
 
@@ -39,11 +42,13 @@ export function* radixSort(input: number[]): Generator<SortStep, void, undefined
 
     // Tally occurrences of the current digit across the array.
     for (let i = 0; i < n; i++) {
-      yield snap(a, [i], [], sorted, comparisons, swaps);
+      yield snap(a, [i], [], sorted, comparisons, swaps, 4);
       count[digitOf(a[i])]++;
     }
 
-    // Prefix-sum the digit counts into destination offsets.
+    // Prefix-sum the digit counts into destination offsets. As in counting
+    // sort, this phase yields nothing — it rearranges only the tally table, so
+    // its pseudocode lines never light up.
     for (let d = 1; d < BASE; d++) {
       count[d] += count[d - 1];
     }
@@ -56,11 +61,11 @@ export function* radixSort(input: number[]): Generator<SortStep, void, undefined
       const destination = --count[digitOf(a[i])];
       output[destination] = a[i];
       swaps++;
-      yield snap(output, [], [destination], sorted, comparisons, swaps);
+      yield snap(output, [], [destination], sorted, comparisons, swaps, 9);
     }
 
     a = output;
   }
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 11);
 }
