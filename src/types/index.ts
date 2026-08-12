@@ -24,4 +24,7 @@ export type {
   BSTPhase,
   BSTStep,
   HeapStep,
+  ThreadStatus,
+  ThreadState,
+  ConcurrencyStep,
 } from './steps';
