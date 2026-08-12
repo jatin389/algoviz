@@ -49,6 +49,7 @@ watch(searcher.algoKey, () => {
       <AvAlgorithmSelector
         v-model="searcher.algoKey.value"
         :algorithms="algorithms"
+        :columns="3"
         :disabled="!searcher.canEdit.value"
       />
       <SearchControls

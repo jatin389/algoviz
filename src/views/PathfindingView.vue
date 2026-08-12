@@ -24,7 +24,7 @@ watch(finder.algoKey, () => {
       <AvAlgorithmSelector
         v-model="finder.algoKey.value"
         :algorithms="algorithms"
-        :columns="4"
+        :columns="3"
         :disabled="!finder.canEdit.value"
       />
       <PathfindingControls

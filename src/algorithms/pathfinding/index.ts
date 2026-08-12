@@ -3,6 +3,8 @@ import { bfs } from './bfs';
 import { dfs } from './dfs';
 import { dijkstra } from './dijkstra';
 import { astar } from './astar';
+import { bellmanFord } from './bellmanFord';
+import { floydWarshall } from './floydWarshall';
 
 export type PathFn = AlgorithmFn<PathStep, [Grid, Coord, Coord]>;
 export type PathAlgorithm = AlgorithmMeta<PathFn>;
@@ -62,7 +64,40 @@ export const algorithms = {
       space: 'O(rows×cols)',
     },
   },
+  bellmanFord: {
+    name: 'Bellman-Ford',
+    generator: bellmanFord,
+    description:
+      'Sweeps the entire edge list over and over, letting better distances trickle one hop further per pass, until a whole pass changes nothing. It reaches the same answer as Dijkstra far more slowly and with no priority queue at all — watch the frontier collapse and rebuild to see where one pass ends and the next begins. Unlike the four searches above it never stops early at the goal: it has no way to know a distance is final until the sweeps settle, so it always solves for every reachable cell.',
+    complexity: {
+      // O(V*E) with E ~ 4V. Best is the two passes it takes when one sweep
+      // already settles everything; average tracks the path depth rather than
+      // the cell count, which is why it is nowhere near the worst case here.
+      best: 'O(rows×cols)',
+      average: 'O((rows+cols)×rows×cols)',
+      worst: 'O((rows×cols)²)',
+      space: 'O(rows×cols)',
+    },
+  },
+  floydWarshall: {
+    name: 'Floyd-Warshall',
+    generator: floydWarshall,
+    description:
+      'The all-pairs algorithm: instead of searching, it fills a full every-cell-to-every-cell distance table by letting each cell in turn act as an intermediate stop. The single amber cell marching through the grid is that pivot; the answer to this particular query is one row of the table, read out at the end. Genuinely cubic — it does roughly 30 million relaxations on this grid to answer a question BFS answers in 375 — and it is here to show that shape, not to compete.',
+    complexity: {
+      // No best/worst split: the pivot loop is oblivious. It runs every pass
+      // over every pair regardless of the walls, the goal, or how early the
+      // answer was actually settled.
+      best: 'O((rows×cols)³)',
+      average: 'O((rows×cols)³)',
+      worst: 'O((rows×cols)³)',
+      space: 'O((rows×cols)²)',
+    },
+  },
 } satisfies Record<string, PathAlgorithm>;
 
-/** Literal union of the registry keys: 'bfs' | 'dfs' | 'dijkstra' | 'astar' */
+/**
+ * Literal union of the registry keys:
+ * 'bfs' | 'dfs' | 'dijkstra' | 'astar' | 'bellmanFord' | 'floydWarshall'
+ */
 export type PathAlgoKey = keyof typeof algorithms;
