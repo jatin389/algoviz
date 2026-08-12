@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-12T10:07:03.179Z">
+<meta name="generated-at" content="2026-08-12T15:01:16.938Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,7 +1060,7 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">46 tracked tasks &middot; 2 with a lab &middot; 44 unresearched &middot; generated 2026-08-12T10:07:03.179Z</p>
+  <p class="subtitle">49 tracked tasks &middot; 2 with a lab &middot; 47 unresearched &middot; generated 2026-08-12T15:01:16.938Z</p>
   <div class="stats">
         <div class="stat">
           <span class="stat-count">41</span>
@@ -1071,7 +1071,7 @@
           <span class="stat-label">In Progress</span>
         </div>
         <div class="stat">
-          <span class="stat-count">1</span>
+          <span class="stat-count">4</span>
           <span class="stat-label">Inbox</span>
         </div>
         <div class="stat">
@@ -1087,7 +1087,7 @@
       <option value="">All statuses</option>
       <option value="ready">Ready (41)</option>
             <option value="in-progress">In Progress (1)</option>
-            <option value="inbox">Inbox (1)</option>
+            <option value="inbox">Inbox (4)</option>
             <option value="done">Done (3)</option>
     </select>
   </label>
@@ -1126,7 +1126,7 @@
     <select id="filter-lab">
       <option value="">All items</option>
       <option value="researched">Researched (2)</option>
-      <option value="unresearched">Unresearched (44)</option>
+      <option value="unresearched">Unresearched (47)</option>
     </select>
   </label>
   <label class="checkbox-field">
@@ -2920,6 +2920,151 @@ and what gets implemented depends on what that check finds.
 Answering the first question is what turns this into a scopeable item; the effort estimate of
 S is the user's and should be re-tested once the subject is pinned down, since an audit-then-
 implement item can easily outgrow S.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="inbox"
+      data-priority="none"
+      data-effort="none"
+      data-zone="none"
+      data-lab="unresearched"
+      data-search="weighted grids for pathfinding give grid cells a movement cost instead of the current binary open/wall, so
+dijkstra, a* and bellman-ford have something to actually be *about*. on today's
+uniform grid every edge weighs 1, which is why bellman-ford and floyd-warshall
+find exactly what bfs finds.
+
+split out of 0010, which listed &quot;weighted grids&quot; in its description. it was
+investigated during that work and deliberately not built — it is a bigger change
+than the one line suggests.  ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0047</span>
+        <span class="card-title">Weighted grids for pathfinding</span>
+        <span class="card-badges">
+          
+          <span class="pill status-inbox">Inbox</span>
+          
+          
+          
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0047-weighted-grids-for-pathfinding.md</code></span>
+          <span>Created: 2026-08-12</span>
+          
+          
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0047.html">Open lab page →</a></span>
+          
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Give grid cells a movement cost instead of the current binary open/wall, so
+Dijkstra, A* and Bellman-Ford have something to actually be *about*. On today's
+uniform grid every edge weighs 1, which is why Bellman-Ford and Floyd-Warshall
+find exactly what BFS finds.
+
+Split out of 0010, which listed &quot;weighted grids&quot; in its description. It was
+investigated during that work and deliberately not built — it is a bigger change
+than the one line suggests.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">(none)</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="inbox"
+      data-priority="none"
+      data-effort="none"
+      data-zone="none"
+      data-lab="unresearched"
+      data-search="directed graph model let the graph category represent *directed* edges, not just undirected ones.
+today every adjacency map the app builds is undirected, which quietly rules out
+a whole family of graph algorithms.
+
+split out of 0010, which listed topological sort in its description. it could not
+be shipped and this is why.  ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0048</span>
+        <span class="card-title">Directed graph model</span>
+        <span class="card-badges">
+          
+          <span class="pill status-inbox">Inbox</span>
+          
+          
+          
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0048-directed-graph-model.md</code></span>
+          <span>Created: 2026-08-12</span>
+          
+          
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0048.html">Open lab page →</a></span>
+          
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Let the graph category represent *directed* edges, not just undirected ones.
+Today every adjacency map the app builds is undirected, which quietly rules out
+a whole family of graph algorithms.
+
+Split out of 0010, which listed topological sort in its description. It could not
+be shipped and this is why.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">(none)</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="inbox"
+      data-priority="none"
+      data-effort="none"
+      data-zone="none"
+      data-lab="unresearched"
+      data-search="graphstep result channels (witness edge, node colours) `graphstep` can only describe a traversal, so graph algorithms that compute a
+*property* have nowhere to put their answer. give it real channels for a result:
+the edge that proves a cycle, and a per-node colour map.
+
+split out of 0010, which shipped cycle detection and bipartite check against this
+limitation.  ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0049</span>
+        <span class="card-title">GraphStep result channels (witness edge, node colours)</span>
+        <span class="card-badges">
+          
+          <span class="pill status-inbox">Inbox</span>
+          
+          
+          
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0049-graphstep-result-channels.md</code></span>
+          <span>Created: 2026-08-12</span>
+          
+          
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0049.html">Open lab page →</a></span>
+          
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">`GraphStep` can only describe a traversal, so graph algorithms that compute a
+*property* have nowhere to put their answer. Give it real channels for a result:
+the edge that proves a cycle, and a per-node colour map.
+
+Split out of 0010, which shipped cycle detection and bipartite check against this
+limitation.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">(none)</pre>
       </div>
     </article>
 
