@@ -22,7 +22,10 @@ export function* countingSort(input: number[]): Generator<SortStep, void, undefi
   let swaps = 0;
 
   if (n === 0) {
-    yield done(a, comparisons, swaps);
+    // Tagged with the same final pseudocode line as the ordinary exit below.
+    // The empty-array path is a second terminal yield, and the code panel would
+    // otherwise clear its highlight on the one step it is guaranteed to show.
+    yield done(a, comparisons, swaps, 8);
     return;
   }
 
@@ -31,12 +34,17 @@ export function* countingSort(input: number[]): Generator<SortStep, void, undefi
 
   // Phase 1: tally how many times each value occurs.
   for (let i = 0; i < n; i++) {
-    yield snap(a, [i], [], sorted, comparisons, swaps);
+    yield snap(a, [i], [], sorted, comparisons, swaps, 2);
     count[a[i]]++;
   }
 
   // Phase 2: turn counts into prefix sums — count[v] now holds the index just
   // past where the LAST occurrence of value v belongs in the output.
+  //
+  // Deliberately yields nothing, so the pseudocode lines for this phase are
+  // never highlighted: the snapshot shape can only describe the array, and this
+  // phase touches the tally table alone. Emitting a step per iteration would
+  // stall the visualization on frames where every bar is visibly identical.
   for (let v = 1; v <= max; v++) {
     count[v] += count[v - 1];
   }
@@ -51,8 +59,8 @@ export function* countingSort(input: number[]): Generator<SortStep, void, undefi
     const destination = --count[value];
     output[destination] = value;
     swaps++;
-    yield snap(output, [], [destination], sorted, comparisons, swaps);
+    yield snap(output, [], [destination], sorted, comparisons, swaps, 7);
   }
 
-  yield done(output, comparisons, swaps);
+  yield done(output, comparisons, swaps, 8);
 }

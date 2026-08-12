@@ -19,18 +19,18 @@ export function* selectionSort(input: number[]): Generator<SortStep, void, undef
     let min = i;
     for (let j = i + 1; j < n; j++) {
       comparisons++;
-      yield snap(a, [min, j], [], sorted, comparisons, swaps);
+      yield snap(a, [min, j], [], sorted, comparisons, swaps, 3);
       if (a[j] < a[min]) min = j;
     }
 
     if (min !== i) {
       [a[i], a[min]] = [a[min], a[i]];
       swaps++;
-      yield snap(a, [], [i, min], sorted, comparisons, swaps);
+      yield snap(a, [], [i, min], sorted, comparisons, swaps, 5);
     }
     // Position i now holds its final value.
     sorted.add(i);
   }
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 7);
 }

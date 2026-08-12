@@ -23,16 +23,16 @@ export function* heapSort(input: number[]): Generator<SortStep, void, undefined>
       // Pick the larger of the two children.
       if (child + 1 <= hi) {
         comparisons++;
-        yield snap(a, [child, child + 1], [], sorted, comparisons, swaps);
+        yield snap(a, [child, child + 1], [], sorted, comparisons, swaps, 2);
         if (a[child] < a[child + 1]) child++;
       }
 
       comparisons++;
-      yield snap(a, [root, child], [], sorted, comparisons, swaps);
+      yield snap(a, [root, child], [], sorted, comparisons, swaps, 3);
       if (a[root] < a[child]) {
         [a[root], a[child]] = [a[child], a[root]];
         swaps++;
-        yield snap(a, [], [root, child], sorted, comparisons, swaps);
+        yield snap(a, [], [root, child], sorted, comparisons, swaps, 4);
         root = child;
       } else {
         return;
@@ -49,11 +49,11 @@ export function* heapSort(input: number[]): Generator<SortStep, void, undefined>
   for (let end = n - 1; end > 0; end--) {
     [a[0], a[end]] = [a[end], a[0]];
     swaps++;
-    yield snap(a, [], [0, end], sorted, comparisons, swaps);
+    yield snap(a, [], [0, end], sorted, comparisons, swaps, 8);
     sorted.add(end);
     yield* siftDown(0, end - 1);
   }
   sorted.add(0);
 
-  yield done(a, comparisons, swaps);
+  yield done(a, comparisons, swaps, 10);
 }

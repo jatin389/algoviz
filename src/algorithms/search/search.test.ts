@@ -71,4 +71,36 @@ describe('search algorithm generators', () => {
       expect(last.foundIndex).toBeNull();
     }
   });
+
+  // Interpolation search divides by (a[high] - a[low]); an all-equal range
+  // makes that denominator 0, which without a guard would yield NaN indices
+  // instead of a valid step. These cases exercise that guard directly.
+  describe('interpolation search division-by-zero guard', () => {
+    const equalArray = [7, 7, 7, 7, 7, 7];
+
+    it('finds the target when every element in the array is equal', () => {
+      const steps = runToCompletion(algorithms.interpolation.generator, equalArray, 7);
+      const last = steps[steps.length - 1];
+
+      expect(last.done).toBe(true);
+      expect(last.foundIndex).not.toBeNull();
+      expect(equalArray[last.foundIndex as number]).toBe(7);
+      for (const s of steps) {
+        expect(Number.isNaN(s.mid as number)).toBe(false);
+        expect(Number.isNaN(s.checking as number)).toBe(false);
+      }
+    });
+
+    it('reports not found, without NaN, when the target is absent from an all-equal array', () => {
+      const steps = runToCompletion(algorithms.interpolation.generator, equalArray, 3);
+      const last = steps[steps.length - 1];
+
+      expect(last.done).toBe(true);
+      expect(last.foundIndex).toBeNull();
+      for (const s of steps) {
+        expect(Number.isNaN(s.mid as number)).toBe(false);
+        expect(Number.isNaN(s.checking as number)).toBe(false);
+      }
+    });
+  });
 });

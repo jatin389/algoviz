@@ -84,7 +84,18 @@ describe('pseudocode line tagging', () => {
   const tagged = Object.entries(pseudocode) as [SortAlgoKey, Pseudocode][];
 
   it('covers exactly the algorithms that are tagged', () => {
-    expect(tagged.map(([key]) => key).sort()).toEqual(['bubble', 'insertion', 'merge', 'quick']);
+    expect(tagged.map(([key]) => key).sort()).toEqual([
+      'bubble',
+      'comb',
+      'counting',
+      'heap',
+      'insertion',
+      'merge',
+      'quick',
+      'radix',
+      'selection',
+      'shell',
+    ]);
   });
 
   for (const [key, lines] of tagged) {
@@ -108,9 +119,17 @@ describe('pseudocode line tagging', () => {
     });
   }
 
+  // Every registered sort is tagged as of now, so the filter comes back empty
+  // and the loop below does nothing. Kept rather than deleted: the count is the
+  // same kind of tripwire it has always been — it makes the number move visibly
+  // in a diff rather than declaring that an untagged sort is forbidden — and the
+  // loop is the contract it guards, that a sort without pseudocode still runs to
+  // completion and simply highlights nothing. A future sort shipped ahead of its
+  // pseudocode (which `pseudocode`'s `Partial` type deliberately allows) bumps
+  // this literal back up and puts the loop back to work unchanged.
   it('leaves the untagged algorithms running with no line', () => {
     const untagged = (Object.keys(algorithms) as SortAlgoKey[]).filter((k) => !(k in pseudocode));
-    expect(untagged).toHaveLength(6);
+    expect(untagged).toHaveLength(0);
     for (const key of untagged) {
       const steps = runToCompletion(algorithms[key].generator, cases[0].input);
       expect(steps[steps.length - 1].done).toBe(true);
