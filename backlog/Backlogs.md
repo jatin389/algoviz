@@ -72,4 +72,3 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 
 | ID | Priority | Effort | Title | Description |
 |----|----------|--------|-------|--------------|
-| 0001 | P0 | M | Landing page | front door instead of a redirect straight into Sorting |

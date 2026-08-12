@@ -1,12 +1,13 @@
 ---
 id: 0001
 title: Landing page
-status: in-progress
+status: done
 priority: P0
 effort: M
 zone: A
 created: 2026-08-09
 refined_at: 2026-08-12
+closed: 2026-08-12
 ---
 
 ## Idea
@@ -64,3 +65,12 @@ links from cards (category-level only).
 
 ## Notes
 - 2026-08-09: Captured in bulk from the AlgoViz Expansion Atlas brainstorm (idea catalog + prioritization pass), alongside 42 sibling items.
+- 2026-08-12: Scoped (acceptance criteria added, effort S→M), built and shipped in
+  PR #26, squash-merged to `main` as `c92d7e5`. All seven acceptance criteria met;
+  389 tests pass, 9 of them new for `useLastVisited`. Live at the site root.
+- 2026-08-12: **Follow-up, not blocking:** the six card pitch lines and the intro
+  blurb are first-draft copy. The pitches lead with the verb you perform, which
+  reads well for Sorting/Pathfinding but leaves BST and Heap sounding like API
+  docs; the blurb argues the generator-trace point, which targets a skeptical
+  engineer rather than a first-time learner. Worth a rewrite once the landing
+  page's intended audience is settled.
