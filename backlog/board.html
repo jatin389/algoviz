@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-12T16:12:18.088Z">
+<meta name="generated-at" content="2026-08-12T19:41:09.629Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,14 +1060,14 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">49 tracked tasks &middot; 4 with a lab &middot; 45 unresearched &middot; generated 2026-08-12T16:12:18.088Z</p>
+  <p class="subtitle">49 tracked tasks &middot; 4 with a lab &middot; 45 unresearched &middot; generated 2026-08-12T19:41:09.629Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">41</span>
+          <span class="stat-count">40</span>
           <span class="stat-label">Ready</span>
         </div>
         <div class="stat">
-          <span class="stat-count">1</span>
+          <span class="stat-count">2</span>
           <span class="stat-label">In Progress</span>
         </div>
         <div class="stat">
@@ -1085,8 +1085,8 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (41)</option>
-            <option value="in-progress">In Progress (1)</option>
+      <option value="ready">Ready (40)</option>
+            <option value="in-progress">In Progress (2)</option>
             <option value="inbox">Inbox (4)</option>
             <option value="done">Done (3)</option>
     </select>
@@ -1190,57 +1190,6 @@
 - A shared URL (`scenario`, `seed`, `schedule`) reproduces the exact same interleaving on load — the literal thread-pick sequence is encoded directly, not an index into a results list that could reorder later.
 - The mutex-violation scenario demonstrates a genuinely different invariant class from the racy counter (at-every-step mutual exclusion vs. end-state value check), not a cosmetic variant of the same bug.
 **Open questions:** Closed — see `backlog/labs/0030-concurrency-interleavings-domain.md` for the full search-layer design, phased build plan, and risk mitigations.</pre>
-      </div>
-    </article>
-
-    <article class="card"
-      data-status="ready"
-      data-priority="P0"
-      data-effort="L"
-      data-zone="D"
-      data-lab="researched"
-      data-search="bring-your-own-algorithm sandbox an in-browser editor (codemirror) plus a web worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. converts algoviz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves. instruments ">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0038</span>
-        <span class="card-title">Bring-your-own-algorithm sandbox</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
-          <span class="pill status-ready">Ready</span>
-          <span class="badge priority-P0">P0</span>
-          <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
-          
-          
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0038-byo-algorithm-sandbox.md</code></span>
-          <span>Created: 2026-08-09</span>
-          <span>Refined: 2026-08-09</span>
-          
-          <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
-          <span><a class="lab-link" href="lab/0038.html">Open lab page →</a></span>
-          <span><a class="lab-link original-lab-link" href="original_labs/0038-byo-algorithm-sandbox.html">Feature Lab &rarr;</a></span>
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">An in-browser editor (CodeMirror) plus a Web Worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. Converts AlgoViz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">**Goal:** Platform capability — a sandboxed code editor that runs a user-authored generator against the existing `useStepPlayer` contract, safely (Web Worker isolation).
-**Zone:** D — Instruments
-**Effort:** L
-**Priority rationale:** Recommended route step 1; highest-leverage single investment since it multiplies the value of every other visualization, existing or future.
-**Isolation:** Web Worker running inside a `sandbox=&quot;allow-scripts&quot;` iframe (no `allow-same-origin`) — mandatory, not optional, because sandbox code is shareable via URL from day one and auto-runs in the recipient's browser. GitHub Pages has no server to set COOP/COEP headers, so the sandbox attribute's opaque-origin isolation is the only route available. See lab for the full architecture.
-**Target snapshot shape (v1):** `SortStep` only — the one shape with a reusable view (`BarChart`); the other five shapes are out of scope for v1.
-**Acceptance criteria:**
-- A user can write a `function*` in the editor, targeting `SortStep`, and run it — output renders through the existing `BarChart` view via the same scrub/seek UI as built-in algorithms.
-- Execution happens inside a Web Worker hosted in a sandboxed iframe; the app's own DOM/storage/cookies are unreachable from user code.
-- A runaway/infinite-looping snippet is caught by a step/time budget and force-terminated without freezing the tab.
-- The five existing categories (sort/search/path/graph/BST, minus BST/heap already covered) show zero behavioral regression after the `StepSource` refactor that this feature requires of `useStepPlayer`.
-- A sandbox snippet is shareable via URL; opening a shared link auto-runs the code with a visible (non-blocking) &quot;running community-authored code&quot; indicator.
-- The sandboxed iframe never sets `allow-same-origin` alongside `allow-scripts`, and never gains a visible rendering surface of its own — both are hard invariants, not tuning knobs.
-- Every step received from the sandbox is validated (array of finite numbers; `comparing`/`swapping`/`sorted` are in-bounds indices; `done` is boolean) and messages are checked against `event.source === iframe.contentWindow` before anything reaches `BarChart` — malformed or spoofed input is dropped, not rendered.
-**Open questions:** Closed — see `backlog/labs/0038-byo-algorithm-sandbox.md` for the full sandboxing architecture, phased build plan, and risk mitigations.</pre>
       </div>
     </article>
 
@@ -2840,6 +2789,57 @@
 **Effort:** M
 **Priority rationale:** Each sub-idea is plausible but none was researched as deeply as the primary 8 domains; backlog placeholder.
 **Open questions:** Whether this splits into separate tasks once any sub-idea is prioritized — not yet decided.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="in-progress"
+      data-priority="P0"
+      data-effort="L"
+      data-zone="D"
+      data-lab="researched"
+      data-search="bring-your-own-algorithm sandbox an in-browser editor (codemirror) plus a web worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. converts algoviz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves. instruments ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0038</span>
+        <span class="card-title">Bring-your-own-algorithm sandbox</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-D" title="Zone D — Instruments">D &middot; Instruments</span>
+          <span class="pill status-in-progress">In Progress</span>
+          <span class="badge priority-P0">P0</span>
+          <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0038-byo-algorithm-sandbox.md</code></span>
+          <span>Created: 2026-08-09</span>
+          <span>Refined: 2026-08-09</span>
+          
+          <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
+          <span><a class="lab-link" href="lab/0038.html">Open lab page →</a></span>
+          <span><a class="lab-link original-lab-link" href="original_labs/0038-byo-algorithm-sandbox.html">Feature Lab &rarr;</a></span>
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">An in-browser editor (CodeMirror) plus a Web Worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. Converts AlgoViz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** Platform capability — a sandboxed code editor that runs a user-authored generator against the existing `useStepPlayer` contract, safely (Web Worker isolation).
+**Zone:** D — Instruments
+**Effort:** L
+**Priority rationale:** Recommended route step 1; highest-leverage single investment since it multiplies the value of every other visualization, existing or future.
+**Isolation:** Web Worker running inside a `sandbox=&quot;allow-scripts&quot;` iframe (no `allow-same-origin`) — mandatory, not optional, because sandbox code is shareable via URL from day one and auto-runs in the recipient's browser. GitHub Pages has no server to set COOP/COEP headers, so the sandbox attribute's opaque-origin isolation is the only route available. See lab for the full architecture.
+**Target snapshot shape (v1):** `SortStep` only — the one shape with a reusable view (`BarChart`); the other five shapes are out of scope for v1.
+**Acceptance criteria:**
+- A user can write a `function*` in the editor, targeting `SortStep`, and run it — output renders through the existing `BarChart` view via the same scrub/seek UI as built-in algorithms.
+- Execution happens inside a Web Worker hosted in a sandboxed iframe; the app's own DOM/storage/cookies are unreachable from user code.
+- A runaway/infinite-looping snippet is caught by a step/time budget and force-terminated without freezing the tab.
+- The five existing categories (sort/search/path/graph/BST, minus BST/heap already covered) show zero behavioral regression after the `StepSource` refactor that this feature requires of `useStepPlayer`.
+- A sandbox snippet is shareable via URL; opening a shared link auto-runs the code with a visible (non-blocking) &quot;running community-authored code&quot; indicator.
+- The sandboxed iframe never sets `allow-same-origin` alongside `allow-scripts`, and never gains a visible rendering surface of its own — both are hard invariants, not tuning knobs.
+- Every step received from the sandbox is validated (array of finite numbers; `comparing`/`swapping`/`sorted` are in-bounds indices; `done` is boolean) and messages are checked against `event.source === iframe.contentWindow` before anything reaches `BarChart` — malformed or spoofed input is dropped, not rendered.
+**Open questions:** Closed — see `backlog/labs/0038-byo-algorithm-sandbox.md` for the full sandboxing architecture, phased build plan, and risk mitigations.</pre>
       </div>
     </article>
 

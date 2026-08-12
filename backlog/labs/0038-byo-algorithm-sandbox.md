@@ -5,6 +5,44 @@ researched_at: 2026-08-12
 closes: Sandboxing/security approach; which snapshot shape(s) it targets first; acceptance criteria
 ---
 
+## Implementation revision — 2026-08-12
+
+Two things changed once this was actually built. Recorded here rather than
+edited into the sections below, so the original reasoning and the correction
+stay legible against each other.
+
+**The `StepSource` refactor was not needed, and was not done.** This lab named
+it the riskiest step because it touches all six existing categories. Building
+it revealed a way around it entirely: the sandbox runs the snippet to
+completion *before* playback starts, collecting the whole tape under a budget,
+and a chosen tape is then replayed through an ordinary local generator
+(`replaySteps`). By the time `useStepPlayer` sees anything it is iterating an
+in-memory array, exactly like a built-in algorithm — so it needed **zero
+changes**, and the highest-regression-risk phase disappeared instead of being
+mitigated. This is structurally the same move as 0030's search-then-play split;
+the two items independently arrived at "resolve the hard part up front, then
+hand the player something ordinary."
+
+Collect-then-play also turned out to be better UX, not merely cheaper: the
+scrub bar is complete the moment playback begins, rather than growing as the
+generator is pumped.
+
+**A third safety layer was discovered to be load-bearing.** The worker's own
+step and time budgets are checked *between* yields, so a snippet that loops
+without ever reaching a `yield` never gets to check them and never posts
+anything. Only the parent's silence watchdog catches that case. It is not a
+redundant backstop for the worker budgets — it is the only thing that catches
+the most obvious way to write an infinite loop. Verified end-to-end: such a
+snippet is force-stopped in ~5.5s with the main thread still responsive.
+
+**CodeMirror was not added.** The editor is a textarea with a gutter
+(`CodeEditor.vue`). The app ships two runtime dependencies, and an editor
+library roughly doubles that for syntax colouring; everything the acceptance
+criteria actually require — typing, indenting tabs, a legible monospace
+surface — is a textarea plus twenty lines. Swapping CodeMirror in later touches
+that one component and nothing else. Recorded as a deliberate scope call, not
+an oversight.
+
 ## Verdict
 
 Two decisions this lab was built to close are settled: v1 targets **`SortStep`** only — the

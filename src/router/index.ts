@@ -11,6 +11,7 @@ import PathfindingView from '@/views/PathfindingView.vue';
 import BstView from '@/views/BstView.vue';
 import HeapView from '@/views/HeapView.vue';
 import GraphView from '@/views/GraphView.vue';
+import SandboxView from '@/views/SandboxView.vue';
 
 // Every route carries the label the nav renders, so the tab bar is derived
 // from this array rather than duplicating it. `pitch` and `count` extend that
@@ -92,6 +93,15 @@ export const navRoutes: RouteRecordRaw[] = [
       label: 'Graph',
       pitch: 'Traverse nodes and edges breadth- or depth-first.',
       count: Object.keys(graphAlgorithms).length,
+    },
+  },
+  {
+    path: '/sandbox',
+    name: 'sandbox',
+    component: SandboxView,
+    meta: {
+      label: 'Sandbox',
+      pitch: 'Write your own algorithm and watch it run, safely isolated.',
     },
   },
 ];

@@ -1,7 +1,7 @@
 ---
 id: 0038
 title: Bring-your-own-algorithm sandbox
-status: ready
+status: in-progress
 priority: P0
 effort: L
 zone: D
@@ -32,4 +32,5 @@ An in-browser editor (CodeMirror) plus a Web Worker: users write a generator yie
 ## Notes
 - 2026-08-09: Captured in bulk from the AlgoViz Expansion Atlas brainstorm (idea catalog + prioritization pass), alongside 42 sibling items.
 - 2026-08-12: Brainstormed with user. Codebase research found `useStepPlayer` drives a local generator synchronously with no isolation seam today, and snapshot shapes are per-category with no runtime discrimination — `SortStep` is the only one with a reusable view. User decided: sandbox code is shareable via URL from day one, and isolation is Web Worker + sandboxed iframe (not Worker-only), since GitHub Pages can't set isolation headers for any lighter-weight route. Full writeup in the lab.
+- 2026-08-12: Implemented. Two deviations from the lab's plan, both written up in its "Implementation revision" section: (1) the `StepSource` refactor of `useStepPlayer` was avoided entirely — the sandbox collects the whole tape under budget first, then replays it through an ordinary local generator, so the player needed zero changes and the highest-risk phase vanished; (2) the editor is a textarea rather than CodeMirror, keeping the app's two-dependency footprint. Implementation also found that the parent's silence watchdog is the *only* layer that catches a loop which never yields, since the worker's own budgets are checked between yields.
 - 2026-08-12: Follow-up security question surfaced two more findings, added to the lab: (1) `allow-scripts` + `allow-same-origin` must never be combined on the sandboxed iframe — known sandbox-escape combo; (2) steps arriving via `postMessage` must be validated (types/bounds) and source-checked before reaching `BarChart`, as a layer independent of the sandbox itself. Network exfiltration via `fetch`/`XHR`/`WebSocket` from inside the sandbox remains an accepted, unclosed risk — no static-site isolation primitive blocks it.
