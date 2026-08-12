@@ -4,3 +4,4 @@
 |----|-----------|-------|--------|
 | 0044 | done | Designed Feature Lab pages | 2026-08-11 |
 | 0045 | done | Mechanism flow diagrams on lab pages | 2026-08-11 |
+| 0001 | done | Landing page | 2026-08-12 |
