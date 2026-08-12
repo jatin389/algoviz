@@ -28,7 +28,6 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 | 0038 | P0 | L | D | Bring-your-own-algorithm sandbox | editor + worker runs a user-authored generator against the existing snapshot contract — biggest multiplier researched |
 | 0039 | P0 | S | D | Embeddable widgets | iframe-able `/embed/...` routes reusing existing URL state; pairs with the sandbox |
 | 0030 | P0 | L | C | New domain: Concurrency & interleavings | race conditions + an interleaving explorer scrubbing to the schedule that broke an invariant — strongest idea researched |
-| 0001 | P0 | S | A | Landing page | front door instead of a redirect straight into Sorting |
 | 0010 | P1 | M | A | Fill the existing gaps | tag remaining sorts, add pathfinding/search/graph algorithms already scoped in the app |
 | 0011 | P1 | S | A | Complexity cheat-sheet page | one sortable table of every algorithm's complexity/stability |
 | 0017 | P1 | S | A | Dataset presets | nearly-sorted, reverse-sorted, few-unique, real-world-ish array presets |
@@ -73,3 +72,4 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 
 | ID | Priority | Effort | Title | Description |
 |----|----------|--------|-------|--------------|
+| 0001 | P0 | M | Landing page | front door instead of a redirect straight into Sorting |
