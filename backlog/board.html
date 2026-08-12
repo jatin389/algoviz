@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-12T15:01:16.938Z">
+<meta name="generated-at" content="2026-08-12T15:24:41.228Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,7 +1060,7 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">49 tracked tasks &middot; 2 with a lab &middot; 47 unresearched &middot; generated 2026-08-12T15:01:16.938Z</p>
+  <p class="subtitle">49 tracked tasks &middot; 3 with a lab &middot; 46 unresearched &middot; generated 2026-08-12T15:24:41.228Z</p>
   <div class="stats">
         <div class="stat">
           <span class="stat-count">41</span>
@@ -1125,8 +1125,8 @@
     Lab
     <select id="filter-lab">
       <option value="">All items</option>
-      <option value="researched">Researched (2)</option>
-      <option value="unresearched">Unresearched (47)</option>
+      <option value="researched">Researched (3)</option>
+      <option value="unresearched">Unresearched (46)</option>
     </select>
   </label>
   <label class="checkbox-field">
@@ -1190,7 +1190,7 @@
       data-priority="P0"
       data-effort="L"
       data-zone="D"
-      data-lab="unresearched"
+      data-lab="researched"
       data-search="bring-your-own-algorithm sandbox an in-browser editor (codemirror) plus a web worker: users write a generator yielding the app's own step-snapshot shape, and it renders through the existing player/view machinery. converts algoviz from a fixed gallery into an actual tool — flagged as the single biggest multiplier of anything researched, since every future visualization becomes something a user can also build themselves. instruments ">
       <button class="card-header" type="button" aria-expanded="false">
         <span class="card-id">0038</span>
@@ -1211,7 +1211,7 @@
           <span>Created: 2026-08-09</span>
           <span>Refined: 2026-08-09</span>
           
-          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
           <span><a class="lab-link" href="lab/0038.html">Open lab page →</a></span>
           
         </div>
@@ -1222,7 +1222,15 @@
 **Zone:** D — Instruments
 **Effort:** L
 **Priority rationale:** Recommended route step 1; highest-leverage single investment since it multiplies the value of every other visualization, existing or future.
-**Open questions:** Sandboxing/security approach, which snapshot shape(s) it targets first, and acceptance criteria not yet scoped.</pre>
+**Isolation:** Web Worker running inside a `sandbox=&quot;allow-scripts&quot;` iframe (no `allow-same-origin`) — mandatory, not optional, because sandbox code is shareable via URL from day one and auto-runs in the recipient's browser. GitHub Pages has no server to set COOP/COEP headers, so the sandbox attribute's opaque-origin isolation is the only route available. See lab for the full architecture.
+**Target snapshot shape (v1):** `SortStep` only — the one shape with a reusable view (`BarChart`); the other five shapes are out of scope for v1.
+**Acceptance criteria:**
+- A user can write a `function*` in the editor, targeting `SortStep`, and run it — output renders through the existing `BarChart` view via the same scrub/seek UI as built-in algorithms.
+- Execution happens inside a Web Worker hosted in a sandboxed iframe; the app's own DOM/storage/cookies are unreachable from user code.
+- A runaway/infinite-looping snippet is caught by a step/time budget and force-terminated without freezing the tab.
+- The five existing categories (sort/search/path/graph/BST, minus BST/heap already covered) show zero behavioral regression after the `StepSource` refactor that this feature requires of `useStepPlayer`.
+- A sandbox snippet is shareable via URL; opening a shared link auto-runs the code with a visible (non-blocking) &quot;running community-authored code&quot; indicator.
+**Open questions:** Closed — see `backlog/labs/0038-byo-algorithm-sandbox.md` for the full sandboxing architecture, phased build plan, and risk mitigations.</pre>
       </div>
     </article>
 
