@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-12T09:46:33.919Z">
+<meta name="generated-at" content="2026-08-12T10:07:03.179Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,11 +1060,15 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">46 tracked tasks &middot; 2 with a lab &middot; 44 unresearched &middot; generated 2026-08-12T09:46:33.919Z</p>
+  <p class="subtitle">46 tracked tasks &middot; 2 with a lab &middot; 44 unresearched &middot; generated 2026-08-12T10:07:03.179Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">42</span>
+          <span class="stat-count">41</span>
           <span class="stat-label">Ready</span>
+        </div>
+        <div class="stat">
+          <span class="stat-count">1</span>
+          <span class="stat-label">In Progress</span>
         </div>
         <div class="stat">
           <span class="stat-count">1</span>
@@ -1081,7 +1085,8 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (42)</option>
+      <option value="ready">Ready (41)</option>
+            <option value="in-progress">In Progress (1)</option>
             <option value="inbox">Inbox (1)</option>
             <option value="done">Done (3)</option>
     </select>
@@ -1259,47 +1264,6 @@
 **Effort:** S
 **Priority rationale:** Recommended route step 1, paired with the sandbox — cheap given existing URL-state infrastructure, and a genuine growth/discovery lever.
 **Open questions:** Acceptance criteria and which categories get embed routes first not yet scoped.</pre>
-      </div>
-    </article>
-
-    <article class="card"
-      data-status="ready"
-      data-priority="P1"
-      data-effort="M"
-      data-zone="A"
-      data-lab="unresearched"
-      data-search="fill the existing gaps tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add bellman-ford, floyd-warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph. extend the map ">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0010</span>
-        <span class="card-title">Fill the existing gaps</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-A" title="Zone A — Extend the map">A &middot; Extend the map</span>
-          <span class="pill status-ready">Ready</span>
-          <span class="badge priority-P1">P1</span>
-          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
-          <span class="chip leverage-marker" title="Unblocks 2 other items once researched">&#9650; unblocks 2</span>
-          
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0010-fill-existing-gaps.md</code></span>
-          <span>Created: 2026-08-09</span>
-          <span>Refined: 2026-08-09</span>
-          
-          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
-          <span><a class="lab-link" href="lab/0010.html">Open lab page →</a></span>
-          
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">Tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add Bellman-Ford, Floyd-Warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">**Goal:** Raise the depth of existing categories to match their current polish — pure content/algorithm work, no new architecture.
-**Zone:** A — Extend the map
-**Effort:** M
-**Priority rationale:** Improves the existing product rather than adding surface area; low architectural risk, high perceived completeness.
-**Open questions:** Which sub-items ship first (sort tagging vs. pathfinding vs. search vs. graph) not yet sequenced.</pre>
       </div>
     </article>
 
@@ -2858,6 +2822,47 @@
 **Effort:** M
 **Priority rationale:** Each sub-idea is plausible but none was researched as deeply as the primary 8 domains; backlog placeholder.
 **Open questions:** Whether this splits into separate tasks once any sub-idea is prioritized — not yet decided.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="in-progress"
+      data-priority="P1"
+      data-effort="M"
+      data-zone="A"
+      data-lab="unresearched"
+      data-search="fill the existing gaps tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add bellman-ford, floyd-warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph. extend the map ">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0010</span>
+        <span class="card-title">Fill the existing gaps</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-A" title="Zone A — Extend the map">A &middot; Extend the map</span>
+          <span class="pill status-in-progress">In Progress</span>
+          <span class="badge priority-P1">P1</span>
+          <span class="badge effort-M" title="Medium effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar"></span></span>M</span>
+          <span class="chip leverage-marker" title="Unblocks 2 other items once researched">&#9650; unblocks 2</span>
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0010-fill-existing-gaps.md</code></span>
+          <span>Created: 2026-08-09</span>
+          <span>Refined: 2026-08-09</span>
+          
+          <span>Lab: <span class="pill lab-status-unresearched">Unresearched</span></span>
+          <span><a class="lab-link" href="lab/0010.html">Open lab page →</a></span>
+          
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Tag the remaining sort algorithms for pseudocode/source highlighting (only 4 of 10 are tagged today); add Bellman-Ford, Floyd-Warshall and weighted grids to pathfinding; jump/interpolation/exponential search; topological sort, cycle detection and bipartite checks to graph.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** Raise the depth of existing categories to match their current polish — pure content/algorithm work, no new architecture.
+**Zone:** A — Extend the map
+**Effort:** M
+**Priority rationale:** Improves the existing product rather than adding surface area; low architectural risk, high perceived completeness.
+**Open questions:** Which sub-items ship first (sort tagging vs. pathfinding vs. search vs. graph) not yet sequenced.</pre>
       </div>
     </article>
 

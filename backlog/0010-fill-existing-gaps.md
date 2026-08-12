@@ -1,7 +1,7 @@
 ---
 id: 0010
 title: Fill the existing gaps
-status: ready
+status: in-progress
 priority: P1
 effort: M
 zone: A
