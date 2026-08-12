@@ -64,6 +64,19 @@ isolation here protects the *app's own origin* (no DOM, cookie, or localStorage 
 snippet from calling out to a third party. Documented as an accepted risk below, not a gap in
 this design — no isolation primitive available on a static site closes it.
 
+**`allow-scripts` and `allow-same-origin` must never be set together on the sandboxed iframe.**
+That specific combination is a known sandbox escape: scripts inside can rewrite the iframe's own
+document/location from within its own realm and shed the sandbox restrictions entirely.
+Consequence: this is a hard invariant on the `<iframe sandbox="...">` attribute, not a tuning
+knob — worth a code comment (and ideally a lint rule) at the point it's set, since "just add
+`allow-same-origin`, it'll be fine" is exactly the kind of fix a future PR might reach for.
+
+**The sandboxed content never gets a visible rendering surface of its own** — it only emits
+`postMessage` data; the app-controlled `BarChart` does all the rendering. Consequence: this
+incidentally rules out UI-redressing/phishing-overlay attacks (there's no surface to spoof with)
+and must stay true — don't give user code a visibly-rendered iframe later without re-deriving
+this protection some other way.
+
 ## Architecture
 
 ```
@@ -115,7 +128,7 @@ blocking confirmation would defeat the point of "shareable from day one."
 | 0 | Feasibility spike: sandboxed iframe hosting a worker, round-trips one hardcoded step via `postMessage` into a stub player | Confirms opaque-origin isolation actually blocks `contentWindow` access from the parent, and that iframe removal reliably kills the inner worker. Go/no-go before any further work |
 | 1 | `StepSource` refactor of `useStepPlayer`, `LocalGeneratorSource` only | All six existing categories (sort/search/path/graph/BST/heap) pass existing manual QA with zero behavior change — this is the highest-regression-risk phase since it touches shared infrastructure |
 | 2 | Runner chain: `runner.html`/`runner-main.ts`/`worker.ts`, hardcoded trusted `SortStep` generator, no editor yet | A known-good user-authored-style generator runs end-to-end through the sandboxed chain into the existing `BarChart` view via `WorkerMessageSource` |
-| 3 | Safety budget + kill switch | An intentionally infinite-looping snippet is caught and terminated within the budget, tab stays responsive |
+| 3 | Safety budget + kill switch + step validation | An intentionally infinite-looping snippet is caught and terminated within the budget, tab stays responsive; a snippet yielding malformed steps (non-numeric array, out-of-range indices, missing `done`) is dropped before it reaches `BarChart`, not rendered |
 | 4 | `SandboxEditor.vue` (CodeMirror + `SortStep`-annotated starter template) | A user can write, run, and see errors from arbitrary code locally, no sharing yet |
 | 5 | URL sharing + community-code banner | A shared link auto-runs on load with the transparency banner shown |
 
@@ -132,6 +145,8 @@ library — deferred until it's an actual measured problem rather than assumed u
 | Infinite loop / runaway computation in user code | Dual budget: worker self-terminates on step/time cap, parent watchdog force-kills via iframe removal if no heartbeat |
 | Shared-code URLs exceed practical length limits | Deferred to phase 5; cap editor length with a clear message if it becomes a real constraint, revisit compression only if needed |
 | Users expect sandboxed code to reach other snapshot shapes immediately | State plainly in the editor UI that v1 is sort-only; extending to other shapes is a natural, separate follow-up once this infrastructure exists |
+| A malicious or buggy snippet yields malformed steps (`NaN`, huge arrays, out-of-range indices) that corrupt or crash the renderer | The parent validates every step (array of finite numbers; `comparing`/`swapping`/`sorted` are in-bounds indices; `done` is boolean) before handing it to `BarChart` — a second layer independent of the sandbox itself, since isolation stops the code from touching the app, not from sending it bad data |
+| A message could be spoofed by something other than the runner iframe | Parent must check `event.source === iframe.contentWindow` on every `message` event and discard anything else — required in the runner chain's listener, not optional |
 
 ## Out of scope
 

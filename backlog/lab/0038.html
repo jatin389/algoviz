@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-12T15:34:54.598Z">
+<meta name="generated-at" content="2026-08-12T15:48:07.298Z">
 <title>0038 &middot; Bring-your-own-algorithm sandbox — Lab</title>
 <style>
 
@@ -997,6 +997,16 @@
         <p class="constraint-body">(<code>fetch</code>, <code>XMLHttpRequest</code>, <code>WebSocket</code> are not blocked by <code>sandbox=&quot;allow-scripts&quot;</code> alone).</p>
         <p class="constraint-consequence"><strong>Consequence:</strong> isolation here protects the *app's own origin* (no DOM, cookie, or localStorage access) and the *UI thread* (worker hang doesn't freeze the tab), but does not prevent a malicious shared snippet from calling out to a third party. Documented as an accepted risk below, not a gap in this design — no isolation primitive available on a static site closes it.</p>
       </li>
+      <li class="constraint-card">
+        <p class="constraint-lead"><code>allow-scripts</code> and <code>allow-same-origin</code> must never be set together on the sandboxed iframe.</p>
+        <p class="constraint-body">That specific combination is a known sandbox escape: scripts inside can rewrite the iframe's own document/location from within its own realm and shed the sandbox restrictions entirely.</p>
+        <p class="constraint-consequence"><strong>Consequence:</strong> this is a hard invariant on the <code>&lt;iframe sandbox=&quot;...&quot;&gt;</code> attribute, not a tuning knob — worth a code comment (and ideally a lint rule) at the point it's set, since &quot;just add <code>allow-same-origin</code>, it'll be fine&quot; is exactly the kind of fix a future PR might reach for.</p>
+      </li>
+      <li class="constraint-card">
+        <p class="constraint-lead">The sandboxed content never gets a visible rendering surface of its own</p>
+        <p class="constraint-body">— it only emits <code>postMessage</code> data; the app-controlled <code>BarChart</code> does all the rendering.</p>
+        <p class="constraint-consequence"><strong>Consequence:</strong> this incidentally rules out UI-redressing/phishing-overlay attacks (there's no surface to spoof with) and must stay true — don't give user code a visibly-rendered iframe later without re-deriving this protection some other way.</p>
+      </li>
     </ol>
   </section>
 
@@ -1037,8 +1047,8 @@
       </li>
       <li class="phase-step">
         <span class="phase-num">3</span>
-        <div class="phase-deliverable">Safety budget + kill switch</div>
-        <div class="phase-gate"><span class="phase-gate-label">Gate</span> An intentionally infinite-looping snippet is caught and terminated within the budget, tab stays responsive</div>
+        <div class="phase-deliverable">Safety budget + kill switch + step validation</div>
+        <div class="phase-gate"><span class="phase-gate-label">Gate</span> An intentionally infinite-looping snippet is caught and terminated within the budget, tab stays responsive; a snippet yielding malformed steps (non-numeric array, out-of-range indices, missing <code>done</code>) is dropped before it reaches <code>BarChart</code>, not rendered</div>
       </li>
       <li class="phase-step">
         <span class="phase-num">4</span>
@@ -1055,7 +1065,7 @@
 
   <section class="lab-section lab-section-risks">
     <h2>Risks</h2>
-    <div class="md-body"><div class="table-scroll"><table class="md-table"><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td><code>StepSource</code> refactor regresses an existing category</td><td>Phase 1 ships alone with full manual QA across all six categories before any sandbox code lands on top of it</td></tr><tr><td>Sandboxed worker still reaches the network (fetch/XHR/WebSocket to third parties)</td><td>Documented accepted risk — no static-site isolation primitive blocks this; worker has no access to the app's own cookies/storage/DOM, which bounds the damage to &quot;abuses the visitor's network,&quot; not &quot;compromises the app&quot;</td></tr><tr><td>Infinite loop / runaway computation in user code</td><td>Dual budget: worker self-terminates on step/time cap, parent watchdog force-kills via iframe removal if no heartbeat</td></tr><tr><td>Shared-code URLs exceed practical length limits</td><td>Deferred to phase 5; cap editor length with a clear message if it becomes a real constraint, revisit compression only if needed</td></tr><tr><td>Users expect sandboxed code to reach other snapshot shapes immediately</td><td>State plainly in the editor UI that v1 is sort-only; extending to other shapes is a natural, separate follow-up once this infrastructure exists</td></tr></tbody></table></div></div>
+    <div class="md-body"><div class="table-scroll"><table class="md-table"><thead><tr><th>Risk</th><th>Mitigation</th></tr></thead><tbody><tr><td><code>StepSource</code> refactor regresses an existing category</td><td>Phase 1 ships alone with full manual QA across all six categories before any sandbox code lands on top of it</td></tr><tr><td>Sandboxed worker still reaches the network (fetch/XHR/WebSocket to third parties)</td><td>Documented accepted risk — no static-site isolation primitive blocks this; worker has no access to the app's own cookies/storage/DOM, which bounds the damage to &quot;abuses the visitor's network,&quot; not &quot;compromises the app&quot;</td></tr><tr><td>Infinite loop / runaway computation in user code</td><td>Dual budget: worker self-terminates on step/time cap, parent watchdog force-kills via iframe removal if no heartbeat</td></tr><tr><td>Shared-code URLs exceed practical length limits</td><td>Deferred to phase 5; cap editor length with a clear message if it becomes a real constraint, revisit compression only if needed</td></tr><tr><td>Users expect sandboxed code to reach other snapshot shapes immediately</td><td>State plainly in the editor UI that v1 is sort-only; extending to other shapes is a natural, separate follow-up once this infrastructure exists</td></tr><tr><td>A malicious or buggy snippet yields malformed steps (<code>NaN</code>, huge arrays, out-of-range indices) that corrupt or crash the renderer</td><td>The parent validates every step (array of finite numbers; <code>comparing</code>/<code>swapping</code>/<code>sorted</code> are in-bounds indices; <code>done</code> is boolean) before handing it to <code>BarChart</code> — a second layer independent of the sandbox itself, since isolation stops the code from touching the app, not from sending it bad data</td></tr><tr><td>A message could be spoofed by something other than the runner iframe</td><td>Parent must check <code>event.source === iframe.contentWindow</code> on every <code>message</code> event and discard anything else — required in the runner chain's listener, not optional</td></tr></tbody></table></div></div>
   </section>
 
   <section class="lab-section lab-section-outOfScope">
