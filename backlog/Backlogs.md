@@ -17,6 +17,9 @@ Captured but not yet scoped. Refine these before starting them.
 | ID | Title | Description |
 |----|-------|--------------|
 | 0046 | Check and implement loop engineering | user-set P1 / S / Zone E at capture; subject still ambiguous — needs scoping before it can move to Ready |
+| 0047 | Weighted grids for pathfinding | split out of 0010; scoping notes on the file — the hard part is that weights change what BFS/A* claim, not the encoding |
+| 0048 | Directed graph model | split out of 0010; every adjacency map is undirected today, which blocks topological sort and directed cycle detection |
+| 0049 | GraphStep result channels (witness edge, node colours) | split out of 0010; bipartite check currently cannot show its 2-colouring |
 
 ## Ready
 Scoped and prioritized. Pull from here when starting new work. Sort by priority; within a priority, row order is queue order.
