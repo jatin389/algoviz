@@ -18,11 +18,11 @@
 import type {
   AlgorithmFn,
   AlgorithmMeta,
-  Complexity,
   DpCell,
   DpDep,
   DpStep,
   StepGenerator,
+  TimeSpaceComplexity,
 } from '@/types';
 
 /**
@@ -100,12 +100,7 @@ export interface ChainInput {
 }
 
 export type DpInput =
-  | ScalarInput
-  | CoinsInput
-  | SequenceInput
-  | ItemsInput
-  | Strings2Input
-  | ChainInput;
+  ScalarInput | CoinsInput | SequenceInput | ItemsInput | Strings2Input | ChainInput;
 
 /** `DpInputOf<'coins'>` is `CoinsInput`. Used to key records by input kind. */
 export type DpInputOf<K extends DpInputKind> = Extract<DpInput, { kind: K }>;
@@ -220,11 +215,19 @@ export type DpFn<I extends DpInput = DpInput> = AlgorithmFn<DpStep, [I]>;
 
 /**
  * A registry entry: the metadata `AvAlgorithmSelector` renders, plus the spec
- * everything else reads. `Complexity` (best/average/worst/space) rather than
- * `TimeSpaceComplexity`, because DP's whole pitch is the gap between the naive
- * and memoized cases and collapsing them to one `time` string would hide it.
+ * everything else reads.
+ *
+ * `TimeSpaceComplexity` rather than the four-field `Complexity` the other
+ * registries use, for the reason `types/algorithm.ts` gives when it introduces
+ * the two-field shape: a bottom-up DP fills every cell of its table regardless
+ * of the data, so best, average and worst genuinely coincide for all eight, and
+ * writing `O(n·C)` three times would be repetition dressed up as information.
+ * The interesting spread for this category — naive recursion versus the table —
+ * is not a best/average/worst axis at all, and it is surfaced where it actually
+ * belongs: as a live call count in `DpStats`.
  */
-export type DpAlgorithm<I extends DpInput> = AlgorithmMeta<DpFn<I>, Complexity> & DpSpec<I>;
+export type DpAlgorithm<I extends DpInput> = AlgorithmMeta<DpFn<I>, TimeSpaceComplexity> &
+  DpSpec<I>;
 
 export type AnyDpAlgorithm = { [K in DpInputKind]: DpAlgorithm<DpInputOf<K>> }[DpInputKind];
 
