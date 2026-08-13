@@ -10,8 +10,14 @@
 // production build, so what is on screen would stop being what is in the repo,
 // and the line numbers would stop lining up with it. `?raw` inlines the file's
 // exact bytes as a string literal, which minification leaves alone.
+//
+// The parse itself and its memo cache now live in `../sourceMap.ts`, shared with
+// the other domains that back a code panel. They are re-exported below so this
+// module stays the single import site for anything sorting-related.
 
 import type { SortAlgoKey } from './index';
+import { buildSourceMap, createSourceMapCache } from './sourceMap';
+import type { GeneratorSource } from './sourceMap';
 import bubbleSrc from './bubbleSort.ts?raw';
 import selectionSrc from './selectionSort.ts?raw';
 import insertionSrc from './insertionSort.ts?raw';
@@ -23,12 +29,8 @@ import combSrc from './combSort.ts?raw';
 import countingSrc from './countingSort.ts?raw';
 import radixSrc from './radixSort.ts?raw';
 
-export interface GeneratorSource {
-  /** Displayed above the code so the panel names what it is showing. */
-  file: string;
-  /** The file's text, verbatim. */
-  text: string;
-}
+export type { GeneratorSource };
+export { buildSourceMap };
 
 /** Every key in the registry has source; unlike pseudocode, nothing to write. */
 export const source: Record<SortAlgoKey, GeneratorSource> = {
@@ -44,47 +46,6 @@ export const source: Record<SortAlgoKey, GeneratorSource> = {
   radix: { file: 'radixSort.ts', text: radixSrc },
 };
 
-/**
- * A tagged yield: `yield snap(...)` or `yield done(...)` whose final argument is
- * the pseudocode line literal.
- *
- * The anchored closing paren is what makes the lazy `.*?` safe — the digits have
- * to be the *last* argument, so an index expression like `[j, j + 1]` can't be
- * mistaken for a tag. Untagged yields end in `swaps)` and simply never match.
- */
-const TAGGED_YIELD = /^\s*yield\s+(?:snap|done)\(.*?,\s*(\d+)\s*\)\s*;?\s*$/;
-
-/**
- * Build `pseudocode line index -> 0-based source lines carrying that tag`.
- *
- * Derived from the text rather than written by hand on purpose: the tag numbers
- * already live in the yield calls, and a hand-kept table would go stale the
- * first time anyone inserted a line above one. A test pins the parse instead —
- * see source.test.ts.
- */
-export function buildSourceMap(text: string): Map<number, number[]> {
-  const map = new Map<number, number[]>();
-
-  text.split('\n').forEach((line, index) => {
-    const match = TAGGED_YIELD.exec(line);
-    if (!match) return;
-    const tag = Number(match[1]);
-    map.set(tag, [...(map.get(tag) ?? []), index]);
-  });
-
-  return map;
-}
-
-// Parsing is cheap but not free, and the panel asks for the same algorithm's map
-// on every step. One parse per key per session.
-const cache = new Map<SortAlgoKey, Map<number, number[]>>();
-
 /** Memoized `buildSourceMap` for a registered algorithm. */
-export function sourceMap(key: SortAlgoKey): Map<number, number[]> {
-  let map = cache.get(key);
-  if (!map) {
-    map = buildSourceMap(source[key].text);
-    cache.set(key, map);
-  }
-  return map;
-}
+export const sourceMap: (key: SortAlgoKey) => Map<number, number[]> =
+  createSourceMapCache(source);

@@ -9,8 +9,17 @@
 
 export type Waveform = 'sine' | 'square' | 'sawtooth' | 'triangle';
 
-/** The events worth hearing. Extend here first, then in a cue resolver. */
-export type CueName = 'compare' | 'swap';
+/**
+ * The events worth hearing. Extend here first, then in a cue resolver.
+ *
+ * Deliberately a small, domain-neutral vocabulary rather than one name per
+ * category. Four categories now emit cues and they do not share concepts — a
+ * sort compares, a hash table probes, Kruskal accepts an edge — but they do
+ * share a *shape*: something routine happened, something changed, something
+ * succeeded, something failed. Naming the shape rather than the event is what
+ * keeps the cue table from growing a row per algorithm.
+ */
+export type CueName = 'compare' | 'swap' | 'hit' | 'miss';
 
 export interface CueSpec {
   wave: Waveform;
@@ -34,9 +43,24 @@ export interface CueSpec {
  * harmonics that make a "ping" read as a ping, without square's harshness,
  * which is genuinely unpleasant repeated dozens of times a second.
  */
+/**
+ * Every frequency here is an exact small-integer ratio of the 330 Hz root, for
+ * the reason given above: at these rates the streams interleave arbitrarily, so
+ * anything other than a simple ratio beats audibly.
+ *
+ *   compare 330  root      swap 660  octave (2/1)
+ *   hit     495  fifth (3/2)   miss 220  octave below (1/2)
+ *
+ * `hit` and `miss` are the outcome pair — a hash probe landing or colliding, an
+ * MST edge accepted or rejected. `miss` sits below the root and stays quiet: it
+ * is the more frequent of the two in a badly-loaded hash table, and a failure
+ * tone that nags is a tone people switch off.
+ */
 export const CUES: Record<CueName, CueSpec> = {
   compare: { wave: 'sine', freq: 330, durationMs: 18, gain: 0.25 },
   swap: { wave: 'triangle', freq: 660, durationMs: 28, gain: 0.4 },
+  hit: { wave: 'triangle', freq: 495, durationMs: 26, gain: 0.35 },
+  miss: { wave: 'sine', freq: 220, durationMs: 22, gain: 0.22 },
 };
 
 /**

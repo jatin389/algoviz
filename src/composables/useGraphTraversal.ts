@@ -3,6 +3,7 @@ import { generateGraph } from '@/algorithms/graph/graphModel';
 import { algorithms } from '@/algorithms/graph';
 import type { GraphAlgoKey } from '@/algorithms/graph';
 import type { GraphModel, GraphStep, NodeId } from '@/types';
+import type { GraphTone } from '@/components/graph/tones';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 import { useUrlState } from './useUrlState';
@@ -44,6 +45,43 @@ export function useGraphTraversal() {
   const stats = reactive({ visitedCount: 0, totalNodes: 0 });
 
   const currentAlgo = computed(() => algorithms[algoKey.value]);
+
+  // GraphCanvas is a dumb renderer that only understands GraphTone (see
+  // tones.ts) — it has no idea what "visited"/"frontier"/"current" mean for
+  // this particular algorithm family. These two computeds are the one place
+  // that translates traversal's own vocabulary into that shared one, so the
+  // rest of this file (and GraphView.vue) can keep talking about
+  // visited/frontier/current, which is what every generator in
+  // algorithms/graph already yields.
+  //
+  // Precedence mirrors exactly what GraphCanvas.vue computed inline before
+  // this refactor: current > visited > frontier > idle. An id absent from
+  // the map renders 'idle', so nothing below the first matching branch needs
+  // to be written explicitly.
+  const nodeTone = computed<Map<NodeId, GraphTone>>(() => {
+    const tones = new Map<NodeId, GraphTone>();
+    const visitedSet = new Set(highlights.visited);
+    const frontierSet = new Set(highlights.frontier);
+    for (const node of graph.value.nodes) {
+      if (node.id === highlights.current) tones.set(node.id, 'current');
+      else if (visitedSet.has(node.id)) tones.set(node.id, 'visited');
+      else if (frontierSet.has(node.id)) tones.set(node.id, 'frontier');
+    }
+    return tones;
+  });
+
+  // An edge is 'visited' only once BOTH endpoints are — matching the old
+  // `edgeIsVisited` in GraphCanvas.vue exactly — because a half-visited edge
+  // (one endpoint reached, one still ahead) is still an edge the traversal
+  // hasn't finished crossing, not a completed step of it.
+  const edgeTone = computed<Map<string, GraphTone>>(() => {
+    const tones = new Map<string, GraphTone>();
+    const visitedSet = new Set(highlights.visited);
+    for (const edge of graph.value.edges) {
+      if (visitedSet.has(edge.from) && visitedSet.has(edge.to)) tones.set(edge.id, 'visited');
+    }
+    return tones;
+  });
 
   function resetHighlights() {
     highlights.visited = [];
@@ -122,6 +160,8 @@ export function useGraphTraversal() {
     seed,
     // state
     highlights,
+    nodeTone,
+    edgeTone,
     stats,
     currentAlgo,
     // playback

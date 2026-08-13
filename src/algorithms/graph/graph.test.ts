@@ -299,3 +299,80 @@ describe('generateGraph seeding', () => {
     expect(first.edges).not.toEqual(second.edges);
   });
 });
+
+// Weighted generation backs the MST vertical (Kruskal/Prim need real edge
+// costs); these cases are new alongside it, but the plain unweighted path
+// above must keep working exactly as it did, which the last case here checks.
+describe('generateGraph weighted option', () => {
+  it('produces identical weights (not just identical edges) when called twice with the same seed', () => {
+    // Weights are drawn from the same seeded rng as the edge selection
+    // itself (see the comment in addEdge in graphModel.ts), so a fresh Rng
+    // per call is required here for the same reason the unweighted
+    // reproducibility test above requires it.
+    const first = generateGraph(10, createRng(7), { weighted: true });
+    const second = generateGraph(10, createRng(7), { weighted: true });
+
+    expect(first.edges).toEqual(second.edges);
+  });
+
+  it('draws every weight within 1..maxWeight (default 20)', () => {
+    const graph = generateGraph(12, createRng(99), { weighted: true });
+
+    expect(graph.edges.length).toBeGreaterThan(0);
+    for (const edge of graph.edges) {
+      expect(edge.weight).toBeDefined();
+      expect(edge.weight).toBeGreaterThanOrEqual(1);
+      expect(edge.weight).toBeLessThanOrEqual(20);
+    }
+  });
+
+  it('honours a custom maxWeight', () => {
+    const graph = generateGraph(12, createRng(99), { weighted: true, maxWeight: 3 });
+
+    for (const edge of graph.edges) {
+      expect(edge.weight).toBeGreaterThanOrEqual(1);
+      expect(edge.weight).toBeLessThanOrEqual(3);
+    }
+  });
+
+  it('leaves weight entirely absent (not undefined-but-present) when weighted is false or omitted', () => {
+    const omitted = generateGraph(10, createRng(7));
+    const explicitlyFalse = generateGraph(10, createRng(7), { weighted: false });
+
+    for (const edge of [...omitted.edges, ...explicitlyFalse.edges]) {
+      expect(edge.weight).toBeUndefined();
+      expect(Object.prototype.hasOwnProperty.call(edge, 'weight')).toBe(false);
+    }
+  });
+
+  it('emits an object byte-identical to the pre-weighting shape when unweighted', () => {
+    // Regression guard for the "byte-identical" requirement: adding the
+    // `options` parameter must not change what an existing two-argument call
+    // site produces, down to the exact set of keys on each edge.
+    const graph = generateGraph(6, createRng(42));
+
+    for (const edge of graph.edges) {
+      expect(Object.keys(edge).sort()).toEqual(['from', 'id', 'to']);
+    }
+  });
+
+  it('still produces a fully connected ring plus chords, adjacency included, when weighted', () => {
+    // Weighted mode draws weights from the same rng stream the chord
+    // endpoints are drawn from (see addEdge's comment in graphModel.ts), so
+    // its chord selection legitimately differs from the unweighted run at
+    // the same seed — the two are not expected to match edge-for-edge. What
+    // must still hold is everything generateGraph always guarantees: node
+    // count, the base ring, and a self-consistent bidirectional adjacency.
+    const graph = generateGraph(10, createRng(7), { weighted: true });
+
+    expect(graph.nodes).toHaveLength(10);
+    for (let i = 0; i < 10; i++) {
+      const ringKey = i < 9 ? `${i}-${i + 1}` : '0-9';
+      expect(graph.edges.some((e) => e.id === ringKey)).toBe(true);
+    }
+    for (const edge of graph.edges) {
+      expect(graph.adjacency.get(edge.from)).toContain(edge.to);
+      expect(graph.adjacency.get(edge.to)).toContain(edge.from);
+    }
+  });
+});
