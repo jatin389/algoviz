@@ -12,6 +12,14 @@ import { algorithms as pathAlgorithms } from '@/algorithms/pathfinding';
 import type { PathAlgoKey } from '@/algorithms/pathfinding';
 import { algorithms as graphAlgorithms } from '@/algorithms/graph';
 import type { GraphAlgoKey } from '@/algorithms/graph';
+import { encodeSource, decodeSource } from '@/sandbox/encode';
+import {
+  STARTER_SOURCE,
+  SANDBOX_DEFAULT_SIZE,
+  SANDBOX_DEFAULT_SPEED,
+  SANDBOX_SIZE_MIN,
+  SANDBOX_SIZE_MAX,
+} from '@/sandbox/contract';
 
 /**
  * urlParams — pure `UrlParamSpecs` factories, one per category.
@@ -250,6 +258,48 @@ export function graphUrlParams(refs: {
       // (`0..nodeCount - 1`); the upper bound here is a generous sanity cap,
       // not tied to any particular graph's actual size.
       decode: (raw) => decodeInt(raw, 0, 9999),
+    },
+  };
+}
+
+// ---- sandbox ------------------------------------------------------------------
+
+export const SANDBOX_URL_DEFAULTS = {
+  size: SANDBOX_DEFAULT_SIZE,
+  speed: SANDBOX_DEFAULT_SPEED,
+};
+
+export function sandboxUrlParams(refs: {
+  source: Ref<string>;
+  size: Ref<number>;
+  speed: Ref<number>;
+  seed: Ref<number>;
+}): UrlParamSpecs<{ src: string; size: number; speed: number; seed: number }> {
+  return {
+    src: {
+      ref: refs.source,
+      // The starter snippet is what an un-shared visit already shows, so
+      // writing it into the URL would only bloat the link.
+      encode: (text) => (text === STARTER_SOURCE ? null : encodeSource(text)),
+      decode: decodeSource,
+      debounceMs: 400,
+    },
+    size: {
+      ref: refs.size,
+      encode: (n) => (n === SANDBOX_URL_DEFAULTS.size ? null : String(n)),
+      decode: (raw) => decodeInt(raw, SANDBOX_SIZE_MIN, SANDBOX_SIZE_MAX),
+      debounceMs: 250,
+    },
+    speed: {
+      ref: refs.speed,
+      encode: (n) => (n === SANDBOX_URL_DEFAULTS.speed ? null : String(n)),
+      decode: (raw) => decodeInt(raw, 1, 100),
+      debounceMs: 250,
+    },
+    seed: {
+      ref: refs.seed,
+      encode: encodeSeed,
+      decode: decodeSeed,
     },
   };
 }
