@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import { useConcurrency } from '@/composables/useConcurrency';
 import ConcurrencyControls from '@/components/concurrency/ConcurrencyControls.vue';
+import ConcurrencyGuide from '@/components/concurrency/ConcurrencyGuide.vue';
 import ScheduleList from '@/components/concurrency/ScheduleList.vue';
 import ThreadLanes from '@/components/concurrency/ThreadLanes.vue';
 import PlaybackScrubber from '@/components/PlaybackScrubber.vue';
@@ -34,6 +35,7 @@ const cells = computed(() => [
   <div class="grid gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
+      <ConcurrencyGuide />
       <ConcurrencyControls
         v-model:scenario="concurrency.scenarioKey.value"
         v-model:speed="concurrency.speed.value"
