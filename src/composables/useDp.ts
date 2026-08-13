@@ -1,13 +1,6 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { algorithms, DP_MAX_STEPS, bindSpec, validateInput } from '@/algorithms/dp';
-import type {
-  DpAlgoKey,
-  DpCell,
-  DpDep,
-  DpInput,
-  DpInputKind,
-  DpTableData,
-} from '@/algorithms/dp';
+import type { DpAlgoKey, DpCell, DpDep, DpInput, DpInputKind, DpTableData } from '@/algorithms/dp';
 import { dpCues } from '@/algorithms/dp/dpCues';
 import { pseudocode } from '@/algorithms/dp/pseudocode';
 import { source, sourceMap } from '@/algorithms/dp/source';
@@ -153,7 +146,10 @@ export function randomInput(kind: DpInputKind, rng: Rng): DpInput {
       // Multiples of five so the cost figures stay round enough to read in a
       // 34px cell, and 4..6 dimensions so the triangle is small enough that the
       // diagonal fill order is watchable rather than a blur.
-      return { kind: 'chain', dims: Array.from({ length: rng.int(4, 6) }, () => rng.int(1, 8) * 5) };
+      return {
+        kind: 'chain',
+        dims: Array.from({ length: rng.int(4, 6) }, () => rng.int(1, 8) * 5),
+      };
   }
 }
 
