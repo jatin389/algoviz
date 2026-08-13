@@ -7,7 +7,10 @@ import {
   decodeCoord,
   encodeNumberList,
   decodeNumberList,
+  encodeOpScript,
+  decodeOpScript,
 } from './urlCodec';
+import type { OpScriptCodec } from './urlCodec';
 
 describe('decodeInt', () => {
   it('clamps values above the max', () => {
@@ -72,5 +75,63 @@ describe('number list codec', () => {
 
   it('returns undefined for structurally invalid input', () => {
     expect(decodeNumberList('1,2,x')).toBeUndefined();
+  });
+});
+
+describe('op script codec', () => {
+  // A stand-in for the real DSU/hash codecs, deliberately shaped like them: a
+  // single-letter kind, then operands that may themselves need a separator of
+  // their own. That second part is the interesting case — it is why the shared
+  // separator is `-` and intra-op structure has to use something else.
+  interface FakeOp {
+    kind: 'u' | 'f';
+    a: number;
+    b?: number;
+  }
+
+  const codec: OpScriptCodec<FakeOp> = {
+    encodeOp: (op) => (op.kind === 'u' ? `u${op.a}.${op.b}` : `f${op.a}`),
+    decodeOp: (token) => {
+      const match = /^([uf])(\d+)(?:\.(\d+))?$/.exec(token);
+      if (!match) return undefined;
+      const kind = match[1] as 'u' | 'f';
+      if (kind === 'u' && match[3] === undefined) return undefined;
+      return kind === 'u'
+        ? { kind, a: Number(match[2]), b: Number(match[3]) }
+        : { kind, a: Number(match[2]) };
+    },
+    maxOps: 4,
+  };
+
+  it('round-trips a mixed script', () => {
+    const ops: FakeOp[] = [
+      { kind: 'u', a: 3, b: 4 },
+      { kind: 'f', a: 7 },
+      { kind: 'u', a: 0, b: 1 },
+    ];
+    const encoded = encodeOpScript(ops, codec);
+    expect(encoded).toBe('u3.4-f7-u0.1');
+    expect(decodeOpScript(encoded, codec)).toEqual(ops);
+  });
+
+  it('treats an empty string as an empty script rather than a parse failure', () => {
+    // `''.split('-')` yields one empty token, which every real codec rejects —
+    // so without the explicit early return this would come back undefined and a
+    // deliberately cleared script would fail to survive a round trip.
+    expect(decodeOpScript('', codec)).toEqual([]);
+    expect(decodeOpScript('   ', codec)).toEqual([]);
+    expect(encodeOpScript([], codec)).toBe('');
+  });
+
+  it('rejects the ENTIRE script when a single op is malformed', () => {
+    // All-or-nothing: dropping just the bad op would silently produce a
+    // different run than the link described.
+    expect(decodeOpScript('u3.4-XX-f7', codec)).toBeUndefined();
+    expect(decodeOpScript('u3.4-u5', codec)).toBeUndefined();
+  });
+
+  it('rejects a script longer than maxOps', () => {
+    expect(decodeOpScript('f1-f2-f3-f4', codec)).toHaveLength(4);
+    expect(decodeOpScript('f1-f2-f3-f4-f5', codec)).toBeUndefined();
   });
 });
