@@ -1,7 +1,7 @@
 ---
 id: 0030
 title: "New domain: Concurrency & interleavings"
-status: ready
+status: in-progress
 priority: P0
 effort: L
 zone: C
@@ -30,4 +30,5 @@ Race conditions, mutex/semaphore, producer-consumer, dining philosophers. The ki
 
 ## Notes
 - 2026-08-09: Captured in bulk from the AlgoViz Expansion Atlas brainstorm (idea catalog + prioritization pass), alongside 42 sibling items.
+- 2026-08-12: Implemented. The two-layer split held: `useStepPlayer` needed zero changes, exactly as the lab predicted. Three implementation findings written up in the lab's "Implementation revision" section: the mutex scenario breaks in 36 of 70 interleavings (not 60 — the earlier sketch let `acquire` enter unconditionally instead of acting on the stale check, which is the actual TOCTOU mechanism); `useStepPlayer.seek()` cannot start a run, so "jump to the breach" needs a `stepForward()` first; and both invariant timings proved necessary, since the mutex breach has healed by the final step while the counter bug is only visible there.
 - 2026-08-12: Brainstormed with user. Codebase research found every existing domain drives exactly one generator through `useStepPlayer` (no multi-actor precedent), but confirmed this doesn't require player surgery — the interleaving search resolves to one linear schedule *before* playback, so `useStepPlayer` needs zero changes. User decided: v1 ships racy-counter + mutex-violation scenarios (both exhaustively checkable), search uses a hybrid exhaustive/sampled approach with the mode always shown in the UI. Full writeup in the lab.

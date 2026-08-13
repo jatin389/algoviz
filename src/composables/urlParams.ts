@@ -12,6 +12,10 @@ import { algorithms as pathAlgorithms } from '@/algorithms/pathfinding';
 import type { PathAlgoKey } from '@/algorithms/pathfinding';
 import { algorithms as graphAlgorithms } from '@/algorithms/graph';
 import type { GraphAlgoKey } from '@/algorithms/graph';
+import { scenarios, DEFAULT_SCENARIO } from '@/concurrency/scenarios';
+import type { ScenarioKey } from '@/concurrency/scenarios';
+import type { Scenario } from '@/concurrency/types';
+import { isValidSchedule } from '@/concurrency/execute';
 import { encodeSource, decodeSource } from '@/sandbox/encode';
 import {
   STARTER_SOURCE,
@@ -300,6 +304,69 @@ export function sandboxUrlParams(refs: {
       ref: refs.seed,
       encode: encodeSeed,
       decode: decodeSeed,
+    },
+  };
+}
+
+// ---- concurrency ------------------------------------------------------------------
+
+export const CONCURRENCY_DEFAULTS = {
+  scenario: DEFAULT_SCENARIO,
+  speed: 60,
+};
+
+/**
+ * `getScenario` is a thunk rather than a value because the schedule codec has
+ * to validate against whichever scenario is current, and that changes while
+ * the same specs object stays installed.
+ */
+export function concurrencyUrlParams(
+  refs: {
+    scenarioKey: Ref<ScenarioKey>;
+    speed: Ref<number>;
+    seed: Ref<number>;
+    schedule: Ref<number[]>;
+  },
+  getScenario: () => Scenario,
+): UrlParamSpecs<{ scenario: ScenarioKey; speed: number; seed: number; sched: string }> {
+  return {
+    scenario: {
+      ref: refs.scenarioKey,
+      encode: (k) => (k === CONCURRENCY_DEFAULTS.scenario ? null : k),
+      decode: (raw) => decodeKey(scenarios, raw),
+    },
+    speed: {
+      ref: refs.speed,
+      encode: (n) => (n === CONCURRENCY_DEFAULTS.speed ? null : String(n)),
+      decode: (raw) => decodeInt(raw, 1, 100),
+      debounceMs: 250,
+    },
+    seed: {
+      ref: refs.seed,
+      encode: encodeSeed,
+      decode: decodeSeed,
+    },
+    sched: {
+      // The literal thread-pick sequence, not an index into a results list.
+      // An index would silently point at a different interleaving the moment
+      // the search or its ordering changed, quietly breaking every link ever
+      // shared — the sequence reproduces the same run forever.
+      //
+      // Adapted between `number[]` and a digit string here rather than in the
+      // composable, so the ref stays the natural type everywhere else.
+      ref: computed({
+        get: () => refs.schedule.value.join(''),
+        set: (value: string) => {
+          refs.schedule.value = [...value].map(Number);
+        },
+      }),
+      encode: (text) => (text === '' ? null : text),
+      decode: (raw) => {
+        // Single digits only, which caps thread count at 10 — far past
+        // anything the exhaustive search could cope with anyway.
+        if (!/^[0-9]+$/.test(raw)) return undefined;
+        return isValidSchedule(getScenario(), [...raw].map(Number)) ? raw : undefined;
+      },
     },
   };
 }

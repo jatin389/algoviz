@@ -151,3 +151,37 @@ export interface HeapStep {
    */
   extracted?: number | null;
 }
+
+// ---- Concurrency -----------------------------------------------------------
+
+/**
+ * `critical` means "inside the critical section" — tracked as a status rather
+ * than derived from lock ownership because the whole point of the mutex
+ * scenario is that a thread can be in the critical section *without* being the
+ * legitimate lock owner. Deriving it from `lockOwners` would define the bug
+ * out of existence.
+ */
+export type ThreadStatus = 'ready' | 'critical' | 'done';
+
+export interface ThreadState {
+  id: number;
+  /** Index into this thread's own instruction list; equals its length when done. */
+  pc: number;
+  status: ThreadStatus;
+  /** Per-thread registers — a thread's private copy of a shared value. */
+  locals: Record<string, number>;
+}
+
+export interface ConcurrencyStep {
+  /** A copy of every thread's state at this instant. */
+  threads: ThreadState[];
+  /** Shared memory all threads read and write. */
+  sharedMem: Record<string, number>;
+  /** Lock name -> owning thread id, or null when free. */
+  lockOwners: Record<string, number | null>;
+  /** The instruction just executed; null only on a synthetic initial snapshot. */
+  lastAction: { threadId: number; instruction: string } | null;
+  /** Whether the scenario's invariant holds *as of this exact step*. */
+  violated: boolean;
+  done: boolean;
+}

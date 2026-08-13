@@ -565,9 +565,20 @@
         apply: function(state, tid, instr){
           var t = state.threads[tid];
           if(instr==='checkLock'){ t.locals.sawFree = (state.lockOwners.L===null); }
-          else if(instr==='acquire'){ state.lockOwners.L = tid; t.status='in-critical'; }
+          // Acts on the stale observation rather than re-reading — re-reading
+          // here would make the lock correct and delete the bug. Mirrors
+          // src/concurrency/scenarios/mutexViolation.ts exactly, so the count
+          // below matches what the shipped app reports.
+          else if(instr==='acquire'){
+            if(t.locals.sawFree){ state.lockOwners.L = tid; t.status='in-critical'; }
+          }
           else if(instr==='critical'){ /* occupies the critical section */ }
-          else if(instr==='release'){ state.lockOwners.L = null; }
+          else if(instr==='release'){
+            if(t.status==='in-critical'){
+              t.status='ready';
+              if(state.lockOwners.L===tid) state.lockOwners.L = null;
+            }
+          }
         },
         onDone: function(state, tid){ state.threads[tid].status='done'; },
         invariantOk: function(state){

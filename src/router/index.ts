@@ -4,6 +4,7 @@ import { algorithms as sortAlgorithms } from '@/algorithms';
 import { algorithms as searchAlgorithms } from '@/algorithms/search';
 import { algorithms as pathAlgorithms } from '@/algorithms/pathfinding';
 import { algorithms as graphAlgorithms } from '@/algorithms/graph';
+import { scenarios } from '@/concurrency/scenarios';
 import LandingView from '@/views/LandingView.vue';
 import SortingView from '@/views/SortingView.vue';
 import SearchView from '@/views/SearchView.vue';
@@ -12,6 +13,7 @@ import BstView from '@/views/BstView.vue';
 import HeapView from '@/views/HeapView.vue';
 import GraphView from '@/views/GraphView.vue';
 import SandboxView from '@/views/SandboxView.vue';
+import ConcurrencyView from '@/views/ConcurrencyView.vue';
 
 // Every route carries the label the nav renders, so the tab bar is derived
 // from this array rather than duplicating it. `pitch` and `count` extend that
@@ -93,6 +95,16 @@ export const navRoutes: RouteRecordRaw[] = [
       label: 'Graph',
       pitch: 'Traverse nodes and edges breadth- or depth-first.',
       count: Object.keys(graphAlgorithms).length,
+    },
+  },
+  {
+    path: '/concurrency',
+    name: 'concurrency',
+    component: ConcurrencyView,
+    meta: {
+      label: 'Concurrency',
+      pitch: 'Find the exact thread interleaving that breaks the invariant.',
+      count: Object.keys(scenarios).length,
     },
   },
   {

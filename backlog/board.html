@@ -5,7 +5,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generated-at" content="2026-08-12T19:41:09.629Z">
+<meta name="generated-at" content="2026-08-13T10:14:07.282Z">
 <title>AlgoViz Backlog Board</title>
 <style>
 
@@ -1060,14 +1060,14 @@
     <span class="theme-toggle-text">Theme</span>
   </button>
   </div>
-  <p class="subtitle">49 tracked tasks &middot; 4 with a lab &middot; 45 unresearched &middot; generated 2026-08-12T19:41:09.629Z</p>
+  <p class="subtitle">49 tracked tasks &middot; 4 with a lab &middot; 45 unresearched &middot; generated 2026-08-13T10:14:07.282Z</p>
   <div class="stats">
         <div class="stat">
-          <span class="stat-count">40</span>
+          <span class="stat-count">39</span>
           <span class="stat-label">Ready</span>
         </div>
         <div class="stat">
-          <span class="stat-count">2</span>
+          <span class="stat-count">3</span>
           <span class="stat-label">In Progress</span>
         </div>
         <div class="stat">
@@ -1085,8 +1085,8 @@
     Status
     <select id="filter-status">
       <option value="">All statuses</option>
-      <option value="ready">Ready (40)</option>
-            <option value="in-progress">In Progress (2)</option>
+      <option value="ready">Ready (39)</option>
+            <option value="in-progress">In Progress (3)</option>
             <option value="inbox">Inbox (4)</option>
             <option value="done">Done (3)</option>
     </select>
@@ -1144,55 +1144,6 @@
 <main>
   <div class="cards" id="card-list">
     
-    <article class="card"
-      data-status="ready"
-      data-priority="P0"
-      data-effort="L"
-      data-zone="C"
-      data-lab="researched"
-      data-search="new domain: concurrency &amp; interleavings race conditions, mutex/semaphore, producer-consumer, dining philosophers. the killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. the seeded rng makes each bug a shareable url. flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it. new territories interleaving-domains">
-      <button class="card-header" type="button" aria-expanded="false">
-        <span class="card-id">0030</span>
-        <span class="card-title">New domain: Concurrency &amp; interleavings</span>
-        <span class="card-badges">
-          <span class="chip zone-chip zone-C" title="Zone C — New territories">C &middot; New territories</span>
-          <span class="pill status-ready">Ready</span>
-          <span class="badge priority-P0">P0</span>
-          <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
-          <span class="chip leverage-marker" title="Unblocks 1 other item once researched">&#9650; unblocks 1</span>
-          
-        </span>
-        <span class="chevron" aria-hidden="true">&#9656;</span>
-      </button>
-      <div class="card-body">
-        <div class="card-meta">
-          <span>File: <code>0030-concurrency-interleavings-domain.md</code></span>
-          <span>Created: 2026-08-09</span>
-          <span>Refined: 2026-08-09</span>
-          <span>Cluster: <code>interleaving-domains</code></span>
-          <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
-          <span><a class="lab-link" href="lab/0030.html">Open lab page →</a></span>
-          <span><a class="lab-link original-lab-link" href="original_labs/0030-concurrency-interleavings-domain.html">Feature Lab &rarr;</a></span>
-        </div>
-        <h3>Idea</h3>
-        <pre class="section-text">Race conditions, mutex/semaphore, producer-consumer, dining philosophers. The killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. The seeded RNG makes each bug a shareable URL. Flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it.</pre>
-        <h3>Refinement</h3>
-        <pre class="section-text">**Goal:** A new domain where the snapshot is `{ threads: [{pc, locals}], sharedMem, lockOwners }`, built on the same generic step-player engine, with an interleaving-enumeration layer as the differentiator.
-**Zone:** C — New territories
-**Effort:** L
-**Priority rationale:** Recommended route step 2 — same reusable machinery as DB isolation anomalies (0031), most underserved topic found in research, highest audience overlap with working engineers (not just students).
-**v1 scenarios:** Racy counter increment (lost-update bug, invariant checked at the end) and a mutex/critical-section violation (mutual-exclusion bug, invariant checked at every step) — both small enough to enumerate every possible interleaving, not just sample some. Producer-consumer, dining philosophers, and semaphore counting are deferred; dining philosophers specifically needs a different (deadlock/liveness) checker, not just a bigger version of the same one.
-**Enumeration algorithm:** Hybrid. Compute the interleaving count analytically (multinomial coefficient in log-space); below a threshold, check every interleaving exhaustively; at or above it, fall back to seeded random sampling via the RNG's existing (if previously unused) `pick()` primitive. Both v1 scenarios stay under the threshold, so v1 only exercises the exhaustive path in production. The UI always states which mode ran. See lab for the full search-layer design.
-**Acceptance criteria:**
-- Picking a scenario (racy counter or mutex violation) and a seed produces a list of candidate interleavings, each labeled as exhaustively checked (&quot;checked all N&quot;) or sampled (&quot;sampled N of ~M&quot;).
-- Selecting a violating candidate plays it back through the existing step-player UI (scrub/seek/speed) with zero changes to `useStepPlayer` itself — the schedule is just a linear generator like any other domain's.
-- The exact step where the invariant first breaks is visibly highlighted within a selected schedule, not just which schedule is flagged.
-- A shared URL (`scenario`, `seed`, `schedule`) reproduces the exact same interleaving on load — the literal thread-pick sequence is encoded directly, not an index into a results list that could reorder later.
-- The mutex-violation scenario demonstrates a genuinely different invariant class from the racy counter (at-every-step mutual exclusion vs. end-state value check), not a cosmetic variant of the same bug.
-**Open questions:** Closed — see `backlog/labs/0030-concurrency-interleavings-domain.md` for the full search-layer design, phased build plan, and risk mitigations.</pre>
-      </div>
-    </article>
-
     <article class="card"
       data-status="ready"
       data-priority="P0"
@@ -2789,6 +2740,55 @@
 **Effort:** M
 **Priority rationale:** Each sub-idea is plausible but none was researched as deeply as the primary 8 domains; backlog placeholder.
 **Open questions:** Whether this splits into separate tasks once any sub-idea is prioritized — not yet decided.</pre>
+      </div>
+    </article>
+
+    <article class="card"
+      data-status="in-progress"
+      data-priority="P0"
+      data-effort="L"
+      data-zone="C"
+      data-lab="researched"
+      data-search="new domain: concurrency &amp; interleavings race conditions, mutex/semaphore, producer-consumer, dining philosophers. the killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. the seeded rng makes each bug a shareable url. flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it. new territories interleaving-domains">
+      <button class="card-header" type="button" aria-expanded="false">
+        <span class="card-id">0030</span>
+        <span class="card-title">New domain: Concurrency &amp; interleavings</span>
+        <span class="card-badges">
+          <span class="chip zone-chip zone-C" title="Zone C — New territories">C &middot; New territories</span>
+          <span class="pill status-in-progress">In Progress</span>
+          <span class="badge priority-P0">P0</span>
+          <span class="badge effort-L" title="Large effort"><span class="effort-bars" aria-hidden="true"><span class="effort-bar filled"></span><span class="effort-bar filled"></span><span class="effort-bar filled"></span></span>L</span>
+          <span class="chip leverage-marker" title="Unblocks 1 other item once researched">&#9650; unblocks 1</span>
+          
+        </span>
+        <span class="chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div class="card-body">
+        <div class="card-meta">
+          <span>File: <code>0030-concurrency-interleavings-domain.md</code></span>
+          <span>Created: 2026-08-09</span>
+          <span>Refined: 2026-08-09</span>
+          <span>Cluster: <code>interleaving-domains</code></span>
+          <span>Lab: <span class="pill lab-status-planned">Planned</span></span>
+          <span><a class="lab-link" href="lab/0030.html">Open lab page →</a></span>
+          <span><a class="lab-link original-lab-link" href="original_labs/0030-concurrency-interleavings-domain.html">Feature Lab &rarr;</a></span>
+        </div>
+        <h3>Idea</h3>
+        <pre class="section-text">Race conditions, mutex/semaphore, producer-consumer, dining philosophers. The killer feature is an interleaving explorer: enumerate schedules from a seed, show which ones violate the invariant, let the user scrub to the exact interleaving that broke it. The seeded RNG makes each bug a shareable URL. Flagged as the strongest idea researched — the thing working engineers genuinely can't picture, with no good existing tool for it.</pre>
+        <h3>Refinement</h3>
+        <pre class="section-text">**Goal:** A new domain where the snapshot is `{ threads: [{pc, locals}], sharedMem, lockOwners }`, built on the same generic step-player engine, with an interleaving-enumeration layer as the differentiator.
+**Zone:** C — New territories
+**Effort:** L
+**Priority rationale:** Recommended route step 2 — same reusable machinery as DB isolation anomalies (0031), most underserved topic found in research, highest audience overlap with working engineers (not just students).
+**v1 scenarios:** Racy counter increment (lost-update bug, invariant checked at the end) and a mutex/critical-section violation (mutual-exclusion bug, invariant checked at every step) — both small enough to enumerate every possible interleaving, not just sample some. Producer-consumer, dining philosophers, and semaphore counting are deferred; dining philosophers specifically needs a different (deadlock/liveness) checker, not just a bigger version of the same one.
+**Enumeration algorithm:** Hybrid. Compute the interleaving count analytically (multinomial coefficient in log-space); below a threshold, check every interleaving exhaustively; at or above it, fall back to seeded random sampling via the RNG's existing (if previously unused) `pick()` primitive. Both v1 scenarios stay under the threshold, so v1 only exercises the exhaustive path in production. The UI always states which mode ran. See lab for the full search-layer design.
+**Acceptance criteria:**
+- Picking a scenario (racy counter or mutex violation) and a seed produces a list of candidate interleavings, each labeled as exhaustively checked (&quot;checked all N&quot;) or sampled (&quot;sampled N of ~M&quot;).
+- Selecting a violating candidate plays it back through the existing step-player UI (scrub/seek/speed) with zero changes to `useStepPlayer` itself — the schedule is just a linear generator like any other domain's.
+- The exact step where the invariant first breaks is visibly highlighted within a selected schedule, not just which schedule is flagged.
+- A shared URL (`scenario`, `seed`, `schedule`) reproduces the exact same interleaving on load — the literal thread-pick sequence is encoded directly, not an index into a results list that could reorder later.
+- The mutex-violation scenario demonstrates a genuinely different invariant class from the racy counter (at-every-step mutual exclusion vs. end-state value check), not a cosmetic variant of the same bug.
+**Open questions:** Closed — see `backlog/labs/0030-concurrency-interleavings-domain.md` for the full search-layer design, phased build plan, and risk mitigations.</pre>
       </div>
     </article>
 

@@ -5,6 +5,34 @@ researched_at: 2026-08-12
 closes: Acceptance criteria; which concurrency bugs ship first; interleaving-enumeration algorithm
 ---
 
+## Implementation revision — 2026-08-12
+
+Built as planned; the two-layer split held up exactly as predicted, and
+`useStepPlayer` needed zero changes. Three things worth recording.
+
+**The mutex scenario breaks in 36 of 70 interleavings, not 60.** The earlier
+figure came from a sketch in which `acquire` unconditionally entered the
+critical section. The shipped scenario is faithful to the actual bug: `acquire`
+acts on the *stale* observation recorded by `check`, so a thread that saw the
+lock busy does not enter. That is the whole time-of-check-to-time-of-use
+mechanism, and modelling it correctly changes the count. The hand-authored lab
+page was corrected to run the same model, so the explainer and the app now
+agree.
+
+**`seek()` cannot start a run, which the "jump to the breach" feature depends
+on.** `useStepPlayer.seek()` only pumps an already-built generator; `beginRun()`
+is reached exclusively through `run()` and `stepForward()`. Seeking straight
+after `reset()` therefore clamps to an empty tape and silently lands back at
+-1 — the verdict text was right while the visualisation never moved. Fixed by
+stepping once before seeking. Worth knowing for any future caller that wants to
+open a run at an arbitrary step.
+
+**Both invariant timings earned their place.** The racy counter is only wrong
+once every thread has written, and the mutex breach has *healed* by the final
+step — checking it at the end would report a clean run. A single fixed timing
+would have made one of the two scenarios undetectable, which is the strongest
+argument for having shipped two rather than one.
+
 ## Verdict
 
 Two decisions this lab was built to close are settled: v1 ships exactly **two scenarios** — a
