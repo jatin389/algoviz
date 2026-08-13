@@ -114,9 +114,7 @@ function clearOps() {
       </label>
 
       <label class="block w-16">
-        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
-          a
-        </span>
+        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300"> a </span>
         <input
           v-model="aDraft"
           type="number"
@@ -128,9 +126,7 @@ function clearOps() {
       </label>
 
       <label v-if="kindDraft === 'union'" class="block w-16">
-        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
-          b
-        </span>
+        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300"> b </span>
         <input
           v-model="bDraft"
           type="number"
@@ -145,9 +141,7 @@ function clearOps() {
     </div>
 
     <p v-if="error" class="mt-1.5 text-xs text-rose-500 dark:text-rose-400">{{ error }}</p>
-    <p class="mt-1.5 text-xs text-slate-400">
-      Valid nodes for this forest: 0 to {{ maxIndex }}.
-    </p>
+    <p class="mt-1.5 text-xs text-slate-400">Valid nodes for this forest: 0 to {{ maxIndex }}.</p>
 
     <!-- The composed script -->
     <div class="mt-4">
@@ -186,8 +180,8 @@ function clearOps() {
     </div>
 
     <p class="mt-3 text-xs text-slate-400">
-      Compose the whole script, then press Run — see the guide above for why one continuous
-      history is the point.
+      Compose the whole script, then press Run — see the guide above for why one continuous history
+      is the point.
     </p>
   </AvPanel>
 </template>

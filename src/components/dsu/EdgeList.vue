@@ -114,7 +114,10 @@ watch(
         :class="STATUS_ROW_CLASS[statusFor(edge)]"
       >
         <span class="flex items-center gap-2">
-          <i class="h-2.5 w-2.5 flex-none rounded-full" :class="STATUS_DOT_CLASS[statusFor(edge)]" />
+          <i
+            class="h-2.5 w-2.5 flex-none rounded-full"
+            :class="STATUS_DOT_CLASS[statusFor(edge)]"
+          />
           <span class="font-mono font-semibold text-slate-700 dark:text-slate-200">
             {{ labelFor(edge.from) }} &ndash; {{ labelFor(edge.to) }}
           </span>
