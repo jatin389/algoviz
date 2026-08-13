@@ -2,6 +2,7 @@
 import { computed, onMounted, watch } from 'vue';
 import { useSandbox } from '@/composables/useSandbox';
 import CodeEditor from '@/components/sandbox/CodeEditor.vue';
+import SandboxGuide from '@/components/sandbox/SandboxGuide.vue';
 import SandboxControls from '@/components/sandbox/SandboxControls.vue';
 import SandboxStatus from '@/components/sandbox/SandboxStatus.vue';
 import PlaybackScrubber from '@/components/PlaybackScrubber.vue';
@@ -32,6 +33,7 @@ const firstRejectReason = computed(() => sandbox.lastRun.value?.firstRejectReaso
   <div class="grid gap-4 lg:grid-cols-[minmax(0,420px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
+      <SandboxGuide />
       <CodeEditor
         v-model="sandbox.source.value"
         :disabled="sandbox.phase.value === 'executing'"
