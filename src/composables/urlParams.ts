@@ -35,6 +35,10 @@ import type { HashFnKey } from '@/algorithms/hashtable/hashFns';
 // that only runs once both modules are fully loaded.
 import { dpInputSignature } from './useDp';
 import { defaultOpScript, MST_NODE_MIN, MST_NODE_MAX } from './useMst';
+// Imported for its starter script only, and only from inside `encode` — the
+// cycle back to this module never resolves at evaluation time. Same arrangement
+// as `./useMst` directly above.
+import { defaultOpScript as defaultHashOpScript } from './useHashTable';
 import { scenarios, DEFAULT_SCENARIO } from '@/concurrency/scenarios';
 import type { ScenarioKey } from '@/concurrency/scenarios';
 import type { Scenario } from '@/concurrency/types';
@@ -798,9 +802,17 @@ export function hashUrlParams(refs: {
     },
     ops: {
       ref: refs.script,
-      // An empty script is what a fresh view already shows, so it is omitted
-      // rather than written as `ops=`.
-      encode: (ops) => (ops.length === 0 ? null : encodeOpScript(ops, hashOpCodec)),
+      // Omitted only when the script still IS the seeded starter one, which is
+      // exactly what `useHashTable` rebuilds when the parameter is absent. An
+      // empty script is therefore written as `ops=` rather than omitted: "I
+      // cleared the list" and "I never touched it" are different links.
+      //
+      // Same shape as the MST encoder above, for the same reason.
+      encode: (ops) => {
+        const encoded = encodeOpScript(ops, hashOpCodec);
+        const starter = defaultHashOpScript(refs.seed.value);
+        return encoded === encodeOpScript(starter, hashOpCodec) ? null : encoded;
+      },
       decode: (raw) => decodeOpScript(raw, hashOpCodec),
     },
   };

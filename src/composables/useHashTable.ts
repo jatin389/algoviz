@@ -62,6 +62,33 @@ function emptyBuckets(capacity: number): HashBucket[] {
 }
 
 /**
+ * The script a first visit arrives with.
+ *
+ * An empty table is the one state of this category that shows nothing at all —
+ * no collisions, no probe sequence, no load factor to speak of — and pressing
+ * Run on an empty script correctly does nothing, which reads as the page being
+ * broken rather than as the script being empty. Every other category generates
+ * a dataset on mount for the same reason; this is hashing's.
+ *
+ * The shape is chosen to reach all four things worth seeing without the user
+ * configuring anything: enough inserts to collide at the default capacity and
+ * to cross the default 0.75 threshold (so a resize and its rehash animate), then
+ * a search that hits, then a delete — which under open addressing is what leaves
+ * the first tombstone.
+ */
+export function defaultOpScript(seed: number, count = BULK_LOAD_COUNT): HashOp[] {
+  const keys = randomKeys(createRng(seed), count);
+  const ops: HashOp[] = keys.map((key) => ({ kind: 'insert', key }));
+  if (keys.length === 0) return ops;
+  // Probe a key from the middle rather than the last one inserted: under open
+  // addressing the most recent insert is the likeliest to still be sitting in
+  // its home slot, which is the one case where a search shows no probing at all.
+  ops.push({ kind: 'search', key: keys[Math.floor(keys.length / 2)] });
+  ops.push({ kind: 'delete', key: keys[0] });
+  return ops;
+}
+
+/**
  * useHashTable — hashing's binding between step snapshots and reactive UI state.
  *
  * All playback (the timer chain, the status machine, the snapshot tape that
@@ -109,11 +136,15 @@ export function useHashTable(options: UseHashTableOptions = {}) {
   // on screen is sized from `startCapacity`, so a shared capacity arriving even
   // one line later would leave the view showing a table of the wrong width
   // until something else happened to reset it.
-  //
-  // Nothing here derives a value from the hydrated ones — the script starts
-  // empty and no dataset is generated on mount — so unlike `useSearcher` there
-  // is no clobbering to guard against and the returned `hydrated` set is unused.
-  useUrlState(hashUrlParams({ strategyKey, hashFnKey, capacity, threshold, speed, seed, script }));
+  const { hydrated } = useUrlState(
+    hashUrlParams({ strategyKey, hashFnKey, capacity, threshold, speed, seed, script }),
+  );
+
+  // Seed the starter script only when the link did not carry one. A shared
+  // script must survive, including a deliberately emptied one — which arrives
+  // hydrated as `[]` and is indistinguishable from the untouched default by
+  // value alone, hence the `hydrated` check rather than a length test.
+  if (!hydrated.has('ops')) script.value = defaultOpScript(seed.value);
 
   // ---- Live visualization state ---------------------------------------------
   const buckets = ref<HashBucket[]>(emptyBuckets(startCapacity.value));

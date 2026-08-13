@@ -10,6 +10,7 @@ import type { HashStrategyKey } from '@/algorithms/hashtable';
 import type { HashFnKey } from '@/algorithms/hashtable/hashFns';
 import type { DsuOp, HashOp, NodeId } from '@/types';
 import { defaultOpScript, MST_NODE_MIN, MST_NODE_MAX } from './useMst';
+import { defaultOpScript as defaultHashOpScript } from './useHashTable';
 import {
   sorterUrlParams,
   SORTER_DEFAULTS,
@@ -471,6 +472,8 @@ describe('mstUrlParams', () => {
 });
 
 describe('hashUrlParams', () => {
+  const HASH_SEED = 1234;
+
   const build = () =>
     hashUrlParams({
       strategyKey: ref<HashStrategyKey>(HASH_DEFAULTS.strategy),
@@ -478,7 +481,7 @@ describe('hashUrlParams', () => {
       capacity: ref(HASH_DEFAULTS.capacity),
       threshold: ref(HASH_DEFAULTS.threshold),
       speed: ref(HASH_DEFAULTS.speed),
-      seed: ref(1234),
+      seed: ref(HASH_SEED),
       script: ref<HashOp[]>([]),
     });
 
@@ -517,8 +520,17 @@ describe('hashUrlParams', () => {
     expect(specs.cap.encode(HASH_DEFAULTS.capacity)).toBeNull();
     expect(specs.thr.encode(HASH_DEFAULTS.threshold)).toBeNull();
     expect(specs.speed.encode(HASH_DEFAULTS.speed)).toBeNull();
-    // An empty script is what a fresh view already shows.
-    expect(specs.ops.encode([])).toBeNull();
+    // The script `useHashTable` rebuilds when the parameter is absent, so
+    // writing it would only bloat the link.
+    expect(specs.ops.encode(defaultHashOpScript(HASH_SEED))).toBeNull();
+  });
+
+  it('writes a deliberately emptied script rather than omitting it', () => {
+    // "I cleared the list" and "I never touched it" are different links, and
+    // omitting the first would hand the starter script back on reload.
+    const specs = build();
+    expect(specs.ops.encode([])).toBe('');
+    expect(specs.ops.decode('')).toEqual([]);
   });
 
   it('rejects malformed input', () => {
