@@ -6,14 +6,19 @@ An interactive, single-page app for watching algorithms and data structures work
 
 ## Features
 
-Six independent categories, selectable from the top nav — each owns its own state and visualization, nothing is mixed together:
+Eleven independent categories, selectable from the top nav — each owns its own state and visualization, nothing is mixed together:
 
 - **Sorting** — Bubble, Selection, Insertion, Merge, Quick, Heap, Shell, Comb, Counting, and Radix sort, each with a description and Big-O complexity card. Color-coded bars (unsorted/comparing/swapping/sorted) with smooth transitions, live comparisons/swaps/steps/elapsed stats. A code panel follows along as it runs, toggling between hand-written pseudocode and the generator's real source — highlighting the `yield` it is suspended at.
 - **Searching** — Linear and Binary Search over a sorted array, with random present/missing target pickers and a found/not-found result banner.
 - **Pathfinding** — BFS, DFS, Dijkstra, and A* on an editable grid. Draw walls by dragging, relocate start/end, randomize a maze, and watch the frontier/visited/path colors animate.
 - **BST** — interactive Binary Search Tree insert/delete, animated as a live SVG tree diagram.
 - **Heap** — interactive min/max binary heap insert/extract, shown as both a tree diagram and its backing array.
-- **Graph** — BFS/DFS traversal over a generated node-link graph; click any node to set the traversal start.
+- **Graph** — BFS/DFS traversal, cycle detection and a bipartite check over a generated node-link graph; click any node to set the traversal start.
+- **DP** — eight dynamic-programming algorithms (Fibonacci, coin change, LIS, 0/1 knapsack, subset sum, LCS, edit distance, matrix chain) filling their table cell by cell. Each step shows the recurrence with that step's real numbers substituted in, arrows back to the cells it read, and — once the fill completes — a traceback that reconstructs the actual answer: the subsequence, the item set, the coin multiset, the parenthesisation. Hovering any filled cell explains it too, using the same function the generator itself used, so the two can never disagree.
+- **Union-Find & MST** — a standalone disjoint-set mode driven by a union/find script, plus Kruskal's and Prim's minimum spanning trees. The forest is drawn alongside the graph, so path compression and union-by-rank are visible as they happen rather than described.
+- **Hashing** — separate chaining and three open-addressing strategies (linear, quadratic, double hashing), with tombstones, an animated resize and rehash, and four selectable hash functions including a deliberately weak one for forcing collisions on demand. The live load factor is charted against the threshold that triggers the resize.
+- **Concurrency** — search thread interleavings for the exact schedule that breaks a scenario's invariant, then step through it.
+- **Sandbox** — write your own algorithm in the browser and watch it run, isolated in a worker.
 
 Plus, app-wide:
 
@@ -56,7 +61,7 @@ When a branch is deleted, `.github/workflows/pages-cleanup.yml` removes its prev
 
 Algorithm and data-structure logic is fully decoupled from rendering. Each algorithm is a **generator function** that yields immutable _step snapshots_ describing its state at that instant — the array, a grid's visited/frontier/path cells, a tree's current node, etc. Generators are pure and know nothing about Vue.
 
-**`useStepPlayer` is the shared animation engine.** It owns the timer chain, the `idle → running ↔ paused → done` status machine, elapsed timing, and the recorded history of every snapshot a run produces — which is what makes stepping backwards and scrubbing possible, since generators only run forwards. The four continuous categories (`useSorter`, `useSearcher`, `usePathfinder`, `useGraphTraversal`) each supply just the category-specific parts: how to build a generator, and what a snapshot means when painted onto the screen.
+**`useStepPlayer` is the shared animation engine.** It owns the timer chain, the `idle → running ↔ paused → done` status machine, elapsed timing, and the recorded history of every snapshot a run produces — which is what makes stepping backwards and scrubbing possible, since generators only run forwards. The continuous categories (`useSorter`, `useSearcher`, `usePathfinder`, `useGraphTraversal`, `useDp`, `useMst`, `useHashTable`, `useConcurrency`, `useSandbox`) each supply just the category-specific parts: how to build a generator, and what a snapshot means when painted onto the screen.
 
 That callback, `applyStep`, **must be idempotent and absolute** — it is called on forward ticks, backward scrubs and arbitrary seeks, so accumulating in it (`stats.steps += 1`) silently corrupts the moment a user scrubs back. Anything counted per-step comes from the player instead. Its counterpart `onAdvance` carries the effects that belong to *advancing* rather than to displaying — it fires only on forward advances, never on a backward scrub or a seek — which is what makes it safe to hang the audio cues off it.
 
@@ -70,8 +75,12 @@ src/
 │   ├── _utils.ts, bubbleSort.ts, ... radixSort.ts, index.ts   # sorting generators + registry
 │   ├── pseudocode.ts        # displayed pseudocode, keyed by algorithm
 │   ├── source.ts            # the generators' own text (?raw) + step -> source line map
+│   ├── sourceMap.ts         # the tag parser + a memo cache, generic over any key union
 │   ├── sortCues.ts          # audio cue registry mapping steps to cue names
 │   ├── algorithms.test.ts
+│   ├── dp/                  # eight DP generators + depsOf, naiveCount.ts, dp.test.ts
+│   ├── dsu/                 # disjointSet.ts, kruskal.ts, prim.ts, dsu/mst tests
+│   ├── hashtable/           # hashFns.ts, table.ts, ops.ts, collide.ts, hashtable.test.ts
 │   ├── search/              # linearSearch.ts, binarySearch.ts, index.ts, search.test.ts
 │   ├── pathfinding/         # bfs.ts, dfs.ts, dijkstra.ts, astar.ts, index.ts, pathfinding.test.ts
 │   ├── datastructures/      # bst.ts, heap.ts, bst.test.ts, heap.test.ts
@@ -85,16 +94,20 @@ src/
 │   ├── useUrlState.ts, urlParams.ts   # shareable configuration in the hash query
 │   ├── useSorter.ts, useSearcher.ts, usePathfinder.ts
 │   ├── useBST.ts, useHeap.ts, useGraphTraversal.ts
+│   ├── useDp.ts, useMst.ts, useHashTable.ts
 │   ├── useTheme.ts          # shared dark/light mode
 │   └── useAudioCues.ts      # persisted audio on/off + volume singleton
 ├── utils/
 │   ├── rng.ts               # seeded mulberry32; the app's only entropy source
 │   ├── parseArray.ts, urlCodec.ts
 ├── components/
-│   ├── ui/                  # AvPanel, AvButton, AvSlider, AvTextField, AvStatCell, AvAlgorithmSelector
+│   ├── ui/                  # AvPanel, AvButton, AvSlider, AvTextField, AvStatCell,
+│   │                        # AvAlgorithmSelector, AvExplainer, AvStatGrid,
+│   │                        # AvStepInspector, AvLegend
 │   ├── ControlsPanel.vue, PlaybackScrubber.vue, CodePanel.vue, DatasetPanel.vue
 │   ├── BarChart.vue, StatsDisplay.vue, ThemeToggle.vue
-│   └── search/, pathfinding/, datastructures/, graph/   # per-category components
+│   └── search/, pathfinding/, datastructures/, graph/,   # per-category components
+│       dp/, dsu/, hashtable/, concurrency/, sandbox/
 ├── views/                   # one self-contained view per category
 ├── router/index.ts          # hash history; nav tabs derive from `navRoutes`
 ├── main.ts
@@ -120,7 +133,7 @@ Sorting generators yield objects of this shape (see `algorithms/_utils.ts`):
 
 Each other category defines its own snapshot shape suited to its domain (e.g. pathfinding yields `{ visited, frontier, current, path, done }`; graph traversal yields `{ visited, frontier, current, done }`), but the same principle holds everywhere: generators are lazy and framework-agnostic, so the player can advance one step per timer tick and the underlying structure is never mutated "all at once" behind the scenes.
 
-`line` is what drives the code panel's highlight. It is optional: only bubble, insertion, quick and merge sort are tagged so far, and untagged algorithms simply render the panel without a highlight. **If you tag a generator, every `line` it yields must index into that algorithm's entry in `pseudocode.ts`** — a test in `algorithms.test.ts` enforces the bounds, since an off-by-one is otherwise invisible until someone reads the screen.
+`line` is what drives the code panel's highlight. It is optional, and an untagged algorithm simply renders the panel without a highlight — but every sort, and every DP, union-find/MST and hashing algorithm, is tagged. **If you tag a generator, every `line` it yields must index into that algorithm's entry in `pseudocode.ts`** — a test in `algorithms.test.ts` enforces the bounds, since an off-by-one is otherwise invisible until someone reads the screen.
 
 ### Pseudocode and source, from one tag
 
@@ -131,7 +144,7 @@ Each other category defines its own snapshot shape suited to its domain (e.g. pa
 
 Both come off the same `line` tag, so nothing extra is asked of a generator to get the source view. `algorithms/source.ts` supplies the two halves that make it work:
 
-The **text** is imported with Vite's `?raw`, not read from `generator.toString()`. `toString()` is the obvious move and it is wrong twice over: esbuild strips comments and rewrites whitespace in a production build, so what is on screen would stop being what is in the repo, and the line numbers would stop lining up with it. `?raw` inlines the file's exact bytes as a string literal, which minification leaves alone. The cost is the ten sort files' text in the bundle (~15 kB raw, ~4.6 kB gzipped).
+The **text** is imported with Vite's `?raw`, not read from `generator.toString()`. `toString()` is the obvious move and it is wrong twice over: esbuild strips comments and rewrites whitespace in a production build, so what is on screen would stop being what is in the repo, and the line numbers would stop lining up with it. `?raw` inlines the file's exact bytes as a string literal, which minification leaves alone. The cost is that every generator file backing a source view ships its own text: 30 files, ~98 kB raw, and it is the single largest contributor to the bundle. That is a deliberate trade — the source view is only honest if it shows the real file — but it is worth knowing before adding a thirty-first.
 
 The **mapping** from a pseudocode index to the source line(s) that yield it is parsed out of that text by `buildSourceMap`, rather than written by hand — the tag numbers already live in the `yield` calls, and a hand-kept table would go stale the first time anyone inserted a line above one. That parse is a regex, which makes it the fragile part: a `yield` reformatted across two lines stops matching and the highlight silently vanishes. `source.test.ts` pins it from both directions — every tag a generator actually emits must resolve to a line, and every line the map points at must really contain a `yield`.
 
