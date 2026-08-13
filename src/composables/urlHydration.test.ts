@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from 'vitest';
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, watch } from 'vue';
 import { mount, flushPromises } from '@vue/test-utils';
 import { createRouter, createMemoryHistory } from 'vue-router';
 import type { LocationQueryRaw } from 'vue-router';
 import { useSearcher } from './useSearcher';
 import { useGraphTraversal } from './useGraphTraversal';
+import { useMst, defaultOpScript } from './useMst';
 
 /**
  * Guards the hydration-vs-generate ordering, which is invisible to
@@ -125,6 +126,90 @@ describe('useGraphTraversal URL hydration', () => {
 
   it('still resets the start to node 0 on an explicit later generate()', async () => {
     const { api } = await mountWith(useGraphTraversal, { seed: '1234', start: '3' });
+    expect(api.startId.value).toBe(3);
+
+    // Clicking "new graph" is a deliberate reset, not a link being restored.
+    api.generate();
+    expect(api.startId.value).toBe(0);
+  });
+});
+
+describe('useMst URL hydration', () => {
+  it('builds the first graph from the hydrated seed and node count', async () => {
+    // The whole hazard in one assertion: `generate()` runs synchronously right
+    // after hydration, so a seed or count arriving late would produce a graph —
+    // and therefore an MST, weights included — the link never described.
+    const { api } = await mountWith(useMst, { seed: '1234', n: '5' });
+    expect(api.seed.value).toBe(1234);
+    expect(api.nodeCount.value).toBe(5);
+    expect(api.graph.value.nodes).toHaveLength(5);
+  });
+
+  it('leaves the hydrated seed and node count in the query rather than rewriting them', async () => {
+    const { router } = await mountWith(useMst, { seed: '1234', n: '5' });
+    await settleUrl();
+    expect(router.currentRoute.value.query.seed).toBe('1234');
+    expect(router.currentRoute.value.query.n).toBe('5');
+  });
+
+  it('keeps a hydrated op script instead of overwriting it with the seeded starter', async () => {
+    const { api } = await mountWith(useMst, { seed: '1234', ops: 'u3.4-f2' });
+    expect(api.opScript.value).toEqual([
+      { kind: 'union', a: 3, b: 4 },
+      { kind: 'find', a: 2 },
+    ]);
+  });
+
+  it('falls back to the seeded starter script when the URL carries none', async () => {
+    const { api } = await mountWith(useMst, { seed: '1234' });
+    expect(api.opScript.value).toEqual(defaultOpScript(8, 1234));
+  });
+
+  it('keeps a hydrated Prim root instead of resetting it to the first node', async () => {
+    const { api } = await mountWith(useMst, { algo: 'prim', seed: '1234', start: '3' });
+    expect(api.startId.value).toBe(3);
+  });
+
+  it('falls back to the first node when the hydrated start is absent from the graph', async () => {
+    const { api } = await mountWith(useMst, { seed: '1234', n: '5', start: '500' });
+    expect(api.startId.value).toBe(0);
+  });
+
+  it('bounds-checks the op script against the hydrated node count, not the default', async () => {
+    // Proves the hydration ORDER as much as the codec: `n` is decoded before
+    // `ops`, so node 6 is out of range for the 5-node forest this link asks
+    // for — and the rejected script leaves the seeded starter in place.
+    const { api } = await mountWith(useMst, { seed: '1234', n: '5', ops: 'u3.6' });
+    expect(api.opScript.value).toEqual(defaultOpScript(5, 1234));
+  });
+
+  it('survives MstView’s own nodeCount/seed watchers', async () => {
+    // Those watchers rebuild the graph on every change, and `generate()` with
+    // no argument drops Prim's root. They are registered AFTER `useMst()`
+    // returns, so the hydration that happened inside it must not reach them —
+    // this is the hydrate-then-clobber case the view could otherwise reopen.
+    const { api } = await mountWith(
+      () => {
+        const mst = useMst();
+        watch(mst.nodeCount, () => {
+          if (mst.canEdit.value) mst.generate();
+        });
+        watch(mst.seed, () => {
+          if (mst.canEdit.value) mst.generate();
+        });
+        return mst;
+      },
+      { algo: 'prim', seed: '1234', n: '5', start: '3', ops: 'u3.4-f2' },
+    );
+    await flushPromises();
+
+    expect(api.nodeCount.value).toBe(5);
+    expect(api.startId.value).toBe(3);
+    expect(api.opScript.value).toHaveLength(2);
+  });
+
+  it('still resets the start and rebuilds on an explicit later generate()', async () => {
+    const { api } = await mountWith(useMst, { algo: 'prim', seed: '1234', start: '3' });
     expect(api.startId.value).toBe(3);
 
     // Clicking "new graph" is a deliberate reset, not a link being restored.

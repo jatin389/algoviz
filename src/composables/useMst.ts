@@ -11,6 +11,8 @@ import type { GraphTone } from '@/components/graph/tones';
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 import { useAudioCues } from './useAudioCues';
+import { useUrlState } from './useUrlState';
+import { mstUrlParams } from './urlParams';
 
 /**
  * useMst — the union-find / MST category's binding between step snapshots and
@@ -375,34 +377,28 @@ export function useMst(options: UseMstOptions = {}) {
   /** True when this algorithm has cue mappings; drives the UI hint. */
   const hasSoundCues = computed(() => algoKey.value in mstCues);
 
+  // Hydrate from the URL BEFORE the initial generate(): a shared seed or node
+  // count must be in place before the first graph is built, or the link
+  // reproduces a different graph — with different weights, and so a different
+  // MST.
+  const { hydrated } = useUrlState(
+    mstUrlParams({ algoKey, nodeCount, speed, seed, startId, opScript }),
+  );
+
   // Seed an initial graph and script so the view has something to show on
-  // mount. No URL hydration here by design — see the note on the return value.
-  generate();
-  opScript.value = defaultOpScript(nodeCount.value, seed.value);
+  // mount, keeping whatever came from a shared link rather than overwriting it:
+  // `generate()` would otherwise reset Prim's root to node 0, and the starter
+  // script would overwrite a script the link spelled out in full.
+  generate(hydrated.has('start'));
+  if (!hydrated.has('ops')) opScript.value = defaultOpScript(nodeCount.value, seed.value);
 
   return {
     // ---- inputs ----
     //
-    // TODO(url): these five are the shareable surface. Wiring them is a
-    // separate workstream, so this composable deliberately does NOT call
-    // `useUrlState` or import `composables/urlParams.ts` — two files
-    // concurrent work also owns. When it is wired, the four scalars follow the
-    // existing `graphUrlParams`/`searcherUrlParams` shape exactly (`algo`,
-    // `n`, `speed`, `seed`, plus `start` for Prim's root), and `opScript`
-    // needs a codec, since it is the only ref here that is not a scalar.
-    //
-    // Suggested encoding, in the spirit of `concurrencyUrlParams`' `sched`:
-    // the literal script, never an index into anything, so a link keeps
-    // meaning the same run forever. One op per `.`-separated field, `u` or `f`
-    // for the kind, `-` between a union's two operands:
-    //
-    //     ops=u3-4.f7.u0-1.u2-2
-    //
-    // `.` and `-` are both RFC 3986 unreserved, so nothing is percent-escaped
-    // and the parameter stays readable in a pasted link. Validate on decode
-    // (`/^[uf]\d+(-\d+)?(\.[uf]\d+(-\d+)?)*$/`, then bounds-check every index
-    // against `nodeCount`) and drop the whole parameter if it does not parse,
-    // rather than importing a half-valid script.
+    // The shareable surface, mirrored into the query as `algo`, `n`, `speed`,
+    // `seed`, `start` and `ops` — see `mstUrlParams`, which spells the script
+    // out literally (`ops=u3.4-f7-u0.1`) rather than as an index into anything,
+    // so a link keeps meaning the same run forever.
     algoKey,
     nodeCount,
     speed,

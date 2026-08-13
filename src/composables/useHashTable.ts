@@ -12,6 +12,8 @@ import type { HashBucket, HashOp, HashOpKind, HashPhase, HashStep } from '@/type
 import { createRng, randomSeed } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 import { useAudioCues } from './useAudioCues';
+import { useUrlState } from './useUrlState';
+import { hashUrlParams } from './urlParams';
 
 /**
  * The scalar half of a `HashStep` — everything except the bucket array, which
@@ -102,6 +104,16 @@ export function useHashTable(options: UseHashTableOptions = {}) {
   /** The threshold actually enforced — open addressing cannot exceed 0.9. */
   const activeThreshold = computed(() => effectiveThreshold(strategyKey.value, threshold.value));
   const currentAlgo = computed(() => algorithms[strategyKey.value]);
+
+  // Hydrate from the URL BEFORE the first bucket array is built below: the grid
+  // on screen is sized from `startCapacity`, so a shared capacity arriving even
+  // one line later would leave the view showing a table of the wrong width
+  // until something else happened to reset it.
+  //
+  // Nothing here derives a value from the hydrated ones — the script starts
+  // empty and no dataset is generated on mount — so unlike `useSearcher` there
+  // is no clobbering to guard against and the returned `hydrated` set is unused.
+  useUrlState(hashUrlParams({ strategyKey, hashFnKey, capacity, threshold, speed, seed, script }));
 
   // ---- Live visualization state ---------------------------------------------
   const buckets = ref<HashBucket[]>(emptyBuckets(startCapacity.value));
@@ -211,9 +223,7 @@ export function useHashTable(options: UseHashTableOptions = {}) {
   });
 
   /** Mean probes per completed operation; 0 before anything has finished. */
-  const avgProbes = computed(() =>
-    stats.opsDone === 0 ? 0 : stats.probes / stats.opsDone,
-  );
+  const avgProbes = computed(() => (stats.opsDone === 0 ? 0 : stats.probes / stats.opsDone));
 
   // ---- Script authoring ------------------------------------------------------
   //
@@ -264,11 +274,15 @@ export function useHashTable(options: UseHashTableOptions = {}) {
    * watching.
    */
   function forceCollision(count = COLLISION_COUNT, bucket?: number): number {
-    const found = collidingKeys(count, {
-      hashFnKey: hashFnKey.value,
-      capacity: capacity.value,
-      exclude: scriptKeys(),
-    }, bucket);
+    const found = collidingKeys(
+      count,
+      {
+        hashFnKey: hashFnKey.value,
+        capacity: capacity.value,
+        exclude: scriptKeys(),
+      },
+      bucket,
+    );
     script.value = [...script.value, ...found.keys.map((key): HashOp => ({ kind: 'insert', key }))];
     player.reset();
     return found.bucket;
@@ -306,14 +320,10 @@ export function useHashTable(options: UseHashTableOptions = {}) {
   return {
     // inputs
     //
-    // TODO(url): `strategyKey`, `hashFnKey`, `capacity`, `threshold`, `speed`,
-    // `seed` and `script` are the shareable state of this view. Wiring them into
-    // `useUrlState` is a separate workstream, so nothing here imports
-    // `urlParams.ts` yet. The first six are scalars the existing `decodeKey` /
-    // `decodeInt` / `decodeSeed` helpers already cover; the script needs a codec
-    // of its own — a compact one is `i:cat,s:dog,d:cat` (kind initial, colon,
-    // alphanumeric key, comma-separated), which is why `HashOpBuilder` refuses
-    // any key that is not alphanumeric.
+    // The shareable state of this view, mirrored into the query as `strategy`,
+    // `fn`, `cap`, `thr`, `speed`, `seed` and `ops` — see `hashUrlParams`. The
+    // script is spelled out literally (`ops=icat-sdog-dcat`), which is what
+    // `HashOpBuilder`'s alphanumeric-key rule makes unambiguous.
     strategyKey,
     hashFnKey,
     capacity,

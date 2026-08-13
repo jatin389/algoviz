@@ -10,6 +10,8 @@ import { createRng, randomSeed } from '@/utils/rng';
 import type { Rng } from '@/utils/rng';
 import { useStepPlayer } from './useStepPlayer';
 import { useAudioCues } from './useAudioCues';
+import { useUrlState } from './useUrlState';
+import { dpUrlParams } from './urlParams';
 
 /**
  * The scalar half of a `DpStep` — everything except the table itself, which is
@@ -53,9 +55,9 @@ const DEFAULT_ALGO: DpAlgoKey = 'fib';
  * say (see the draft-resync note there).
  *
  * It lives here rather than in the panel because it is also the shape the URL
- * codec wants — see the `TODO(url)` on the return value — and having the two
- * drift apart would mean a link that reproduces an input the panel then
- * immediately rewrites.
+ * codec wants — `dpUrlParams`' `in` parameter encodes with exactly this
+ * function — and having the two drift apart would mean a link that reproduces
+ * an input the panel then immediately rewrites.
  */
 export function dpInputSignature(input: DpInput): string {
   switch (input.kind) {
@@ -414,36 +416,27 @@ export function useDp(options: UseDpOptions = {}) {
   /** True when this algorithm has cue mappings; drives the UI hint. */
   const hasSoundCues = computed(() => algoKey.value in dpCues);
 
-  // Paint the empty table for the default algorithm so the view has the right
-  // grid on mount. No URL hydration here by design — see the note below.
+  // Hydrate from the URL BEFORE the first table is built: the table's shape is
+  // derived from the input, so a shared algorithm or input has to be in place
+  // or the view opens on a grid the link never described.
+  //
+  // Deliberately AFTER the `algoKey` watcher above rather than before it. A
+  // link that names an algorithm but carries no usable `in` leaves the input at
+  // the previous algorithm's kind, and it is that watcher — which only sees
+  // changes made after it was registered — that swaps in the new algorithm's
+  // defaults. Nothing here overwrites a hydrated value the way `useSearcher`'s
+  // `generate()` would, so the returned `hydrated` set has nothing to guard.
+  useUrlState(dpUrlParams({ algoKey, input, speed, seed }));
+
+  // Paint the empty table for the selected algorithm so the view has the right
+  // grid on mount.
   resetVisual();
 
   return {
     // ---- inputs ----
     //
-    // TODO(url): `algoKey`, `input`, `speed` and `seed` are the shareable
-    // surface. Wiring them is a separate workstream, so this composable
-    // deliberately does NOT call `useUrlState` or import
-    // `composables/urlParams.ts` — two files concurrent work also owns. When it
-    // is wired, the three scalars follow the existing `searcherUrlParams` shape
-    // exactly (`algo`, `speed`, `seed`, via `decodeKey`/`decodeInt`/
-    // `decodeSeed`), and `input` needs a codec of its own, since it is the only
-    // ref here that is not a scalar.
-    //
-    // Suggested encoding: `dpInputSignature` above, which is already exactly
-    // this — the literal input, never an index into anything, so a link keeps
-    // meaning the same run forever:
-    //
-    //     in=coins:1,3,4:11        in=strings2:AGGTAB:GXTXAYB
-    //     in=items:2/3,3/4,4/5:9   in=chain:40,20,30,10,30
-    //
-    // `:` `,` and `/` are all legal unescaped in a query value (RFC 3986
-    // sub-delims), so the parameter stays readable in a pasted link. Decode by
-    // splitting on the leading kind tag, and drop the whole parameter unless
-    // (a) the tag is a `DpInputKind`, (b) it matches the selected algorithm's
-    // `kind`, and (c) `validateInput` returns null for the result — a
-    // half-valid input must never reach a generator, which is the same rule
-    // `DpInputPanel` enforces on the typing path.
+    // The shareable surface, mirrored into the query as `algo`, `speed`, `seed`
+    // and `in` — see `dpUrlParams`.
     algoKey,
     input,
     speed,
