@@ -41,3 +41,10 @@ Visualize path compression and union-by-rank, then Kruskal's minimum spanning tr
 - 2026-08-13: **Follow-up, not blocking:** Borůvka's algorithm would be a natural fourth
   entry — it is the one classic MST algorithm the category now omits, and the disjoint-set
   structure it needs is already here.
+- 2026-08-13: **Follow-up, not blocking:** on the default 8-node graph, Kruskal finishes with
+  `compressions: 0` — legitimately, since union-by-rank keeps the trees shallow enough that
+  no `find` has anything to re-hang. Verified the counter itself is sound (a hand-built
+  depth-3 forest goes to depth 1 with 4 compressions after a sweep of finds). The effect is
+  that the stat panel makes path compression look inert on arrival, and only the standalone
+  union-find mode with a crafted script really shows it. A larger default graph, or a starter
+  script chosen to force a deep tree, would sell it better.

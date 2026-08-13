@@ -43,3 +43,7 @@ Knapsack, Longest Common Subsequence, Edit Distance, Coin Change: animate the DP
   under-states matrix chain, whose branch is a split point spanning two cells. The inspector
   rows and the substituted `explain` string name the split explicitly, so nothing is wrong on
   screen, but the field cannot express it.
+- 2026-08-13: **Follow-up, not blocking:** the table panel is sized for the largest table the
+  input cap allows, so a single-row algorithm (Fibonacci, coin change, LIS) renders one thin
+  strip at the top of a very tall, mostly empty panel. Sizing the panel to the table's actual
+  aspect ratio would fix it; the SVG viewBox already carries the numbers needed.
