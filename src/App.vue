@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
 import { navRoutes } from '@/router';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import ThemeToggle from './components/ThemeToggle.vue';
+
+// Embed routes drop the chrome entirely: an iframe on someone else's page has no
+// use for our header, tab bar or footer, and the host supplies the surrounding
+// layout.
+const isEmbed = useIsEmbed();
 
 // Each route is a fully self-contained view with its own composable/state —
 // switching tabs never mixes state between them, and a view is only mounted
@@ -15,10 +21,12 @@ import ThemeToggle from './components/ThemeToggle.vue';
 </script>
 
 <template>
-  <div class="min-h-screen">
-    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+  <div :class="isEmbed ? '' : 'min-h-screen'">
+    <!-- Embedded, the iframe sets the box: no centering, no max width, and only
+         enough padding to keep the visualizer off the frame edge. -->
+    <div :class="isEmbed ? 'p-3' : 'mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8'">
       <!-- Header -->
-      <header class="mb-6 flex items-center justify-between">
+      <header v-if="!isEmbed" class="mb-6 flex items-center justify-between">
         <RouterLink to="/" class="flex items-center gap-3 rounded-2xl transition-opacity hover:opacity-80">
           <div
             class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/30"
@@ -46,7 +54,7 @@ import ThemeToggle from './components/ThemeToggle.vue';
       </header>
 
       <!-- Category nav -->
-      <nav class="mb-6 flex flex-wrap gap-2">
+      <nav v-if="!isEmbed" class="mb-6 flex flex-wrap gap-2">
         <RouterLink
           v-for="route in navRoutes"
           :key="route.path"
@@ -64,7 +72,7 @@ import ThemeToggle from './components/ThemeToggle.vue';
 
       <RouterView />
 
-      <footer class="mt-8 text-center text-xs text-slate-400">
+      <footer v-if="!isEmbed" class="mt-8 text-center text-xs text-slate-400">
         Built with Vue 3, Vite &amp; Tailwind CSS · each algorithm is a generator yielding step
         snapshots.
       </footer>

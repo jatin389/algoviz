@@ -24,6 +24,32 @@ Plus, app-wide:
 
 - **Dark mode by default** with a light-mode toggle (persisted to `localStorage`).
 - **Responsive** layout for desktop and tablet, with controls locked while an algorithm is actively running.
+- **Shareable URLs** — every category mirrors its configuration into the address bar, so any run is a link, and a seed replays the same dataset on any browser.
+- **Embeddable** — the same visualizers render without site chrome at `#/embed/<category>`, for dropping into a post or a slide deck.
+
+## Embedding
+
+Any category can be embedded as a live, interactive widget. It takes the same
+query params the category already uses in the main app:
+
+```html
+<iframe
+  src="https://<owner>.github.io/algoviz/#/embed/sorting?algo=quick&seed=42"
+  width="100%"
+  height="520"
+  style="border: 0; border-radius: 12px"
+  title="AlgoViz — quicksort"
+  loading="lazy"
+></iframe>
+```
+
+Two shell params apply to every embed: `brand=0` hides the corner link back to
+the app, and `theme=light` overrides the dark default for a light-background
+page.
+
+See **[docs/embedding.md](docs/embedding.md)** for the per-category param table
+and the known limits (BST and Heap are not embeddable; hand-painted pathfinding
+walls do not survive a link).
 
 ## Getting started
 
