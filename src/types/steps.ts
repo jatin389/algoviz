@@ -90,6 +90,15 @@ export interface GraphEdge {
   id: string;
   from: number;
   to: number;
+  /**
+   * Optional edge cost. Absent on the unweighted graphs the traversal
+   * category generates, present on the ones the MST category asks for — see
+   * `generateGraph`'s `weighted` option. Optional rather than required so
+   * every existing caller and every existing traversal stays untouched: a
+   * traversal that ignores weight is still correct on a weighted graph,
+   * whereas a required field would force a meaningless number onto BFS.
+   */
+  weight?: number;
 }
 
 export interface GraphModel {
@@ -150,6 +159,183 @@ export interface HeapStep {
    * an empty heap, and absent entirely on insert steps.
    */
   extracted?: number | null;
+}
+
+// ---- Dynamic programming ---------------------------------------------------
+
+/** A table coordinate. Row-major, both 0-based, including the header row/column. */
+export interface DpCell {
+  row: number;
+  col: number;
+}
+
+/**
+ * One cell the cursor cell was computed from, tagged with the branch of the
+ * recurrence it represents ('take', 'skip', 'match', 'delete', ...).
+ *
+ * `value` is the dependency's contents *at the moment the cursor cell was
+ * computed*, carried on the snapshot rather than re-read from `table` so the
+ * inspector text can never disagree with the arrows it is explaining.
+ */
+export interface DpDep extends DpCell {
+  label: string;
+  value: number | null;
+}
+
+export interface DpStep {
+  /** Row-major copy of the table; `null` means "not computed yet". */
+  table: (number | null)[][];
+  /** The cell just written; null on setup steps and during traceback. */
+  cursor: DpCell | null;
+  /** Every cell the recurrence read to produce `cursor`. */
+  deps: DpDep[];
+  /** The dependency the recurrence actually selected — the argmin/argmax branch. */
+  chosen: DpCell | null;
+  /** The recurrence with this step's real numbers substituted in. */
+  explain: string | null;
+  /** Traceback cells. Empty until the fill completes, then grows backwards. */
+  path: DpCell[];
+  /** The decoded answer once traceback finishes — an LCS string, an item set, ... */
+  result: string | null;
+  /** Cells written so far; the counterpart to the naive-recursion call count. */
+  cellsFilled: number;
+  done: boolean;
+  /** 0-based index into this algorithm's pseudocode entry, as with SortStep. */
+  line?: number;
+}
+
+// ---- Disjoint set union / minimum spanning tree -----------------------------
+
+export type DsuOpKind = 'union' | 'find';
+
+/** `b` is unused for a `find`. */
+export interface DsuOp {
+  kind: DsuOpKind;
+  a: number;
+  b?: number;
+}
+
+/**
+ * The forest at one instant. `findPath` and `compressed` are what make path
+ * compression visible: the walk up to the root, and the pointers that were
+ * re-hung directly onto it afterwards.
+ */
+export interface DsuSnapshot {
+  parent: number[];
+  rank: number[];
+  setSize: number[];
+  findPath: number[];
+  compressed: number[];
+  finds: number;
+  unions: number;
+  compressions: number;
+  /** Deepest node in the whole forest — the honest proof union-by-rank works. */
+  maxDepth: number;
+}
+
+export interface DsuStep {
+  kind: 'dsu';
+  forest: DsuSnapshot;
+  /** The operation being executed; null on the synthetic initial snapshot. */
+  op: DsuOp | null;
+  /** Node under the cursor while walking to a root. */
+  active: number | null;
+  explain: string | null;
+  done: boolean;
+  line?: number;
+}
+
+export interface MstStep {
+  kind: 'mst';
+  /**
+   * The disjoint-set forest driving Kruskal. Prim fills it too — its "tree so
+   * far" is exactly one set — so both algorithms render through one component.
+   */
+  forest: DsuSnapshot;
+  /** Edge id under consideration; null on the terminal snapshot. */
+  consideringEdge: string | null;
+  /** Edge ids in the spanning tree so far. */
+  acceptedEdges: string[];
+  /** Edge ids rejected because both endpoints were already connected. */
+  rejectedEdges: string[];
+  /** Edge ids still waiting to be considered, in the order they will be. */
+  queue: string[];
+  totalWeight: number;
+  /** Disjoint components remaining; reaches 1 exactly when the tree spans. */
+  components: number;
+  explain: string | null;
+  done: boolean;
+  line?: number;
+}
+
+// ---- Hash table ------------------------------------------------------------
+
+export type HashOpKind = 'insert' | 'search' | 'delete';
+
+export interface HashOp {
+  kind: HashOpKind;
+  key: string;
+}
+
+/**
+ * `tombstone` exists only under open addressing: deleting a probed-past key by
+ * simply emptying its slot would truncate every probe sequence that ran through
+ * it, so the slot is marked instead of cleared.
+ */
+export type HashSlotState = 'empty' | 'occupied' | 'tombstone';
+
+export interface HashEntry {
+  key: string;
+  value: number;
+}
+
+/**
+ * One bucket, unified across both collision strategies: chaining fills
+ * `entries` with the whole chain, open addressing with at most one entry and a
+ * `state` that distinguishes an empty slot from a tombstone.
+ */
+export interface HashBucket {
+  entries: HashEntry[];
+  state: HashSlotState;
+}
+
+export type HashPhase =
+  | 'idle'
+  | 'hashing'
+  | 'probing'
+  | 'inserted'
+  | 'updated'
+  | 'found'
+  | 'not-found'
+  | 'deleted'
+  | 'resizing'
+  | 'rehashed';
+
+export interface HashStep {
+  /** A copy of the bucket array at this instant. */
+  buckets: HashBucket[];
+  capacity: number;
+  size: number;
+  /** `size / capacity`, carried rather than derived so the snapshot is self-contained. */
+  loadFactor: number;
+  op: HashOpKind | null;
+  key: string | null;
+  /** The raw hash before it is folded into the table. */
+  hash: number | null;
+  /** `hash mod capacity` — where the probe sequence starts. */
+  homeIndex: number | null;
+  /** Bucket currently being examined; null once the operation concludes. */
+  probeIndex: number | null;
+  /** Every index probed so far in this operation, in order. */
+  probeSeq: number[];
+  probes: number;
+  collisions: number;
+  resizes: number;
+  phase: HashPhase;
+  /** The arithmetic spelled out: `h("cat") = 193456 → 193456 mod 8 = 0`. */
+  explain: string | null;
+  done: boolean;
+  line?: number;
 }
 
 // ---- Concurrency -----------------------------------------------------------

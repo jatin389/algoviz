@@ -4,6 +4,9 @@ import { algorithms as sortAlgorithms } from '@/algorithms';
 import { algorithms as searchAlgorithms } from '@/algorithms/search';
 import { algorithms as pathAlgorithms } from '@/algorithms/pathfinding';
 import { algorithms as graphAlgorithms } from '@/algorithms/graph';
+import { algorithms as dpAlgorithms } from '@/algorithms/dp';
+import { algorithms as dsuAlgorithms } from '@/algorithms/dsu';
+import { algorithms as hashAlgorithms } from '@/algorithms/hashtable';
 import { scenarios } from '@/concurrency/scenarios';
 import LandingView from '@/views/LandingView.vue';
 import SortingView from '@/views/SortingView.vue';
@@ -14,6 +17,9 @@ import HeapView from '@/views/HeapView.vue';
 import GraphView from '@/views/GraphView.vue';
 import SandboxView from '@/views/SandboxView.vue';
 import ConcurrencyView from '@/views/ConcurrencyView.vue';
+import DpView from '@/views/DpView.vue';
+import MstView from '@/views/MstView.vue';
+import HashTableView from '@/views/HashTableView.vue';
 
 // Every route carries the label the nav renders, so the tab bar is derived
 // from this array rather than duplicating it. `pitch` and `count` extend that
@@ -60,6 +66,16 @@ export const navRoutes: RouteRecordRaw[] = [
     },
   },
   {
+    path: '/dp',
+    name: 'dp',
+    component: DpView,
+    meta: {
+      label: 'DP',
+      pitch: 'Fill a table cell by cell and trace the answer back out of it.',
+      count: Object.keys(dpAlgorithms).length,
+    },
+  },
+  {
     path: '/pathfinding',
     name: 'pathfinding',
     component: PathfindingView,
@@ -95,6 +111,26 @@ export const navRoutes: RouteRecordRaw[] = [
       label: 'Graph',
       pitch: 'Traverse nodes and edges breadth- or depth-first.',
       count: Object.keys(graphAlgorithms).length,
+    },
+  },
+  {
+    path: '/mst',
+    name: 'mst',
+    component: MstView,
+    meta: {
+      label: 'Union-Find & MST',
+      pitch: 'Merge disjoint sets, then grow a minimum spanning tree from them.',
+      count: Object.keys(dsuAlgorithms).length,
+    },
+  },
+  {
+    path: '/hashing',
+    name: 'hashing',
+    component: HashTableView,
+    meta: {
+      label: 'Hashing',
+      pitch: 'Watch keys collide, probe, and rehash as the table fills up.',
+      count: Object.keys(hashAlgorithms).length,
     },
   },
   {

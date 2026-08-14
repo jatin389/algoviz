@@ -40,9 +40,6 @@ Captured in bulk on 2026-08-09 from the AlgoViz Expansion Atlas research/brainst
 | 0040 | P1 | M | D | Empirical complexity lab | measure real runtimes across n, plot against the theoretical curve |
 | 0041 | P1 | M | D | Challenge layer | LearnGitBranching-style levels with verified, seed-graded goal states |
 | 0042 | P1 | S | D | Step narration | live text log of each step — accessibility + copyable trace |
-| 0002 | P2 | M | A | New category: Dynamic Programming | Knapsack/LCS/Edit Distance/Coin Change with animated table fills |
-| 0006 | P2 | M | A | New category: Union-Find + Kruskal's MST | reuses the existing graph model |
-| 0008 | P2 | M | A | New category: Hash Table | chaining vs open addressing, live load factor |
 | 0012 | P2 | M | A | Guided "Learn" mode | scripted, auto-paused walkthrough for first-time visitors |
 | 0013 | P2 | S | A | Predict-the-step quiz | guess the next comparison/swap before it's revealed |
 | 0014 | P2 | M | A | Compare mode, extended | race two algorithms beyond sorting (e.g. pathfinding) |
