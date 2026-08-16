@@ -1,41 +1,54 @@
 import { ref } from 'vue';
+import {
+  DEFAULT_THEME,
+  isDarkTheme,
+  resolveStoredTheme,
+  THEMES,
+  type ThemeName,
+} from '@/theme/themes';
 
 const STORAGE_KEY = 'algoviz-theme';
 
-// Dark mode is the default. We only fall back to light if the user explicitly
-// chose it in a previous session.
-function initialIsDark() {
+function readInitial(): ThemeName {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === 'light') return false;
-    if (saved === 'dark') return true;
+    return resolveStoredTheme(localStorage.getItem(STORAGE_KEY));
   } catch {
-    // localStorage may be unavailable (private mode, SSR); default to dark.
+    // localStorage may be unavailable (private mode, SSR).
+    return DEFAULT_THEME;
   }
-  return true;
 }
 
-const isDark = ref(initialIsDark());
+// Module-level so every component observes the same value without provide/inject.
+const theme = ref<ThemeName>(readInitial());
 
 function apply() {
   const root = document.documentElement;
-  root.classList.toggle('dark', isDark.value);
+  root.setAttribute('data-theme', theme.value);
+
+  // Transitional: the `dark:` variants that have not been migrated to tokens
+  // yet still key off this class, so the store writes both. Once no `dark:`
+  // utility remains, this line and `darkMode: 'class'` go together — removing
+  // either one alone leaves the app depending on the OS preference, which
+  // breaks only on dark-OS machines and so is invisible in local review.
+  root.classList.toggle('dark', isDarkTheme(theme.value));
+
   try {
-    localStorage.setItem(STORAGE_KEY, isDark.value ? 'dark' : 'light');
+    localStorage.setItem(STORAGE_KEY, theme.value);
   } catch {
-    // Ignore persistence failures — the in-memory toggle still works.
+    // Ignore persistence failures — the in-memory value still works.
   }
 }
 
 /**
- * useTheme — shared dark/light mode state.
+ * useTheme — shared theme state.
  *
- * The `isDark` ref is module-level so every component observes the same value.
- * Call `initTheme()` once at startup to sync the <html> class before first paint.
+ * Call `initTheme()` once at startup. Note that the first paint is already
+ * handled by the inline script in `index.html`; this only re-syncs the DOM
+ * with the reactive ref so the two cannot drift.
  */
 export function useTheme() {
-  function toggle() {
-    isDark.value = !isDark.value;
+  function setTheme(next: ThemeName) {
+    theme.value = next;
     apply();
   }
 
@@ -43,5 +56,5 @@ export function useTheme() {
     apply();
   }
 
-  return { isDark, toggle, initTheme };
+  return { theme, themes: THEMES, setTheme, initTheme };
 }

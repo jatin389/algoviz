@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
 import { navRoutes } from '@/router';
-import ThemeToggle from './components/ThemeToggle.vue';
+import ThemePicker from './components/ThemePicker.vue';
 
 // Each route is a fully self-contained view with its own composable/state —
 // switching tabs never mixes state between them, and a view is only mounted
@@ -42,7 +42,7 @@ import ThemeToggle from './components/ThemeToggle.vue';
             <p class="text-xs text-slate-400 sm:text-sm">Interactive algorithm visualizer</p>
           </div>
         </RouterLink>
-        <ThemeToggle />
+        <ThemePicker />
       </header>
 
       <!-- Category nav -->
