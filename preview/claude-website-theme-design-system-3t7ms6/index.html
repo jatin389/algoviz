@@ -7,14 +7,11 @@
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="AlgoViz — interactive sorting algorithm visualizer." />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
+    <meta
+      name="description"
+      content="AlgoViz — watch sorting, searching, pathfinding, graph, DP, hashing and concurrency algorithms run step by step."
     />
-    <title>AlgoViz — Sorting Visualizer</title>
+    <title>AlgoViz — Algorithm Visualizer</title>
     <!--
       Apply the theme before first paint. `main.ts` also applies it, but that
       runs once the module graph has loaded, which is far too late: the themes
@@ -39,20 +36,13 @@
                 ? 'daylight'
                 : stored;
           document.documentElement.setAttribute('data-theme', name);
-          // Transitional, alongside `darkMode: 'class'` — removed with the last
-          // `dark:` utility. Light themes are listed rather than dark ones so a
-          // name this script does not recognise defaults to dark, matching the
-          // app's default theme.
-          if (['daylight', 'pastel', 'paper'].indexOf(name) === -1) {
-            document.documentElement.classList.add('dark');
-          }
         } catch (e) {
           /* localStorage unavailable — :root defaults are already correct. */
         }
       })();
     </script>
-    <script type="module" crossorigin src="/algoviz/preview/claude-website-theme-design-system-3t7ms6/assets/index-CCnfAbCw.js"></script>
-    <link rel="stylesheet" crossorigin href="/algoviz/preview/claude-website-theme-design-system-3t7ms6/assets/index-E22MkQ4A.css">
+    <script type="module" crossorigin src="/algoviz/preview/claude-website-theme-design-system-3t7ms6/assets/index-CZInPzvV.js"></script>
+    <link rel="stylesheet" crossorigin href="/algoviz/preview/claude-website-theme-design-system-3t7ms6/assets/index-C506Yn2h.css">
   </head>
   <body>
     <div id="app"></div>
