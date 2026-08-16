@@ -1,11 +1,5 @@
 import { ref } from 'vue';
-import {
-  DEFAULT_THEME,
-  isDarkTheme,
-  resolveStoredTheme,
-  THEMES,
-  type ThemeName,
-} from '@/theme/themes';
+import { DEFAULT_THEME, resolveStoredTheme, THEMES, type ThemeName } from '@/theme/themes';
 
 const STORAGE_KEY = 'algoviz-theme';
 
@@ -23,14 +17,10 @@ const theme = ref<ThemeName>(readInitial());
 
 function apply() {
   const root = document.documentElement;
+  // The one place the active theme is written. Every colour in the app resolves
+  // from the `--av-*` variables this attribute selects, so there is no second
+  // channel to keep in step.
   root.setAttribute('data-theme', theme.value);
-
-  // Transitional: the `dark:` variants that have not been migrated to tokens
-  // yet still key off this class, so the store writes both. Once no `dark:`
-  // utility remains, this line and `darkMode: 'class'` go together — removing
-  // either one alone leaves the app depending on the OS preference, which
-  // breaks only on dark-OS machines and so is invisible in local review.
-  root.classList.toggle('dark', isDarkTheme(theme.value));
 
   try {
     localStorage.setItem(STORAGE_KEY, theme.value);

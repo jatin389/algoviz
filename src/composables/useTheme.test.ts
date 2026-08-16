@@ -61,16 +61,21 @@ describe('useTheme', () => {
     expect(localStorage.getItem('algoviz-theme')).toBe('paper');
   });
 
-  it('keeps the .dark class in step with the theme, both directions', async () => {
-    // Load-bearing while `dark:` utilities remain: an unmigrated component
-    // reads this class, not the data attribute.
+  it('switches cleanly between themes, leaving no trace of the previous one', async () => {
+    // `data-theme` is the single channel now — the transitional `.dark` class
+    // is gone. Setting an attribute replaces rather than accumulates, which is
+    // most of why this shape was worth moving to, but it is worth pinning: a
+    // regression to additive class toggling would leave two themes applied at
+    // once, and the later block in style.css would silently win.
     const { setTheme } = await freshUseTheme();
+    const root = document.documentElement;
+
     setTheme('paper');
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(root.getAttribute('data-theme')).toBe('paper');
     setTheme('terminal');
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
-    setTheme('daylight');
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(root.getAttribute('data-theme')).toBe('terminal');
+    expect(root.className).not.toContain('paper');
+    expect(root.classList.contains('dark')).toBe(false);
   });
 
   it('adopts a legacy stored value on first init', async () => {

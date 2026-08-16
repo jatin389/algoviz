@@ -9,65 +9,93 @@
 const token = (name) => `rgb(var(--av-${name}) / <alpha-value>)`;
 
 export default {
-  // KEEP until the last `dark:` utility is gone, then delete in its own commit.
-  // Removing this line does not error: Tailwind falls back to `darkMode: 'media'`,
-  // which re-keys every surviving `dark:` to the OS preference. That breaks only
-  // on dark-OS machines, so it does not show up in review on a light-OS box.
-  darkMode: 'class',
   // Must include .ts: the tone tables are Record<> literals in .ts files, and
   // Tailwind only emits a class it has literally seen in a scanned file.
   content: ['./index.html', './src/**/*.{vue,js,ts}'],
   theme: {
-    extend: {
-      // `extend`, never a bare `theme.colors` — extend merges with the default
-      // palette, so `slate-500` and `surface` both resolve while the migration
-      // is in flight. The final tier moves this to `theme.colors` so that any
-      // surviving literal becomes a build failure rather than an unthemed pixel.
-      colors: {
-        canvas: token('canvas'),
-        surface: {
-          DEFAULT: token('surface'),
-          alt: token('surface-alt'),
-          raised: token('surface-raised'),
+    // `colors` sits OUTSIDE `extend` deliberately. It REPLACES Tailwind's
+    // palette rather than merging with it, so `bg-slate-800` no longer resolves
+    // to anything and renders unstyled — loud, rather than a plausible-looking
+    // grey that quietly ignores the theme. Tailwind does not error on an
+    // unknown class, so the actual guard against regression is the lint rule in
+    // eslint.config.js; this makes any escapee obvious on screen.
+    // `extend` was right while the migration was in flight, and is wrong now.
+    colors: {
+      inherit: 'inherit',
+      current: 'currentColor',
+      transparent: 'transparent',
+      canvas: token('canvas'),
+      surface: {
+        DEFAULT: token('surface'),
+        alt: token('surface-alt'),
+        raised: token('surface-raised'),
+      },
+      line: {
+        DEFAULT: token('line'),
+        strong: token('line-strong'),
+      },
+      ink: {
+        DEFAULT: token('ink'),
+        muted: token('ink-muted'),
+        faint: token('ink-faint'),
+        inverse: token('ink-inverse'),
+      },
+      accent: {
+        DEFAULT: token('accent'),
+        alt: token('accent-alt'),
+        soft: token('accent-soft'),
+        ink: token('accent-ink'),
+      },
+      // Chrome action colours. Deliberately NOT the algorithm tones, even
+      // though the colour themes give them the same values: keeping them as
+      // separate names is what lets Monochrome render its data marks
+      // achromatically while a Reset button stays a Reset button.
+      ok: { DEFAULT: token('ok'), soft: token('ok-soft'), ink: token('ok-ink') },
+      warn: { DEFAULT: token('warn'), soft: token('warn-soft'), ink: token('warn-ink') },
+      danger: { DEFAULT: token('danger'), soft: token('danger-soft'), ink: token('danger-ink') },
+      // The seven algorithm states. Three layers each, because the tables
+      // being replaced use a saturated fill, a tinted surface, and a legible
+      // text colour on that surface. Borders reuse the base at reduced alpha
+      // (`border-tone-probe/60`) rather than earning a fourth layer.
+      tone: {
+        idle: {
+          DEFAULT: token('tone-idle'),
+          soft: token('tone-idle-soft'),
+          ink: token('tone-idle-ink'),
         },
-        line: {
-          DEFAULT: token('line'),
-          strong: token('line-strong'),
+        probe: {
+          DEFAULT: token('tone-probe'),
+          soft: token('tone-probe-soft'),
+          ink: token('tone-probe-ink'),
         },
-        ink: {
-          DEFAULT: token('ink'),
-          muted: token('ink-muted'),
-          faint: token('ink-faint'),
-          inverse: token('ink-inverse'),
+        active: {
+          DEFAULT: token('tone-active'),
+          soft: token('tone-active-soft'),
+          ink: token('tone-active-ink'),
         },
-        accent: {
-          DEFAULT: token('accent'),
-          alt: token('accent-alt'),
-          soft: token('accent-soft'),
-          ink: token('accent-ink'),
+        settled: {
+          DEFAULT: token('tone-settled'),
+          soft: token('tone-settled-soft'),
+          ink: token('tone-settled-ink'),
         },
-        // Chrome action colours. Deliberately NOT the algorithm tones, even
-        // though the colour themes give them the same values: keeping them as
-        // separate names is what lets Monochrome render its data marks
-        // achromatically while a Reset button stays a Reset button.
-        ok: { DEFAULT: token('ok'), soft: token('ok-soft'), ink: token('ok-ink') },
-        warn: { DEFAULT: token('warn'), soft: token('warn-soft'), ink: token('warn-ink') },
-        danger: { DEFAULT: token('danger'), soft: token('danger-soft'), ink: token('danger-ink') },
-        // The seven algorithm states. Three layers each, because the tables
-        // being replaced use a saturated fill, a tinted surface, and a legible
-        // text colour on that surface. Borders reuse the base at reduced alpha
-        // (`border-tone-probe/60`) rather than earning a fourth layer.
-        tone: {
-          idle: { DEFAULT: token('tone-idle'), soft: token('tone-idle-soft'), ink: token('tone-idle-ink') },
-          probe: { DEFAULT: token('tone-probe'), soft: token('tone-probe-soft'), ink: token('tone-probe-ink') },
-          active: { DEFAULT: token('tone-active'), soft: token('tone-active-soft'), ink: token('tone-active-ink') },
-          settled: { DEFAULT: token('tone-settled'), soft: token('tone-settled-soft'), ink: token('tone-settled-ink') },
-          rejected: { DEFAULT: token('tone-rejected'), soft: token('tone-rejected-soft'), ink: token('tone-rejected-ink') },
-          trace: { DEFAULT: token('tone-trace'), soft: token('tone-trace-soft'), ink: token('tone-trace-ink') },
-          blocked: { DEFAULT: token('tone-blocked'), soft: token('tone-blocked-soft'), ink: token('tone-blocked-ink') },
+        rejected: {
+          DEFAULT: token('tone-rejected'),
+          soft: token('tone-rejected-soft'),
+          ink: token('tone-rejected-ink'),
+        },
+        trace: {
+          DEFAULT: token('tone-trace'),
+          soft: token('tone-trace-soft'),
+          ink: token('tone-trace-ink'),
+        },
+        blocked: {
+          DEFAULT: token('tone-blocked'),
+          soft: token('tone-blocked-soft'),
+          ink: token('tone-blocked-ink'),
         },
       },
-
+    },
+    extend: {
       // The whole radius set, not a subset: a partially-overridden scale mixes
       // themed and stock geometry, which is visible as soon as a theme wants
       // square corners. `full` stays literal — a pill is a pill in every theme.

@@ -36,13 +36,6 @@
                 ? 'daylight'
                 : stored;
           document.documentElement.setAttribute('data-theme', name);
-          // Transitional, alongside `darkMode: 'class'` — removed with the last
-          // `dark:` utility. Light themes are listed rather than dark ones so a
-          // name this script does not recognise defaults to dark, matching the
-          // app's default theme.
-          if (['daylight', 'pastel', 'paper'].indexOf(name) === -1) {
-            document.documentElement.classList.add('dark');
-          }
         } catch (e) {
           /* localStorage unavailable — :root defaults are already correct. */
         }
