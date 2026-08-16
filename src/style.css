@@ -2,8 +2,543 @@
 @tailwind components;
 @tailwind utilities;
 
-/* App-wide base surface. Colors flip with the `dark` class on <html>. */
+/* ---------------------------------------------------------------------------
+   Design tokens.
+
+   Colours are space-separated RGB channels, never complete colours, because
+   `tailwind.config.js` wraps them as `rgb(var(--av-x) / <alpha-value>)` and
+   that substitution is plain string replacement. A `#hex` here would silently
+   break every `bg-surface/70` in the app.
+
+   ORDERING IS LOAD-BEARING. `:root` and `[data-theme='x']` have the same
+   specificity (0,1,0), so the theme blocks only win because they come after
+   the defaults. Never move a `[data-theme]` block above `:root`, and never
+   add a second `:root` block below them.
+
+   The theme blocks are deliberately written as bare `[data-theme='x']` rather
+   than `:root[data-theme='x']` so they can be applied to ANY element, not just
+   <html>. That is what lets the theme picker render each swatch inside a
+   `data-theme` container and get that theme's real colours for free, instead
+   of maintaining a second copy of every palette in JS.
+--------------------------------------------------------------------------- */
+
 @layer base {
+  :root {
+    /* --- structural: theme-independent, and seeded to Tailwind's own
+       defaults so routing radius/shadow/font through variables changes
+       nothing until a theme overrides them. --- */
+    --av-radius-sm: 0.125rem;
+    --av-radius: 0.25rem;
+    --av-radius-md: 0.375rem;
+    --av-radius-lg: 0.5rem;
+    --av-radius-xl: 0.75rem;
+    --av-radius-2xl: 1rem;
+    --av-radius-3xl: 1.5rem;
+    /* Data marks (bars, cells, nodes) get their own near-square radius. A
+       16px-wide bar with an 8px radius has no measurable top edge, which
+       defeats the point of a bar chart. */
+    --av-radius-mark: 0.125rem;
+
+    --av-shadow-color: rgb(0 0 0 / 0.1);
+    --av-shadow-soft: rgb(0 0 0 / 0.05);
+    --av-shadow-strong: rgb(0 0 0 / 0.25);
+
+    --av-font-display: Inter, ui-sans-serif, system-ui, sans-serif;
+    --av-font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
+    --av-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+      'Liberation Mono', 'Courier New', monospace;
+
+    /* --- the pattern/stroke channel ---
+       Colour themes leave these off, so a mark is a plain fill. Monochrome,
+       Paper and forced-colors mode switch them on, and the SAME component
+       markup then carries the state in texture and outline instead of hue.
+       This is why a hueless theme is possible at all. */
+    --av-viz-stroke-w: 0px;
+    --av-tone-idle-pat: none;
+    --av-tone-probe-pat: none;
+    --av-tone-active-pat: none;
+    --av-tone-settled-pat: none;
+    --av-tone-trace-pat: none;
+    --av-tone-blocked-pat: none;
+    /* `rejected` is textured in EVERY theme, not just the hueless ones. It
+       means "considered, then struck out", and a texture says that in a way a
+       hue cannot — which is also what frees a hue slot for the five states
+       that do need one, and is why the palette separates under CVD at all. */
+    --av-tone-rejected-pat: var(--av-pat-dots);
+    --av-tone-idle-dash: none;
+    --av-tone-probe-dash: none;
+    --av-tone-active-dash: none;
+    --av-tone-settled-dash: none;
+    --av-tone-rejected-dash: none;
+    --av-tone-trace-dash: none;
+    --av-tone-blocked-dash: none;
+
+    /* Pattern library. Every entry is ≥3px period — finer textures on marks
+       that move every frame produce moiré. Ink coverage is held near 25%
+       across all of them so texture never reads as a second luminance ramp
+       and confounds the primary channel. Each varies exactly ONE attribute
+       from the others: orientation, orientation, shape, shape+density. */
+    --av-pat-hatch: repeating-linear-gradient(
+      45deg,
+      transparent 0 3px,
+      rgb(var(--av-ink) / 0.3) 3px 4.5px
+    );
+    --av-pat-vert: repeating-linear-gradient(
+      90deg,
+      transparent 0 3px,
+      rgb(var(--av-ink) / 0.26) 3px 4px
+    );
+    --av-pat-cross:
+      repeating-linear-gradient(45deg, transparent 0 4px, rgb(var(--av-ink) / 0.22) 4px 5px),
+      repeating-linear-gradient(-45deg, transparent 0 4px, rgb(var(--av-ink) / 0.22) 4px 5px);
+    --av-pat-dots: radial-gradient(rgb(var(--av-ink) / 0.4) 1.1px, transparent 1.2px) 0 0 / 5px 5px;
+
+    --av-glow-sm: none;
+    --av-glow-lg: none;
+
+    /* --- Midnight, also the fallback for an unknown/absent data-theme --- */
+    color-scheme: dark;
+    --av-canvas: 10 14 23;
+    --av-surface: 19 26 41;
+    --av-surface-alt: 13 19 32;
+    --av-surface-raised: 28 37 55;
+    --av-line: 37 48 70;
+    --av-line-strong: 90 107 142;
+    --av-ink: 233 238 248;
+    --av-ink-muted: 163 176 199;
+    --av-ink-faint: 117 131 156;
+    --av-ink-inverse: 10 14 23;
+    --av-accent: 47 199 232;
+    --av-accent-alt: 26 163 201;
+    --av-accent-soft: 14 46 58;
+    --av-accent-ink: 4 34 43;
+
+    /* Ladder, dimmest first. Spacing in OKLCH L is what carries the encoding
+       through greyscale and colour-vision deficiency; hue is assigned second.
+       The loud pairs (probe/settled) sit on the yellow-blue axis, which is the
+       one that survives red-green CVD. */
+    --av-tone-active: 207 0 53;
+    --av-tone-active-soft: 57 25 26;
+    --av-tone-active-ink: 253 161 160;
+    --av-tone-trace: 128 90 255;
+    --av-tone-trace-soft: 35 32 59;
+    --av-tone-trace-ink: 186 178 255;
+    --av-tone-idle: 119 134 165;
+    --av-tone-idle-soft: 24 35 60;
+    --av-tone-idle-ink: 174 190 223;
+    --av-tone-probe: 205 155 61;
+    --av-tone-probe-soft: 49 33 3;
+    --av-tone-probe-ink: 227 182 103;
+    --av-tone-settled: 129 224 195;
+    --av-tone-settled-soft: 0 44 33;
+    --av-tone-settled-ink: 116 211 182;
+    --av-tone-rejected: 128 92 112;
+    --av-tone-rejected-soft: 53 25 41;
+    --av-tone-rejected-ink: 217 176 198;
+    /* `blocked` is a wall: it reads as solid because it is DARKER than the
+       grid it sits in, so it cannot also clear 3:1 against it. Its non-text
+       contrast comes from the stroke every blocked mark carries. */
+    --av-tone-blocked: 4 7 13;
+    --av-tone-blocked-soft: 16 21 32;
+    --av-tone-blocked-ink: 148 163 190;
+  }
+
+  /* ===================== DAYLIGHT (light) ===================== */
+  [data-theme='daylight'] {
+    color-scheme: light;
+    --av-canvas: 244 246 250;
+    --av-surface: 255 255 255;
+    --av-surface-alt: 234 238 245;
+    --av-surface-raised: 255 255 255;
+    --av-line: 216 222 233;
+    --av-line-strong: 124 138 166;
+    --av-ink: 19 24 34;
+    --av-ink-muted: 78 90 112;
+    --av-ink-faint: 110 122 143;
+    --av-ink-inverse: 255 255 255;
+    --av-accent: 12 118 183;
+    --av-accent-alt: 9 96 150;
+    --av-accent-soft: 221 238 250;
+    --av-accent-ink: 255 255 255;
+
+    --av-tone-active: 205 13 55;
+    --av-tone-active-soft: 255 224 223;
+    --av-tone-active-ink: 137 32 43;
+    --av-tone-idle: 96 111 140;
+    --av-tone-idle-soft: 221 235 255;
+    --av-tone-idle-ink: 64 77 105;
+    --av-tone-trace: 116 88 221;
+    --av-tone-trace-soft: 233 231 255;
+    --av-tone-trace-ink: 76 58 147;
+    --av-tone-settled: 62 163 136;
+    --av-tone-settled-soft: 206 246 232;
+    --av-tone-settled-ink: 0 94 70;
+    --av-tone-probe: 189 135 3;
+    --av-tone-probe-soft: 251 233 202;
+    --av-tone-probe-ink: 114 64 0;
+    --av-tone-rejected: 159 121 142;
+    --av-tone-rejected-soft: 255 224 242;
+    --av-tone-rejected-ink: 99 65 84;
+    /* `blocked` is a wall: it reads as solid because it is DARKER than the
+       grid it sits in, so it cannot also clear 3:1 against it. Its non-text
+       contrast comes from the stroke every blocked mark carries. */
+    --av-tone-blocked: 30 38 52;
+    --av-tone-blocked-soft: 214 219 227;
+    --av-tone-blocked-ink: 30 38 52;
+  }
+
+  /* ===================== NEON (dark) ===================== */
+  /* Base is #08080C, not #000: on OLED a glow against pure black smears
+     during motion, and every mark in this app moves every frame. A near-black
+     with a faint violet cast gives the bloom something to sit on. One acid
+     accent, not the cyan+magenta pair — that pairing IS the cliché. */
+  [data-theme='neon'] {
+    color-scheme: dark;
+    --av-canvas: 8 8 12;
+    --av-surface: 18 18 28;
+    --av-surface-alt: 12 12 19;
+    --av-surface-raised: 28 28 42;
+    --av-line: 40 40 58;
+    --av-line-strong: 96 96 130;
+    --av-ink: 230 230 242;
+    --av-ink-muted: 154 154 184;
+    --av-ink-faint: 122 122 152;
+    --av-ink-inverse: 8 8 12;
+    --av-accent: 77 240 196;
+    --av-accent-alt: 46 208 190;
+    --av-accent-soft: 12 42 38;
+    --av-accent-ink: 4 20 16;
+    --av-glow-color: 77 240 196;
+    --av-glow-sm: 0 0 0 1px rgb(var(--av-glow-color) / 0.45),
+      0 0 8px -2px rgb(var(--av-glow-color) / 0.5);
+    --av-glow-lg: 0 0 0 1px rgb(var(--av-glow-color) / 0.7),
+      0 0 22px -6px rgb(var(--av-glow-color) / 0.55),
+      0 0 60px -22px rgb(var(--av-glow-color) / 0.35);
+    --av-shadow-color: rgb(0 0 0 / 0.55);
+    --av-shadow-strong: rgb(0 0 0 / 0.8);
+
+    --av-tone-active: 197 0 49;
+    --av-tone-active-soft: 69 24 26;
+    --av-tone-active-ink: 255 164 164;
+    --av-tone-trace: 124 80 253;
+    --av-tone-trace-soft: 40 34 73;
+    --av-tone-trace-ink: 195 185 255;
+    --av-tone-idle: 119 134 165;
+    --av-tone-idle-soft: 29 40 66;
+    --av-tone-idle-ink: 184 200 233;
+    --av-tone-probe: 204 147 19;
+    --av-tone-probe-soft: 59 36 0;
+    --av-tone-probe-ink: 243 189 92;
+    --av-tone-settled: 53 245 200;
+    --av-tone-settled-soft: 0 51 37;
+    --av-tone-settled-ink: 91 227 190;
+    --av-tone-rejected: 134 88 114;
+    --av-tone-rejected-soft: 64 25 49;
+    --av-tone-rejected-ink: 234 182 210;
+    /* `blocked` is a wall: it reads as solid because it is DARKER than the
+       grid it sits in, so it cannot also clear 3:1 against it. Its non-text
+       contrast comes from the stroke every blocked mark carries. */
+    --av-tone-blocked: 3 3 5;
+    --av-tone-blocked-soft: 14 14 22;
+    --av-tone-blocked-ink: 138 138 172;
+  }
+
+  /* ===================== PASTEL (light) ===================== */
+  /* Catppuccin Latte is the proof this needs: its SURFACES are pastel but its
+     accents are not, because a pastel accent cannot carry meaning against a
+     pastel field. So here the tint is fill only, and the meaning lives in the
+     same-hue `-ink` used for the border and the label. Every state renders as
+     a two-tone chip; without the ink border the whole array reads as mush. */
+  [data-theme='pastel'] {
+    color-scheme: light;
+    --av-canvas: 251 249 246;
+    --av-surface: 255 253 251;
+    --av-surface-alt: 244 241 235;
+    --av-surface-raised: 255 255 255;
+    --av-line: 228 222 211;
+    --av-line-strong: 154 143 126;
+    --av-ink: 46 42 36;
+    --av-ink-muted: 105 95 83;
+    --av-ink-faint: 128 118 105;
+    --av-ink-inverse: 255 253 251;
+    --av-accent: 180 74 46;
+    --av-accent-alt: 150 58 34;
+    --av-accent-soft: 251 221 209;
+    --av-accent-ink: 255 250 247;
+    --av-radius-lg: 0.75rem;
+    --av-radius-xl: 1rem;
+    --av-radius-2xl: 1.25rem;
+
+    --av-tone-active: 189 34 56;
+    --av-tone-active-soft: 255 219 218;
+    --av-tone-active-ink: 134 38 46;
+    --av-tone-idle: 96 111 140;
+    --av-tone-idle-soft: 216 232 255;
+    --av-tone-idle-ink: 64 77 105;
+    --av-tone-probe: 181 130 16;
+    --av-tone-probe-soft: 250 229 195;
+    --av-tone-probe-ink: 113 65 0;
+    --av-tone-settled: 44 165 135;
+    --av-tone-settled-soft: 199 243 228;
+    --av-tone-settled-ink: 0 96 70;
+    --av-tone-trace: 146 127 249;
+    --av-tone-trace-soft: 229 227 255;
+    --av-tone-trace-ink: 76 61 143;
+    --av-tone-rejected: 159 121 142;
+    --av-tone-rejected-soft: 255 219 240;
+    --av-tone-rejected-ink: 99 65 84;
+    /* `blocked` is a wall: it reads as solid because it is DARKER than the
+       grid it sits in, so it cannot also clear 3:1 against it. Its non-text
+       contrast comes from the stroke every blocked mark carries. */
+    --av-tone-blocked: 60 54 46;
+    --av-tone-blocked-soft: 219 213 203;
+    --av-tone-blocked-ink: 46 42 36;
+  }
+
+  /* ===================== MONOCHROME (dark) ===================== */
+  /* Blue-graphite single hue rather than flat grey — a true neutral reads as
+     "unstyled" rather than "designed".
+
+     Seven states cannot be told apart by luminance alone: the practical
+     ceiling for categorical identification is about four steps. The split
+     that makes it work is transient vs persistent. `probe` and `active` last
+     1-3 frames, so they carry outline and motion — channels nothing else is
+     using. The five persistent states must survive a frozen screenshot, so
+     they are double-encoded in luminance AND pattern: either channel can fail
+     (small marks, print, forced colours) and the information survives. */
+  [data-theme='mono'] {
+    color-scheme: dark;
+    --av-canvas: 10 11 13;
+    --av-surface: 22 24 28;
+    --av-surface-alt: 15 16 19;
+    --av-surface-raised: 30 33 38;
+    --av-line: 46 50 57;
+    --av-line-strong: 122 131 145;
+    --av-ink: 233 236 240;
+    --av-ink-muted: 155 163 175;
+    --av-ink-faint: 122 130 143;
+    --av-ink-inverse: 10 11 13;
+    --av-accent: 233 236 240;
+    --av-accent-alt: 190 196 206;
+    --av-accent-soft: 38 42 49;
+    --av-accent-ink: 10 11 13;
+
+    --av-viz-stroke-w: 1.5px;
+
+    --av-tone-idle: 95 104 116;
+    --av-tone-idle-soft: 32 35 41;
+    --av-tone-idle-ink: 168 176 189;
+    --av-tone-rejected: 118 127 140;
+    --av-tone-rejected-soft: 28 31 36;
+    --av-tone-rejected-ink: 150 158 171;
+    --av-tone-settled: 152 161 174;
+    --av-tone-settled-soft: 40 44 51;
+    --av-tone-settled-ink: 196 203 214;
+    --av-tone-trace: 190 197 208;
+    --av-tone-trace-soft: 52 57 65;
+    --av-tone-trace-ink: 220 225 233;
+    --av-tone-probe: 233 236 240;
+    --av-tone-probe-soft: 46 50 57;
+    --av-tone-probe-ink: 233 236 240;
+    --av-tone-active: 255 255 255;
+    --av-tone-active-soft: 62 67 76;
+    --av-tone-active-ink: 255 255 255;
+    --av-tone-blocked: 4 5 6;
+    --av-tone-blocked-soft: 18 20 23;
+    --av-tone-blocked-ink: 150 158 171;
+
+
+    /* Persistent states get texture; transient ones stay flat and rely on
+       stroke + motion, so a moving mark never carries a crawling pattern. */
+    --av-tone-settled-pat: var(--av-pat-hatch);
+    --av-tone-trace-pat: var(--av-pat-vert);
+    --av-tone-blocked-pat: var(--av-pat-cross);
+    /* Same 2px weight, different style: solid reads as "now", dashed as
+       "queued". Weight alone would not separate them. */
+    --av-tone-probe-dash: 5 3;
+  }
+
+  /* ===================== TERMINAL (dark) ===================== */
+  /* Amber P3 phosphor: the standard "easier across a working day" alternative
+     to P1 green on office terminals, and its narrow ~594nm band is what keeps
+     it legible at small sizes. Square corners and a mono UI face make this the
+     most distinctive theme in the set for almost no extra work. */
+  [data-theme='terminal'] {
+    color-scheme: dark;
+    --av-canvas: 10 8 4;
+    --av-surface: 24 18 8;
+    --av-surface-alt: 16 12 6;
+    --av-surface-raised: 34 26 11;
+    --av-line: 58 42 12;
+    --av-line-strong: 146 102 16;
+    --av-ink: 255 176 0;
+    --av-ink-muted: 199 133 4;
+    --av-ink-faint: 158 106 8;
+    --av-ink-inverse: 10 8 4;
+    --av-accent: 255 208 122;
+    --av-accent-alt: 232 172 74;
+    --av-accent-soft: 48 34 10;
+    --av-accent-ink: 10 8 4;
+    --av-font-display: var(--av-font-mono);
+    --av-font-sans: var(--av-font-mono);
+    --av-radius-sm: 0px;
+    --av-radius: 0px;
+    --av-radius-md: 0px;
+    --av-radius-lg: 0px;
+    --av-radius-xl: 0px;
+    --av-radius-2xl: 0px;
+    --av-radius-3xl: 0px;
+    --av-radius-mark: 0px;
+
+    --av-tone-idle: 146 102 16;
+    --av-tone-idle-soft: 42 30 10;
+    --av-tone-idle-ink: 214 158 38;
+    --av-tone-probe: 255 208 122;
+    --av-tone-probe-soft: 56 40 12;
+    --av-tone-probe-ink: 255 219 150;
+    --av-tone-active: 255 122 84;
+    --av-tone-active-soft: 58 24 14;
+    --av-tone-active-ink: 255 158 128;
+    --av-tone-settled: 255 176 0;
+    --av-tone-settled-soft: 52 36 4;
+    --av-tone-settled-ink: 255 196 62;
+    --av-tone-rejected: 138 92 48;
+    --av-tone-rejected-soft: 38 26 12;
+    --av-tone-rejected-ink: 196 142 84;
+    --av-tone-trace: 214 232 138;
+    --av-tone-trace-soft: 40 46 18;
+    --av-tone-trace-ink: 228 240 172;
+    --av-tone-blocked: 4 3 2;
+    --av-tone-blocked-soft: 20 15 8;
+    --av-tone-blocked-ink: 199 133 4;
+
+    /* A phosphor screen has one hue by definition, so this theme carries state
+       the same way Monochrome does: a luminance ladder for the persistent
+       states, plus texture, with stroke and motion left for the transient
+       ones. Without this, Terminal would be six shades of amber and unreadable. */
+    --av-viz-stroke-w: 1.5px;
+    --av-tone-settled-pat: var(--av-pat-hatch);
+    --av-tone-trace-pat: var(--av-pat-vert);
+    --av-tone-blocked-pat: var(--av-pat-cross);
+    --av-tone-probe-dash: 5 3;
+  }
+
+  /* ===================== PAPER (light) ===================== */
+  /* Real Risograph spot inks rather than invented pastels — using the actual
+     ink specs is what makes this read as print instead of as a light theme.
+     Squared corners and a zero-blur offset shadow stand in for ink on stock.
+     Riso Yellow is ~1.2:1 on paper, so `probe` uses a darkened mix and still
+     carries its ink border and label. */
+  [data-theme='paper'] {
+    color-scheme: light;
+    --av-canvas: 247 244 236;
+    --av-surface: 253 251 245;
+    --av-surface-alt: 238 234 223;
+    --av-surface-raised: 255 255 255;
+    --av-line: 220 213 198;
+    --av-line-strong: 138 128 108;
+    --av-ink: 27 26 23;
+    --av-ink-muted: 92 86 74;
+    --av-ink-faint: 122 114 99;
+    --av-ink-inverse: 253 251 245;
+    --av-accent: 61 85 136;
+    --av-accent-alt: 44 64 106;
+    --av-accent-soft: 219 227 242;
+    --av-accent-ink: 253 251 245;
+    --av-radius-sm: 0px;
+    --av-radius: 0px;
+    --av-radius-md: 0px;
+    --av-radius-lg: 0px;
+    --av-radius-xl: 0px;
+    --av-radius-2xl: 0px;
+    --av-radius-3xl: 0px;
+    --av-radius-mark: 0px;
+    --av-shadow-color: rgb(27 26 23 / 0.9);
+    --av-shadow-soft: rgb(27 26 23 / 0.7);
+    --av-shadow-strong: rgb(27 26 23 / 1);
+    --av-viz-stroke-w: 1.5px;
+
+    --av-tone-active: 122 16 80;
+    --av-tone-active-soft: 255 216 233;
+    --av-tone-active-ink: 138 35 94;
+    --av-tone-settled: 4 123 98;
+    --av-tone-settled-soft: 196 240 225;
+    --av-tone-settled-ink: 0 100 76;
+    --av-tone-trace: 6 131 206;
+    --av-tone-trace-soft: 202 233 255;
+    --av-tone-trace-ink: 0 86 157;
+    --av-tone-probe: 178 131 36;
+    --av-tone-probe-soft: 246 226 192;
+    --av-tone-probe-ink: 116 72 0;
+    --av-tone-idle: 142 146 156;
+    --av-tone-idle-soft: 224 229 239;
+    --av-tone-idle-ink: 78 83 91;
+    --av-tone-rejected: 161 115 107;
+    --av-tone-rejected-soft: 255 217 209;
+    --av-tone-rejected-ink: 112 70 63;
+    /* `blocked` is a wall: it reads as solid because it is DARKER than the
+       grid it sits in, so it cannot also clear 3:1 against it. Its non-text
+       contrast comes from the stroke every blocked mark carries. */
+    --av-tone-blocked: 48 45 40;
+    --av-tone-blocked-soft: 232 228 221;
+    --av-tone-blocked-ink: 40 38 33;
+
+    --av-tone-settled-pat: var(--av-pat-hatch);
+    --av-tone-trace-pat: var(--av-pat-dots);
+    --av-tone-idle-pat: var(--av-pat-vert);
+  }
+
+  /* ===================== HIGH CONTRAST (dark) ===================== */
+  /* Explicit AAA theme for users who want it without turning on OS-level high
+     contrast. The tone hues are the colourblind-safe Okabe-Ito set rather than
+     a hue wheel, and the pattern channel is on so the encoding still survives
+     total achromatopsia, which no hue-based palette handles. */
+  [data-theme='contrast'] {
+    color-scheme: dark;
+    --av-canvas: 0 0 0;
+    --av-surface: 0 0 0;
+    --av-surface-alt: 13 13 13;
+    --av-surface-raised: 26 26 26;
+    --av-line: 128 128 128;
+    --av-line-strong: 255 255 255;
+    --av-ink: 255 255 255;
+    --av-ink-muted: 224 224 224;
+    --av-ink-faint: 176 176 176;
+    --av-ink-inverse: 0 0 0;
+    --av-accent: 255 255 0;
+    --av-accent-alt: 224 224 0;
+    --av-accent-soft: 51 51 0;
+    --av-accent-ink: 0 0 0;
+    --av-viz-stroke-w: 2px;
+
+    --av-tone-idle: 160 160 160;
+    --av-tone-idle-soft: 38 38 38;
+    --av-tone-idle-ink: 224 224 224;
+    --av-tone-probe: 240 228 66;
+    --av-tone-probe-soft: 51 48 12;
+    --av-tone-probe-ink: 240 228 66;
+    --av-tone-active: 213 94 0;
+    --av-tone-active-soft: 51 23 0;
+    --av-tone-active-ink: 255 150 80;
+    --av-tone-settled: 0 158 115;
+    --av-tone-settled-soft: 0 41 30;
+    --av-tone-settled-ink: 60 200 158;
+    --av-tone-rejected: 204 121 167;
+    --av-tone-rejected-soft: 46 27 38;
+    --av-tone-rejected-ink: 224 160 196;
+    --av-tone-trace: 86 180 233;
+    --av-tone-trace-soft: 12 41 56;
+    --av-tone-trace-ink: 134 200 240;
+    --av-tone-blocked: 0 0 0;
+    --av-tone-blocked-soft: 26 26 26;
+    --av-tone-blocked-ink: 224 224 224;
+
+    --av-tone-settled-pat: var(--av-pat-hatch);
+    --av-tone-trace-pat: var(--av-pat-vert);
+    --av-tone-blocked-pat: var(--av-pat-cross);
+    --av-tone-probe-dash: 5 3;
+  }
+
   html {
     @apply antialiased;
   }
