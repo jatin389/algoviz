@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvLegend from '@/components/ui/AvLegend.vue';
+import { TONE_FILL, TONE_STROKE, TONE_BORDER, TONE_SOFT_BG, toneLegend } from '@/theme/tones';
 import { layoutForest } from './forestLayout';
 
 // The disjoint-set forest, drawn as trees, with the raw parent array printed
@@ -60,31 +61,41 @@ const props = withDefaults(
  */
 type NodeState = 'cursor' | 'compressed' | 'path' | 'root' | 'default';
 
+// cursor is the write-in-progress node (active); compressed is a pointer that
+// just got re-hung onto its root (settled); path is a node the current find
+// walk passed through (probe). `root` and `default` are both otherwise-idle
+// nodes, but a tree with no visual distinction between "a root" and "any
+// other resting node" would defeat the entire point of this diagram — so
+// root borrows the `accent` chrome token instead of an algorithm tone: it is
+// a structural landmark (this pointer happens to point at itself), not a
+// state the algorithm is currently in.
 const NODE_FILL: Record<NodeState, string> = {
-  cursor: 'fill-rose-500',
-  compressed: 'fill-emerald-500',
-  path: 'fill-amber-400',
-  root: 'fill-indigo-500 dark:fill-indigo-400',
-  default: 'fill-slate-400 dark:fill-slate-600',
+  cursor: TONE_FILL.active,
+  compressed: TONE_FILL.settled,
+  path: TONE_FILL.probe,
+  root: 'fill-accent',
+  default: TONE_FILL.idle,
 };
 
 // Whole class names, never interpolated — a `bg-${tone}-500` built at runtime
 // never reaches Tailwind's scanner, so the rule would not ship. Same table
 // AvStatGrid and AvAlgorithmSelector keep for their own variants.
 const CELL_CLASS: Record<NodeState, string> = {
-  cursor: 'border-rose-400 bg-rose-50 dark:bg-rose-900/30',
-  compressed: 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30',
-  path: 'border-amber-400 bg-amber-50 dark:bg-amber-900/30',
-  root: 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/30',
-  default: 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50',
+  cursor: `${TONE_BORDER.active} ${TONE_SOFT_BG.active}`,
+  compressed: `${TONE_BORDER.settled} ${TONE_SOFT_BG.settled}`,
+  path: `${TONE_BORDER.probe} ${TONE_SOFT_BG.probe}`,
+  root: 'border-accent/60 bg-accent-soft',
+  default: `${TONE_BORDER.idle} ${TONE_SOFT_BG.idle}`,
 };
 
-const LEGEND = [
-  { label: 'Root', class: 'bg-indigo-500 dark:bg-indigo-400' },
-  { label: 'On find path', class: 'bg-amber-400' },
-  { label: 'Re-hung', class: 'bg-emerald-500' },
-  { label: 'Cursor', class: 'bg-rose-500' },
-];
+// Root has no AlgoTone (see NODE_FILL above), so it cannot travel through
+// `toneLegend`/`AvLegend` — it is rendered as its own swatch in the template,
+// right where it used to sit first in this list.
+const LEGEND = toneLegend([
+  { tone: 'probe', label: 'On find path' },
+  { tone: 'settled', label: 'Re-hung' },
+  { tone: 'active', label: 'Cursor' },
+]);
 
 // Sets rather than repeated `Array.includes` — these are read once per node per
 // repaint, and a run can repaint many times a second.
@@ -123,14 +134,19 @@ function sizeFor(index: number): number | null {
 <template>
   <AvPanel class="flex flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-faint">{{ title }}</h2>
+      <div class="flex flex-wrap items-center gap-3 text-xs text-ink-muted">
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-mark bg-accent" />Root</span
+        >
+      </div>
       <AvLegend :items="LEGEND" />
     </div>
 
-    <p v-if="isEmpty" class="py-8 text-center text-sm text-slate-400">The forest is empty.</p>
+    <p v-if="isEmpty" class="py-8 text-center text-sm text-ink-faint">The forest is empty.</p>
 
     <template v-else>
-      <div class="overflow-x-auto rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40">
+      <div class="overflow-x-auto rounded-xl bg-surface-alt p-3">
         <svg
           :viewBox="`0 0 ${layout.width} ${layout.height}`"
           :width="layout.width"
@@ -149,10 +165,10 @@ function sizeFor(index: number): number | null {
             stroke-width="2"
             :class="
               pathSet.has(edge.to) && !compressedSet.has(edge.to)
-                ? 'stroke-amber-400'
+                ? TONE_STROKE.probe
                 : compressedSet.has(edge.to)
-                  ? 'stroke-emerald-500'
-                  : 'stroke-slate-300 dark:stroke-slate-700'
+                  ? TONE_STROKE.settled
+                  : TONE_STROKE.idle
             "
           />
 
@@ -167,7 +183,7 @@ function sizeFor(index: number): number | null {
               r="6"
               fill="none"
               stroke-width="1.5"
-              class="stroke-indigo-400/60"
+              class="stroke-accent/60"
             />
             <circle
               :cx="node.x"
@@ -181,7 +197,7 @@ function sizeFor(index: number): number | null {
               :y="node.y"
               text-anchor="middle"
               dominant-baseline="central"
-              class="pointer-events-none select-none fill-white text-[10px] font-semibold"
+              class="pointer-events-none select-none fill-ink-inverse text-[10px] font-semibold"
             >
               {{ labelFor(node.id) }}
             </text>
@@ -190,7 +206,7 @@ function sizeFor(index: number): number | null {
               :x="node.x"
               :y="node.y + 25"
               text-anchor="middle"
-              class="pointer-events-none select-none fill-slate-400 text-[9px] font-medium"
+              class="pointer-events-none select-none fill-ink-faint text-[9px] font-medium"
             >
               rank {{ rankFor(node.id) }} · {{ sizeFor(node.id) }}
             </text>
@@ -199,7 +215,7 @@ function sizeFor(index: number): number | null {
       </div>
 
       <!-- The backing array. Same pairing HeapView uses for its heap. -->
-      <h3 class="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+      <h3 class="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-ink-faint">
         parent[]
       </h3>
       <div class="flex flex-wrap gap-1.5">
@@ -209,18 +225,16 @@ function sizeFor(index: number): number | null {
           class="flex w-11 flex-col items-center overflow-hidden rounded-lg border transition-colors"
           :class="CELL_CLASS[stateFor(i)]"
         >
-          <div
-            class="w-full bg-slate-200/70 py-0.5 text-center text-[10px] font-medium text-slate-500 dark:bg-slate-700/70 dark:text-slate-400"
-          >
+          <div class="w-full bg-line/70 py-0.5 text-center text-[10px] font-medium text-ink-muted">
             {{ i }}
           </div>
-          <div class="py-1 font-mono text-sm font-semibold text-slate-800 dark:text-slate-100">
+          <div class="py-1 font-mono text-sm font-semibold text-ink">
             {{ value }}
           </div>
         </div>
       </div>
 
-      <p class="mt-3 text-center text-xs text-slate-400">{{ hint }}</p>
+      <p class="mt-3 text-center text-xs text-ink-faint">{{ hint }}</p>
     </template>
   </AvPanel>
 </template>

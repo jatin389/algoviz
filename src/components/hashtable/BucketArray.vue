@@ -16,6 +16,7 @@ import { computed } from 'vue';
 import type { HashBucket, HashPhase } from '@/types';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvLegend from '@/components/ui/AvLegend.vue';
+import { TONE_BORDER, TONE_INK, toneLegend } from '@/theme/tones';
 
 const props = withDefaults(
   defineProps<{
@@ -47,13 +48,21 @@ const props = withDefaults(
   },
 );
 
-const LEGEND = [
-  { label: 'home slot', class: 'bg-indigo-500' },
-  { label: 'probing now', class: 'bg-amber-400' },
-  { label: 'probed', class: 'bg-amber-400/30' },
-  { label: 'tombstone', class: 'bg-rose-400/60' },
-  { label: 'empty', class: 'bg-slate-200 dark:bg-slate-700' },
-];
+// `home slot` is a structural landmark (where this key's probe sequence
+// starts), not a live algorithm state, so it borrows the `accent` chrome
+// token the same way DsuForest's `root` does rather than claiming an
+// AlgoTone — hence its own swatch below instead of a `toneLegend` entry.
+// Tombstone reads as `rejected`, not `blocked`: `blocked` means impassable
+// (a wall stops a walk cold), but a tombstone is the opposite — the whole
+// reason it exists is that probes walk straight past it (see the template's
+// own comment on the tombstone pill). `rejected`'s "considered and
+// discarded, a past decision" is what a deleted entry actually is.
+const LEGEND = toneLegend([
+  { tone: 'probe', label: 'probing now' },
+  { tone: 'probe', label: 'probed' },
+  { tone: 'rejected', label: 'tombstone' },
+  { tone: 'idle', label: 'empty' },
+]);
 
 const probed = computed(() => new Set(props.probeSeq));
 
@@ -92,8 +101,8 @@ function isResolved(key: string): boolean {
 }
 
 function rowClass(index: number): string {
-  if (index === props.probeIndex) return 'bg-amber-400/20 ring-1 ring-amber-400';
-  if (probed.value.has(index)) return 'bg-amber-400/[0.07]';
+  if (index === props.probeIndex) return 'bg-tone-probe/20 ring-1 ring-tone-probe';
+  if (probed.value.has(index)) return 'bg-tone-probe/[0.07]';
   return '';
 }
 </script>
@@ -101,6 +110,11 @@ function rowClass(index: number): string {
 <template>
   <AvPanel title="Buckets" class="flex h-full flex-col">
     <template #header>
+      <div class="flex flex-wrap items-center gap-3 text-xs text-ink-muted">
+        <span class="flex items-center gap-1.5"
+          ><i class="h-3 w-3 rounded-mark bg-accent" />home slot</span
+        >
+      </div>
       <AvLegend :items="LEGEND" />
     </template>
 
@@ -115,17 +129,15 @@ function rowClass(index: number): string {
           :data-bucket="index"
           :data-state="bucket.state"
           :data-home="index === homeIndex ? 'true' : undefined"
+          :data-probing="index === probeIndex ? 'true' : undefined"
           class="grid grid-cols-[2.25rem_1.75rem_minmax(0,1fr)] items-center gap-2 rounded-lg px-1 py-1 transition-colors"
           :class="rowClass(index)"
         >
           <!-- Index gutter -->
           <span
+            :data-home="index === homeIndex ? 'true' : undefined"
             class="rounded-md py-1 text-center font-mono text-xs tabular-nums"
-            :class="
-              index === homeIndex
-                ? 'bg-indigo-500 font-bold text-white'
-                : 'text-slate-400 dark:text-slate-500'
-            "
+            :class="index === homeIndex ? 'bg-accent font-bold text-accent-ink' : 'text-ink-muted'"
             >{{ index }}</span
           >
 
@@ -133,7 +145,7 @@ function rowClass(index: number): string {
           <span
             v-if="probeOrder(index) !== null"
             :data-probe-order="probeOrder(index)"
-            class="rounded-md bg-amber-400/80 py-0.5 text-center font-mono text-[10px] font-bold text-amber-950"
+            class="rounded-md bg-tone-probe/80 py-0.5 text-center font-mono text-[10px] font-bold text-tone-probe-ink"
             :title="chaining ? 'links walked' : 'probe number'"
             >{{ chaining ? '↓' : '' }}{{ probeOrder(index) }}</span
           >
@@ -146,13 +158,16 @@ function rowClass(index: number): string {
               :key="entry.key"
               data-role="entry"
               :data-key="entry.key"
+              :data-link-state="
+                isResolved(entry.key) ? 'resolved' : isCursorLink(index, position) ? 'cursor' : undefined
+              "
               class="inline-flex max-w-full items-center gap-1 truncate rounded-full border px-2 py-0.5 font-mono text-xs"
               :class="
                 isResolved(entry.key)
-                  ? 'border-emerald-400 bg-emerald-400/20 font-bold text-emerald-700 dark:text-emerald-300'
+                  ? `${TONE_BORDER.settled} bg-tone-settled/20 font-bold ${TONE_INK.settled}`
                   : isCursorLink(index, position)
-                    ? 'border-amber-400 bg-amber-400/30 font-bold text-amber-800 dark:text-amber-200'
-                    : 'border-slate-200 bg-white text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                    ? `${TONE_BORDER.probe} bg-tone-probe/30 font-bold ${TONE_INK.probe}`
+                    : 'border-line bg-surface-raised text-ink-muted'
               "
               >{{ entry.key }}</span
             >
@@ -162,13 +177,13 @@ function rowClass(index: number): string {
             <span
               v-if="bucket.state === 'tombstone'"
               data-role="tombstone"
-              class="inline-flex items-center gap-1 rounded-full border border-dashed border-rose-400/70 px-2 py-0.5 font-mono text-xs text-rose-500 dark:text-rose-400"
+              :class="`inline-flex items-center gap-1 rounded-full border border-dashed px-2 py-0.5 font-mono text-xs ${TONE_BORDER.rejected} ${TONE_INK.rejected}`"
               >✕ deleted</span
             >
             <span
               v-else-if="bucket.entries.length === 0"
               data-role="empty"
-              class="font-mono text-xs text-slate-300 dark:text-slate-600"
+              class="font-mono text-xs text-ink-faint"
               >—</span
             >
           </div>

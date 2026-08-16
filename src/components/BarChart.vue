@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import AvPanel from '@/components/ui/AvPanel.vue';
+import AvLegend from '@/components/ui/AvLegend.vue';
+import { TONE_MARK, toneLegend } from '@/theme/tones';
 
 const props = withDefaults(
   defineProps<{
@@ -35,11 +37,21 @@ const showLabels = computed(() => props.array.length <= 25);
 
 // Color precedence: swapping > comparing > sorted > default.
 function colorClass(index: number) {
-  if (swappingSet.value.has(index)) return 'bg-rose-500';
-  if (comparingSet.value.has(index)) return 'bg-amber-400';
-  if (sortedSet.value.has(index)) return 'bg-emerald-500';
-  return 'bg-indigo-500/80 dark:bg-indigo-400/80';
+  if (swappingSet.value.has(index)) return TONE_MARK.active;
+  if (comparingSet.value.has(index)) return TONE_MARK.probe;
+  if (sortedSet.value.has(index)) return TONE_MARK.settled;
+  return TONE_MARK.idle;
 }
+
+// Sorting has better words for these than the generic tone labels, but the
+// swatches come from the same table that paints the bars, so the key cannot
+// describe something the chart is not drawing.
+const LEGEND = toneLegend([
+  { tone: 'idle', label: 'Unsorted' },
+  { tone: 'probe', label: 'Comparing' },
+  { tone: 'active', label: 'Swapping' },
+  { tone: 'settled', label: 'Sorted' },
+]);
 
 function heightPercent(value: number) {
   // Reserve a little headroom so the tallest bar doesn't touch the ceiling.
@@ -50,30 +62,13 @@ function heightPercent(value: number) {
 <template>
   <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</h2>
-      <!-- Color legend -->
-      <div
-        v-if="showLegend"
-        class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400"
-      >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-indigo-500/80 dark:bg-indigo-400/80" />Unsorted</span
-        >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-amber-400" />Comparing</span
-        >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-rose-500" />Swapping</span
-        >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-emerald-500" />Sorted</span
-        >
-      </div>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-faint">{{ title }}</h2>
+      <AvLegend v-if="showLegend" :items="LEGEND" />
     </div>
 
     <!-- Bars -->
     <div
-      class="flex min-h-[280px] flex-1 items-end gap-[2px] rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40 sm:gap-1"
+      class="flex min-h-[280px] flex-1 items-end gap-[2px] rounded-xl bg-surface-alt p-3 sm:gap-1"
     >
       <div
         v-for="(value, index) in array"
@@ -81,11 +76,11 @@ function heightPercent(value: number) {
         class="flex flex-1 flex-col items-center justify-end"
         :style="{ height: '100%' }"
       >
-        <span v-if="showLabels" class="mb-1 text-[10px] font-medium text-slate-400 sm:text-xs">{{
+        <span v-if="showLabels" class="nums mb-1 text-[10px] font-medium text-ink-faint sm:text-xs">{{
           value
         }}</span>
         <div
-          class="w-full rounded-t-sm transition-[height,background-color] duration-150 ease-out"
+          class="w-full rounded-t-mark transition-[height,background-color] duration-150 ease-out"
           :class="colorClass(index)"
           :style="{ height: heightPercent(value) }"
         />

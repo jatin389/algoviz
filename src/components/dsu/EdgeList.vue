@@ -20,6 +20,7 @@ import { computed, nextTick, ref, watch } from 'vue';
 import type { GraphEdge, GraphNode } from '@/types';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvLegend from '@/components/ui/AvLegend.vue';
+import { TONE_BORDER, TONE_SOFT_BG, TONE_MARK, toneLegend } from '@/theme/tones';
 
 const props = defineProps<{
   /** Weight-sorted already — useMst.sortedEdges. This component does not resort. */
@@ -33,25 +34,29 @@ const props = defineProps<{
 
 type EdgeStatus = 'accepted' | 'rejected' | 'considering' | 'pending';
 
-const LEGEND = [
-  { label: 'Pending', class: 'bg-slate-300 dark:bg-slate-600' },
-  { label: 'Considering', class: 'bg-amber-400' },
-  { label: 'Accepted', class: 'bg-emerald-500' },
-  { label: 'Rejected', class: 'bg-rose-400/60 dark:bg-rose-500/50' },
-];
+// pending -> idle (not yet reached by Kruskal's sweep, exactly like an
+// unvisited node); considering -> probe; accepted -> settled; rejected keeps
+// its own tone, which is what the shared vocabulary means by "considered and
+// discarded" verbatim.
+const LEGEND = toneLegend([
+  { tone: 'idle', label: 'Pending' },
+  { tone: 'probe', label: 'Considering' },
+  { tone: 'settled', label: 'Accepted' },
+  { tone: 'rejected', label: 'Rejected' },
+]);
 
 const STATUS_ROW_CLASS: Record<EdgeStatus, string> = {
-  pending: 'border-slate-200 dark:border-slate-700',
-  considering: 'border-amber-400 bg-amber-50 dark:bg-amber-900/20',
-  accepted: 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20',
-  rejected: 'border-rose-300 bg-rose-50/70 dark:border-rose-800 dark:bg-rose-900/10',
+  pending: TONE_BORDER.idle,
+  considering: `${TONE_BORDER.probe} ${TONE_SOFT_BG.probe}`,
+  accepted: `${TONE_BORDER.settled} ${TONE_SOFT_BG.settled}`,
+  rejected: `${TONE_BORDER.rejected} ${TONE_SOFT_BG.rejected}`,
 };
 
 const STATUS_DOT_CLASS: Record<EdgeStatus, string> = {
-  pending: 'bg-slate-300 dark:bg-slate-600',
-  considering: 'bg-amber-400',
-  accepted: 'bg-emerald-500',
-  rejected: 'bg-rose-400/60 dark:bg-rose-500/50',
+  pending: TONE_MARK.idle,
+  considering: TONE_MARK.probe,
+  accepted: TONE_MARK.settled,
+  rejected: TONE_MARK.rejected,
 };
 
 // O(1) membership checks while a run can repaint several times a second —
@@ -95,13 +100,13 @@ watch(
   <AvPanel title="Edge Queue">
     <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
       <AvLegend :items="LEGEND" />
-      <p class="text-xs text-slate-400">
+      <p class="text-xs text-ink-faint">
         {{ acceptedCount }} accepted &middot; {{ rejectedCount }} rejected &middot;
         {{ edges.length }} total
       </p>
     </div>
 
-    <p v-if="edges.length === 0" class="py-6 text-center text-sm text-slate-400">
+    <p v-if="edges.length === 0" class="py-6 text-center text-sm text-ink-faint">
       No edges yet — generate a graph to build the queue.
     </p>
 
@@ -118,15 +123,15 @@ watch(
             class="h-2.5 w-2.5 flex-none rounded-full"
             :class="STATUS_DOT_CLASS[statusFor(edge)]"
           />
-          <span class="font-mono font-semibold text-slate-700 dark:text-slate-200">
+          <span class="font-mono font-semibold text-ink">
             {{ labelFor(edge.from) }} &ndash; {{ labelFor(edge.to) }}
           </span>
         </span>
-        <span class="font-mono text-slate-500 dark:text-slate-400">w={{ edge.weight ?? 1 }}</span>
+        <span class="font-mono text-ink-muted">w={{ edge.weight ?? 1 }}</span>
       </li>
     </ol>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Lightest edges first — the exact order Kruskal considers them in.
     </p>
   </AvPanel>

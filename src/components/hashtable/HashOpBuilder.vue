@@ -40,11 +40,19 @@ const KINDS: { kind: HashOpKind; label: string }[] = [
   { kind: 'delete', label: 'Delete' },
 ];
 
-/** How an op reads in the list. Colour carries the same information as the word. */
+/**
+ * How an op reads in the list. Colour carries the same information as the
+ * word. These are chrome tokens, not algorithm tones: a script entry's kind
+ * (insert/search/delete) is a UI action classification, not a live state the
+ * running algorithm is painting onto the visualization — the same distinction
+ * that keeps a Run/Reset button on `ok`/`danger` rather than on a tone.
+ * insert creates (ok), search only reads (accent, the app's neutral
+ * informational colour), delete destroys (danger).
+ */
 const KIND_CLASS: Record<HashOpKind, string> = {
-  insert: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400',
-  search: 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400',
-  delete: 'bg-rose-500/15 text-rose-600 dark:text-rose-400',
+  insert: 'bg-ok-soft text-ok-ink',
+  search: 'bg-accent-soft text-accent-ink',
+  delete: 'bg-danger-soft text-danger-ink',
 };
 
 const kind = ref<HashOpKind>('insert');
@@ -121,16 +129,16 @@ const onSeed = (e: Event) => emit('update:seed', Number((e.target as HTMLInputEl
       </AvButton>
     </div>
 
-    <p v-if="notice" class="mt-2 text-xs text-amber-600 dark:text-amber-400">{{ notice }}</p>
+    <p v-if="notice" class="mt-2 text-xs text-warn-ink">{{ notice }}</p>
 
     <!-- Seed: bulk-loaded keys are drawn from it, so the same seed rebuilds the
          same script — the reason there is no Math.random anywhere near here. -->
     <label class="mt-3 block">
       <div class="mb-1.5 flex items-center justify-between text-sm">
-        <span class="font-medium text-slate-600 dark:text-slate-300">Seed</span>
+        <span class="font-medium text-ink-muted">Seed</span>
         <button
           type="button"
-          class="text-xs font-semibold text-indigo-500 hover:underline disabled:opacity-50 dark:text-indigo-400"
+          class="text-xs font-semibold text-accent hover:underline disabled:opacity-50"
           :disabled="!canEdit"
           @click="emit('randomize-seed')"
         >
@@ -141,31 +149,31 @@ const onSeed = (e: Event) => emit('update:seed', Number((e.target as HTMLInputEl
         type="number"
         :value="seed"
         :disabled="!canEdit"
-        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+        class="w-full rounded-xl border border-line bg-surface-raised px-3 py-2 font-mono text-sm text-ink disabled:cursor-not-allowed disabled:opacity-50"
         @input="onSeed"
       />
     </label>
 
     <!-- The script -->
-    <p v-if="script.length === 0" class="mt-4 text-sm text-slate-400 dark:text-slate-500">
+    <p v-if="script.length === 0" class="mt-4 text-sm text-ink-faint">
       No operations yet — add one, or bulk load a handful of keys.
     </p>
     <ol v-else class="mt-4 max-h-56 space-y-1 overflow-y-auto pr-1">
       <li
         v-for="(op, index) in script"
         :key="`${index}-${op.kind}-${op.key}`"
-        class="flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-1 text-xs dark:bg-slate-800/50"
+        class="flex items-center gap-2 rounded-lg bg-surface-alt px-2 py-1 text-xs"
       >
-        <span class="w-6 text-right font-mono tabular-nums text-slate-400">{{ index + 1 }}</span>
+        <span class="w-6 text-right font-mono tabular-nums text-ink-faint">{{ index + 1 }}</span>
         <span class="rounded px-1.5 py-0.5 font-semibold uppercase" :class="KIND_CLASS[op.kind]">{{
           op.kind
         }}</span>
-        <span class="min-w-0 flex-1 truncate font-mono text-slate-600 dark:text-slate-300">{{
+        <span class="min-w-0 flex-1 truncate font-mono text-ink-muted">{{
           op.key
         }}</span>
         <button
           type="button"
-          class="shrink-0 rounded px-1.5 text-slate-400 hover:text-rose-500 disabled:opacity-40"
+          class="shrink-0 rounded px-1.5 text-ink-faint hover:text-danger disabled:opacity-40"
           :disabled="!canEdit"
           :aria-label="`Remove operation ${index + 1}`"
           @click="emit('remove', index)"
