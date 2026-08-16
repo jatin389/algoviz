@@ -22,9 +22,10 @@ export interface ThemeMeta {
   /** One line, shown under the label in the picker. */
   blurb: string;
   /**
-   * Whether the palette is dark. This drives two things: the `color-scheme`
-   * sanity check, and the `.dark` class the theme store still writes while the
-   * `dark:` migration is in flight.
+   * Whether the palette is dark. Nothing in the styling depends on this — every
+   * colour resolves from the theme's own tokens — but the picker uses it to
+   * group light and dark themes, and the contrast test uses it as a sanity
+   * check against the block's declared `color-scheme`.
    */
   dark: boolean;
   group: 'Core' | 'Expressive' | 'Accessible';
