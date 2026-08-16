@@ -131,6 +131,6 @@ const hint = computed(() => {
       </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">{{ hint }}</p>
+    <p class="mt-3 text-center text-xs text-ink-faint">{{ hint }}</p>
   </AvPanel>
 </template>

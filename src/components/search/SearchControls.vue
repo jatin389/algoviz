@@ -60,13 +60,13 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
 
       <label class="block">
         <div class="mb-1.5 flex items-center justify-between text-sm">
-          <span class="font-medium text-slate-600 dark:text-slate-300">Target</span>
+          <span class="font-medium text-ink-muted">Target</span>
         </div>
         <input
           type="number"
           :value="target"
           :disabled="!canEdit"
-          class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          class="nums w-full rounded-xl border border-line bg-surface-raised px-3 py-2 text-sm text-ink disabled:cursor-not-allowed disabled:opacity-50"
           @input="onTarget"
         />
       </label>
@@ -146,7 +146,7 @@ const onTarget = (e: Event) => emit('update:target', Number((e.target as HTMLInp
       </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Size, algorithm &amp; target lock while a search is running.
     </p>
   </AvPanel>

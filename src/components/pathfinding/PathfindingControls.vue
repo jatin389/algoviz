@@ -126,7 +126,7 @@ const emit = defineEmits<{
       </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Walls, start, and end lock while a search is running.
     </p>
   </AvPanel>

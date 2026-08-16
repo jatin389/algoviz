@@ -2,6 +2,7 @@
 import { computed } from 'vue';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvLegend from '@/components/ui/AvLegend.vue';
+import AvRulerRail from '@/components/ui/AvRulerRail.vue';
 import { TONE_MARK, toneLegend } from '@/theme/tones';
 
 const props = withDefaults(
@@ -86,5 +87,8 @@ function heightPercent(value: number) {
         />
       </div>
     </div>
+    <!-- The measurement rail: index positions under the bars, so a highlighted
+         pair can actually be located in a long array. -->
+    <AvRulerRail :length="array.length" />
   </AvPanel>
 </template>

@@ -16,58 +16,62 @@ import ThemePicker from './components/ThemePicker.vue';
 
 <template>
   <div class="min-h-screen">
-    <div class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-      <!-- Header -->
-      <header class="mb-6 flex items-center justify-between">
-        <RouterLink to="/" class="flex items-center gap-3 rounded-2xl transition-opacity hover:opacity-80">
-          <div
-            class="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 shadow-lg shadow-indigo-500/30"
+    <!-- The header is a full-bleed band with a hairline under it, so the page
+         has an actual masthead rather than a logo floating in the content
+         column. -->
+    <header class="border-b border-line">
+      <div
+        class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4"
+      >
+        <RouterLink to="/" class="group flex items-baseline gap-2.5">
+          <!-- Wordmark, not a gradient tile. A rounded square holding a generic
+               glyph is the most over-used mark on the web; a set wordmark with
+               the accent carried by a single rule is both cheaper and more
+               distinctive, and it survives eight palettes intact. -->
+          <span class="font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl"
+            >AlgoViz</span
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              class="h-6 w-6"
-            >
-              <line x1="6" y1="20" x2="6" y2="14" />
-              <line x1="12" y1="20" x2="12" y2="4" />
-              <line x1="18" y1="20" x2="18" y2="10" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-xl font-bold tracking-tight sm:text-2xl">AlgoViz</h1>
-            <p class="text-xs text-slate-400 sm:text-sm">Interactive algorithm visualizer</p>
-          </div>
+          <span aria-hidden="true" class="h-4 w-px bg-line-strong" />
+          <span class="hidden text-2xs uppercase text-ink-faint sm:inline">
+            Algorithm Visualizer
+          </span>
         </RouterLink>
         <ThemePicker />
-      </header>
+      </div>
+    </header>
 
-      <!-- Category nav -->
-      <nav class="mb-6 flex flex-wrap gap-2">
-        <RouterLink
-          v-for="route in navRoutes"
-          :key="route.path"
-          :to="route.path"
-          class="rounded-xl px-4 py-2 text-sm font-semibold transition-all"
-          :class="
-            $route.path === route.path
-              ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/30'
-              : 'bg-white/70 text-slate-600 hover:bg-slate-100 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:bg-slate-700'
-          "
-        >
-          {{ route.meta?.label }}
-        </RouterLink>
-      </nav>
+    <!-- Category nav.
+         Twelve filled pills wrapping onto two rows was the single busiest
+         element on the page: every destination shouted equally, so none of them
+         read as current. A single scrollable row with a rule under the active
+         tab gives the same information with one loud element instead of twelve. -->
+    <nav class="border-b border-line" aria-label="Categories">
+      <div class="mx-auto max-w-6xl px-4 sm:px-6">
+        <ul class="-mb-px flex gap-1 overflow-x-auto">
+          <li v-for="route in navRoutes" :key="route.path" class="shrink-0">
+            <RouterLink
+              :to="route.path"
+              class="block whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors"
+              :class="
+                $route.path === route.path
+                  ? 'border-accent text-accent'
+                  : 'border-transparent text-ink-muted hover:border-line-strong hover:text-ink'
+              "
+            >
+              {{ route.meta?.label }}
+            </RouterLink>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
+    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <RouterView />
 
-      <footer class="mt-8 text-center text-xs text-slate-400">
-        Built with Vue 3, Vite &amp; Tailwind CSS · each algorithm is a generator yielding step
-        snapshots.
+      <footer class="mt-10 border-t border-line pt-5 text-xs text-ink-faint">
+        Every algorithm here is a generator that yields a snapshot after each
+        meaningful step — nothing is pre-rendered.
       </footer>
-    </div>
+    </main>
   </div>
 </template>

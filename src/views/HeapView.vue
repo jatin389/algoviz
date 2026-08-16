@@ -3,11 +3,30 @@ import { computed } from 'vue';
 import { useHeap } from '@/composables/useHeap';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvStatCell from '@/components/ui/AvStatCell.vue';
+import AvStatusPill from '@/components/ui/AvStatusPill.vue';
 import HeapControls from '../components/datastructures/HeapControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
+import { TONE_BORDER, TONE_SOFT_BG } from '@/theme/tones';
 
 /** The paint states TreeDiagram understands. Mirrors the union in BstView. */
 type NodeState = 'default' | 'visiting' | 'inserted' | 'removing';
+
+// Backing-array cell colouring: comparing maps to the `probe` tone, an active
+// swap to `settled` (see the comment on stateForIndex below), default to `idle`.
+// Whole class names only, indexed from the shared tone tables — never built
+// with template-string interpolation.
+const CELL_BORDER: Record<NodeState, string> = {
+  visiting: TONE_BORDER.probe,
+  inserted: TONE_BORDER.settled,
+  removing: TONE_BORDER.rejected,
+  default: 'border-line',
+};
+const CELL_BG: Record<NodeState, string> = {
+  visiting: TONE_SOFT_BG.probe,
+  inserted: TONE_SOFT_BG.settled,
+  removing: TONE_SOFT_BG.rejected,
+  default: 'bg-surface-alt',
+};
 
 /** One positioned node handed to TreeDiagram; `id` is the backing array index. */
 interface DiagramNode {
@@ -125,41 +144,23 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
     <div class="flex flex-col gap-4">
       <AvPanel title="Stats">
         <template #header>
-          <span
-            class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-            :class="{
-              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400':
-                heap.status.value === 'idle',
-              'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400':
-                heap.status.value === 'running',
-              'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400':
-                heap.status.value === 'done',
-            }"
-          >
-            {{
-              heap.status.value === 'running'
-                ? 'Running'
-                : heap.status.value === 'done'
-                  ? 'Done'
-                  : 'Idle'
-            }}
-          </span>
+          <AvStatusPill :status="heap.status.value" />
         </template>
         <div class="grid grid-cols-3 gap-2">
           <AvStatCell label="Comparisons" :value="String(heap.stats.comparisons)" />
           <AvStatCell label="Swaps" :value="String(heap.stats.swaps)" />
           <AvStatCell label="Steps" :value="String(heap.stats.steps)" />
         </div>
-        <p v-if="heap.lastExtracted.value !== null" class="mt-3 text-center text-xs text-slate-400">
+        <p v-if="heap.lastExtracted.value !== null" class="mt-3 text-center text-xs text-ink-faint">
           Last extracted:
-          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{
+          <span class="nums font-mono font-semibold text-accent">{{
             heap.lastExtracted.value
           }}</span>
         </p>
       </AvPanel>
 
       <AvPanel class="flex min-h-[280px] flex-1 items-center justify-center">
-        <p v-if="isEmpty" class="text-sm text-slate-400">
+        <p v-if="isEmpty" class="text-sm text-ink-faint">
           The heap is empty — insert a value to get started.
         </p>
         <TreeDiagram
@@ -174,26 +175,20 @@ const isEmpty = computed(() => heap.heap.value.length === 0);
 
       <!-- Raw array — reinforces that a heap IS an array under the hood. -->
       <AvPanel title="Backing Array">
-        <div v-if="isEmpty" class="text-sm text-slate-400">Empty.</div>
+        <div v-if="isEmpty" class="text-sm text-ink-faint">Empty.</div>
         <div v-else class="flex flex-wrap gap-1.5">
           <div
             v-for="(value, i) in heap.heap.value"
             :key="i"
             class="flex w-12 flex-col items-center overflow-hidden rounded-lg border transition-colors"
-            :class="
-              stateForIndex(i) === 'visiting'
-                ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30'
-                : stateForIndex(i) === 'inserted'
-                  ? 'border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30'
-                  : 'border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800/50'
-            "
+            :class="[CELL_BORDER[stateForIndex(i)], CELL_BG[stateForIndex(i)]]"
           >
             <div
-              class="w-full bg-slate-200/70 py-0.5 text-center text-[10px] font-medium text-slate-500 dark:bg-slate-700/70 dark:text-slate-400"
+              class="w-full bg-surface-raised/70 py-0.5 text-center text-[10px] font-medium text-ink-muted"
             >
               {{ i }}
             </div>
-            <div class="py-1 font-mono text-sm font-semibold text-slate-800 dark:text-slate-100">
+            <div class="nums py-1 font-mono text-sm font-semibold text-ink">
               {{ value }}
             </div>
           </div>

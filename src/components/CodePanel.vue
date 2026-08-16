@@ -76,7 +76,7 @@ watch([scrollTarget, mode], async () => {
 <template>
   <AvPanel :title="title" class="max-h-96 overflow-y-auto">
     <template #header>
-      <div class="flex gap-1 rounded-xl bg-slate-100 p-1 dark:bg-slate-800/50">
+      <div class="flex gap-1 rounded-xl bg-surface-alt p-1">
         <AvButton variant="toggle" :active="mode === 'pseudo'" @click="mode = 'pseudo'">
           Pseudocode
         </AvButton>
@@ -88,12 +88,12 @@ watch([scrollTarget, mode], async () => {
 
     <p
       v-if="mode === 'source' && sourceFile"
-      class="mb-2 font-mono text-[0.65rem] uppercase tracking-wider text-slate-400 dark:text-slate-500"
+      class="mb-2 font-mono text-[0.65rem] uppercase tracking-wider text-ink-faint"
     >
       {{ sourceFile }}
     </p>
 
-    <p v-if="displayLines.length === 0" class="text-xs text-slate-400 dark:text-slate-500">
+    <p v-if="displayLines.length === 0" class="text-xs text-ink-faint">
       Pseudocode isn't written for this algorithm yet — switch to Source to watch the generator
       itself.
     </p>
@@ -105,19 +105,15 @@ watch([scrollTarget, mode], async () => {
         class="flex gap-3 rounded px-1.5 py-0.5 transition-colors"
         :class="
           isActive(index)
-            ? 'bg-amber-400/20 text-amber-800 dark:text-amber-300'
+            ? 'bg-tone-probe/20 text-tone-probe-ink'
             : isComment(line)
-              ? 'text-slate-400/70 dark:text-slate-600'
-              : 'text-slate-500 dark:text-slate-400'
+              ? 'text-ink-faint'
+              : 'text-ink-muted'
         "
       >
         <span
-          class="w-5 flex-none text-right tabular-nums"
-          :class="
-            isActive(index)
-              ? 'font-semibold text-amber-600 dark:text-amber-400'
-              : 'text-slate-400 dark:text-slate-600'
-          "
+          class="nums w-5 flex-none text-right"
+          :class="isActive(index) ? 'font-semibold text-tone-probe-ink' : 'text-ink-faint'"
           >{{ index + 1 }}</span
         >
         <!-- Leading spaces in `line` are the algorithm's actual indentation, so

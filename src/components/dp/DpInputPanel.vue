@@ -377,7 +377,7 @@ watch(
           :disabled="!canEdit"
           @update:model-value="set('dims', $event)"
         />
-        <p class="text-xs text-slate-400">
+        <p class="text-xs text-ink-faint">
           {{ size.rows }} matrices — dimension i and i + 1 are the shape of matrix i.
         </p>
       </template>
@@ -388,8 +388,8 @@ watch(
       complaints here are about a *combination* (one value per weight, the
       table's total size), and those have no single field to hang off.
     -->
-    <p v-if="error" class="mt-3 text-xs text-rose-500 dark:text-rose-400">{{ error }}</p>
-    <p v-else class="mt-3 text-xs text-slate-400">
+    <p v-if="error" class="mt-3 text-xs text-danger">{{ error }}</p>
+    <p v-else class="mt-3 text-xs text-ink-faint">
       Table: {{ size.rows }} × {{ size.cols }} = {{ size.cells.toLocaleString() }} cells (limit
       {{ MAX_TABLE_CELLS.toLocaleString() }}).
     </p>

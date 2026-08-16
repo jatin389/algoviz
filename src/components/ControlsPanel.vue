@@ -109,7 +109,7 @@ function handleRun() {
       suffix="%"
       @update:model-value="emit('update:volume', $event / 100)"
     />
-    <p v-if="sound && !hasSoundCues" class="mt-2 text-center text-xs text-slate-400">
+    <p v-if="sound && !hasSoundCues" class="mt-2 text-center text-xs text-ink-faint">
       Sound cues aren't mapped for this algorithm yet.
     </p>
 
@@ -177,7 +177,7 @@ function handleRun() {
       </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Size &amp; algorithm lock while a sort is running.
     </p>
   </AvPanel>

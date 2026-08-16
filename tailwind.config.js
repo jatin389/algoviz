@@ -115,10 +115,25 @@ export default {
         mono: 'var(--av-font-mono)',
       },
 
-      // The type scale is deliberately NOT changed here. Overriding `fontSize`
-      // rewrites every existing `text-sm`/`text-base` in the app, which would
-      // make this tier a visual change rather than inert plumbing. It lands
-      // with the rest of the typography work.
+      // Two scales, not one. The UI ramp is tight (~1.12) because a control
+      // panel is dense and wants many close steps; the display ramp is wide
+      // (1.5) because hierarchy comes from the GAP between the two, not from
+      // creeping up one uniform ladder. A single ~1.2 ramp across the whole
+      // range is what makes a page read as undesigned.
+      fontSize: {
+        // 11px, uppercase, tracked — the panel-label size. This is the single
+        // most characteristic type size in an instrument UI.
+        '2xs': ['0.6875rem', { lineHeight: '1rem', letterSpacing: '0.06em' }],
+        xs: ['0.75rem', { lineHeight: '1.125rem' }],
+        sm: ['0.8125rem', { lineHeight: '1.25rem' }],
+        base: ['0.875rem', { lineHeight: '1.5rem' }],
+        lg: ['1rem', { lineHeight: '1.5rem' }],
+        xl: ['1.125rem', { lineHeight: '1.6' }],
+        '2xl': ['1.375rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        'd-1': ['1.75rem', { lineHeight: '1.15', letterSpacing: '-0.02em' }],
+        'd-2': ['2.625rem', { lineHeight: '1.05', letterSpacing: '-0.025em' }],
+        'd-3': ['3.9375rem', { lineHeight: '1', letterSpacing: '-0.03em' }],
+      },
     },
   },
   plugins: [

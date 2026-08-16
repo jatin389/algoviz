@@ -162,7 +162,7 @@ function onSeedInput(value: string) {
       </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Node count, seed &amp; algorithm lock while a run is in progress.
     </p>
   </AvPanel>

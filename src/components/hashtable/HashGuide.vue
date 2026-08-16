@@ -15,7 +15,7 @@ import AvExplainer from '@/components/ui/AvExplainer.vue';
     summary="A hash sends every key to one bucket. The interesting part is what happens when two land on the same one."
     start-open
   >
-    <p class="mb-3 text-slate-600 dark:text-slate-300">
+    <p class="mb-3 text-ink-muted">
       A hash table turns a key into a number, folds that number into a slot with
       <code class="font-mono text-xs">h(key) mod capacity</code>, and stores the key there. That is
       the entire idea, and it is O(1) — right up until two keys pick the same slot. Everything on
@@ -23,10 +23,10 @@ import AvExplainer from '@/components/ui/AvExplainer.vue';
       each probe can be checked by hand.
     </p>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Chaining vs open addressing
     </h3>
-    <ul class="mb-4 space-y-2 text-slate-600 dark:text-slate-300">
+    <ul class="mb-4 space-y-2 text-ink-muted">
       <li>
         <b>Separate chaining</b> hangs a list off each bucket. Colliding keys are appended, so a
         lookup hashes once and then walks a chain that averages α links long. It degrades gently,
@@ -40,10 +40,10 @@ import AvExplainer from '@/components/ui/AvExplainer.vue';
       </li>
     </ul>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Clustering — the reason there are three probe sequences
     </h3>
-    <p class="mb-3 text-slate-600 dark:text-slate-300">
+    <p class="mb-3 text-ink-muted">
       <b>Linear probing</b> tries the next slot along, so collisions form contiguous runs, and every
       run is a bigger target for the next key — a cluster grows itself. That is
       <em>primary clustering</em>. <b>Quadratic probing</b> jumps k(k+1)/2 slots on the k-th probe,
@@ -54,10 +54,10 @@ import AvExplainer from '@/components/ui/AvExplainer.vue';
       probe order, and the clusters are visible.
     </p>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Why α matters
     </h3>
-    <p class="mb-3 text-slate-600 dark:text-slate-300">
+    <p class="mb-3 text-ink-muted">
       The load factor α = keys / slots is what the cost actually depends on — not the number of
       keys. Chaining costs about 1 + α. Open addressing costs about 1/(1 − α), which is 2 probes at
       half full, 10 at 90%, and unbounded as the table fills. That is why the table grows: once α
@@ -67,19 +67,19 @@ import AvExplainer from '@/components/ui/AvExplainer.vue';
       inserts, so the amortized cost per insert stays constant.
     </p>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Why deletion needs a tombstone
     </h3>
-    <p class="mb-2 text-slate-600 dark:text-slate-300">
+    <p class="mb-2 text-ink-muted">
       Under open addressing a search stops at the first <em>empty</em> slot — that is what makes a
       miss cheap. So emptying a slot on delete would cut every probe sequence that ran through it,
       and any key stored further along its own sequence would become invisible while still sitting
       in the table. Instead the slot is marked
-      <span class="font-mono text-rose-500 dark:text-rose-400">✕ deleted</span>: searches walk
+      <span class="font-mono text-tone-rejected-ink">✕ deleted</span>: searches walk
       straight past it, and a later insert may reuse it. Delete a key from the middle of a cluster
       and search for one after it — the tombstone is what makes the lookup still succeed.
     </p>
-    <p class="text-slate-500 dark:text-slate-400">
+    <p class="text-ink-faint">
       Tombstones are not free: they hold no key but still cost a probe, so they count toward the
       fill that triggers a resize. A rehash is also how they get cleaned up.
     </p>

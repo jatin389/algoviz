@@ -4,6 +4,7 @@ import { formatNaiveCount, isSaturated } from '@/algorithms/dp/naiveCount';
 import type { AlgoStatus } from '@/types';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvStatGrid from '@/components/ui/AvStatGrid.vue';
+import AvStatusPill from '@/components/ui/AvStatusPill.vue';
 
 // The panel that makes the category's argument.
 //
@@ -56,34 +57,12 @@ const cells = computed(() => [
   { label: 'Elapsed', value: `${(props.elapsedMs / 1000).toFixed(2)}s` },
 ]);
 
-// Same status vocabulary and the same pill classes as `SearchStats`, so the
-// badge means the same thing on every tab.
-const statusLabel = computed(
-  () =>
-    ({ idle: 'Idle', running: 'Running', paused: 'Paused', done: 'Done' })[props.status] ??
-    props.status,
-);
-
-const statusClass = computed(
-  () =>
-    ({
-      idle: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
-      running: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400',
-      paused: 'bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400',
-      done: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400',
-    })[props.status],
-);
 </script>
 
 <template>
   <AvPanel title="Stats">
     <template #header>
-      <span
-        class="rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors"
-        :class="statusClass"
-      >
-        {{ statusLabel }}
-      </span>
+      <AvStatusPill :status="status" />
     </template>
 
     <!-- The decoded answer, not a number: an LCS string, a parenthesisation, a
@@ -91,14 +70,14 @@ const statusClass = computed(
          for; the tiles below explain what it cost. -->
     <div
       v-if="result"
-      class="mb-3 break-words rounded-xl bg-emerald-50 p-3 text-center text-sm font-semibold text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
+      class="mb-3 break-words rounded-xl bg-ok-soft p-3 text-center text-sm font-semibold text-ok-ink"
     >
       {{ result }}
     </div>
 
     <div
       v-if="truncated"
-      class="mb-3 rounded-xl bg-amber-50 p-3 text-center text-xs font-semibold text-amber-600 dark:bg-amber-900/30 dark:text-amber-400"
+      class="mb-3 rounded-xl bg-warn-soft p-3 text-center text-xs font-semibold text-warn-ink"
     >
       The step cap stopped this run early — the counts below are partial.
     </div>
