@@ -17,9 +17,10 @@ function initialIsDark() {
 
 const isDark = ref(initialIsDark());
 
-function apply() {
+function apply(persist = true) {
   const root = document.documentElement;
   root.classList.toggle('dark', isDark.value);
+  if (!persist) return;
   try {
     localStorage.setItem(STORAGE_KEY, isDark.value ? 'dark' : 'light');
   } catch {
@@ -39,9 +40,23 @@ export function useTheme() {
     apply();
   }
 
+  // Set explicitly rather than relative to the current value. Embeds need this:
+  // the app defaults to dark, which is the wrong choice inside a light-background
+  // host page, and `?theme=light` has to win regardless of what is stored.
+  //
+  // `persist: false` is not a nicety. An embed writing the theme to localStorage
+  // poisons the whole origin: a second embed on the same page reads it at module
+  // init and silently inherits the first one's `?theme=`, and the reader's own
+  // preference in the full app gets overwritten by a widget they only scrolled
+  // past. A widget on someone else's page must not have that reach.
+  function setDark(value: boolean, options: { persist?: boolean } = {}) {
+    isDark.value = value;
+    apply(options.persist ?? true);
+  }
+
   function initTheme() {
     apply();
   }
 
-  return { isDark, toggle, initTheme };
+  return { isDark, toggle, setDark, initTheme };
 }

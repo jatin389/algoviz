@@ -20,6 +20,7 @@ import ConcurrencyView from '@/views/ConcurrencyView.vue';
 import DpView from '@/views/DpView.vue';
 import MstView from '@/views/MstView.vue';
 import HashTableView from '@/views/HashTableView.vue';
+import EmbedView from '@/views/EmbedView.vue';
 
 // Every route carries the label the nav renders, so the tab bar is derived
 // from this array rather than duplicating it. `pitch` and `count` extend that
@@ -28,11 +29,17 @@ import HashTableView from '@/views/HashTableView.vue';
 //
 // `count` is optional because it is not universally meaningful — BST and Heap
 // are operation-driven views with no algorithm registry to count.
+//
+// `embed` marks the minimal-chrome variant. It is read by `App.vue` to drop the
+// header/nav/footer, and by the views that render a prose guide. A flag on the
+// route rather than an embed-only special case, so presenter mode (backlog 0028)
+// can reuse the same bare shell.
 declare module 'vue-router' {
   interface RouteMeta {
     label: string;
     pitch: string;
     count?: number;
+    embed?: boolean;
   }
 }
 
@@ -160,11 +167,37 @@ export const navRoutes: RouteRecordRaw[] = [
  * runtime filtering on `meta.label`, and no way for a non-navigable route to
  * leak into the tab bar.
  */
+/**
+ * Categories that can be embedded, derived from `navRoutes` rather than listed
+ * again — a new category becomes embeddable by existing, not by a second edit.
+ *
+ * BST and Heap are excluded because they are the only two categories that never
+ * call `useUrlState`: an `/embed/bst?seed=…` would accept the param and silently
+ * ignore it, which is worse than not resolving at all. Retrofitting URL state to
+ * both is queued as a follow-up.
+ */
+const NOT_EMBEDDABLE = new Set(['bst', 'heap']);
+
+export const embeddableRoutes: RouteRecordRaw[] = navRoutes.filter(
+  (route) => !NOT_EMBEDDABLE.has(String(route.name)),
+);
+
 export const routes: RouteRecordRaw[] = [
   // The front door. Deliberately not part of `navRoutes` — it is reached via the
   // header logo, not a tab, and it is not a category to list on its own grid.
   { path: '/', name: 'landing', component: LandingView, meta: { label: 'Home', pitch: '' } },
   ...navRoutes,
+  // Also kept out of `navRoutes`: an embed is a way to render a category, not a
+  // category of its own, and it must not reach the tab bar or the landing grid.
+  // Declared before the catch-all so it matches first — which also means an
+  // unknown `:category` lands *here*, not on the catch-all, and `EmbedView` has
+  // to turn it away itself.
+  {
+    path: '/embed/:category',
+    name: 'embed',
+    component: EmbedView,
+    meta: { label: 'Embed', pitch: '', embed: true },
+  },
   // Anything unrecognized lands on the front door rather than a blank page.
   { path: '/:pathMatch(.*)*', redirect: '/' },
 ];

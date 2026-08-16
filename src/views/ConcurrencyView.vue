@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useConcurrency } from '@/composables/useConcurrency';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import ConcurrencyControls from '@/components/concurrency/ConcurrencyControls.vue';
 import ConcurrencyGuide from '@/components/concurrency/ConcurrencyGuide.vue';
 import ScheduleList from '@/components/concurrency/ScheduleList.vue';
@@ -10,6 +11,7 @@ import AvPanel from '@/components/ui/AvPanel.vue';
 import AvStatCell from '@/components/ui/AvStatCell.vue';
 
 const concurrency = useConcurrency();
+const isEmbed = useIsEmbed();
 
 const selected = computed(() => concurrency.selected.value);
 
@@ -35,7 +37,7 @@ const cells = computed(() => [
   <div class="grid gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <ConcurrencyGuide />
+      <ConcurrencyGuide v-if="!isEmbed" />
       <ConcurrencyControls
         v-model:scenario="concurrency.scenarioKey.value"
         v-model:speed="concurrency.speed.value"

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watch } from 'vue';
 import { useSandbox } from '@/composables/useSandbox';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import CodeEditor from '@/components/sandbox/CodeEditor.vue';
 import SandboxGuide from '@/components/sandbox/SandboxGuide.vue';
 import SandboxControls from '@/components/sandbox/SandboxControls.vue';
@@ -10,6 +11,12 @@ import BarChart from '@/components/BarChart.vue';
 import StatsDisplay from '@/components/StatsDisplay.vue';
 
 const sandbox = useSandbox();
+
+// The guide is the only thing hidden when embedded. The shared-link banner in
+// SandboxStatus deliberately stays: an embed's code always arrives via `src`, so
+// `fromSharedLink` is already true, and a reader running a stranger's code on a
+// third-party page is exactly who that banner exists for.
+const isEmbed = useIsEmbed();
 
 // Changing the dataset invalidates whatever tape was collected against the old
 // one: the steps still reference the previous array, so replaying them would
@@ -33,7 +40,7 @@ const firstRejectReason = computed(() => sandbox.lastRun.value?.firstRejectReaso
   <div class="grid gap-4 lg:grid-cols-[minmax(0,420px)_1fr]">
     <!-- Left column -->
     <div class="flex flex-col gap-4">
-      <SandboxGuide />
+      <SandboxGuide v-if="!isEmbed" />
       <CodeEditor
         v-model="sandbox.source.value"
         :disabled="sandbox.phase.value === 'executing'"

@@ -13,6 +13,7 @@
 
 import { computed, watch } from 'vue';
 import { useMst } from '@/composables/useMst';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import { algorithms } from '@/algorithms/dsu';
 import type { InspectorRow } from '@/components/ui/AvStepInspector.vue';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
@@ -28,6 +29,7 @@ import DsuForest from '@/components/dsu/DsuForest.vue';
 import EdgeList from '@/components/dsu/EdgeList.vue';
 
 const mst = useMst();
+const isEmbed = useIsEmbed();
 
 // Node count and seed both reshape the dataset (a graph, or a forest sized
 // to match), so both follow the exact pattern SearchView/SortingView use for
@@ -144,7 +146,7 @@ const inspectorRows = computed<InspectorRow[]>(() => {
         :columns="3"
         :disabled="!mst.canEdit.value"
       />
-      <MstGuide />
+      <MstGuide v-if="!isEmbed" />
       <MstControls
         :node-count="mst.nodeCount.value"
         :seed="mst.seed.value"
