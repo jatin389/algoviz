@@ -112,6 +112,15 @@
     --av-accent-alt: 26 163 201;
     --av-accent-soft: 14 46 58;
     --av-accent-ink: 4 34 43;
+    --av-ok: 129 224 195;
+    --av-ok-soft: 0 44 33;
+    --av-ok-ink: 116 211 182;
+    --av-warn: 205 155 61;
+    --av-warn-soft: 49 33 3;
+    --av-warn-ink: 227 182 103;
+    --av-danger: 207 0 53;
+    --av-danger-soft: 57 25 26;
+    --av-danger-ink: 253 161 160;
 
     /* Ladder, dimmest first. Spacing in OKLCH L is what carries the encoding
        through greyscale and colour-vision deficiency; hue is assigned second.
@@ -160,6 +169,15 @@
     --av-accent-alt: 9 96 150;
     --av-accent-soft: 221 238 250;
     --av-accent-ink: 255 255 255;
+    --av-ok: 0 94 70;
+    --av-ok-soft: 206 246 232;
+    --av-ok-ink: 0 94 70;
+    --av-warn: 114 64 0;
+    --av-warn-soft: 251 233 202;
+    --av-warn-ink: 114 64 0;
+    --av-danger: 137 32 43;
+    --av-danger-soft: 255 224 223;
+    --av-danger-ink: 137 32 43;
 
     --av-tone-active: 205 13 55;
     --av-tone-active-soft: 255 224 223;
@@ -208,6 +226,15 @@
     --av-accent-alt: 46 208 190;
     --av-accent-soft: 12 42 38;
     --av-accent-ink: 4 20 16;
+    --av-ok: 77 240 196;
+    --av-ok-soft: 0 51 37;
+    --av-ok-ink: 91 227 190;
+    --av-warn: 204 147 19;
+    --av-warn-soft: 59 36 0;
+    --av-warn-ink: 243 189 92;
+    --av-danger: 197 0 49;
+    --av-danger-soft: 69 24 26;
+    --av-danger-ink: 255 164 164;
     --av-glow-color: 77 240 196;
     --av-glow-sm: 0 0 0 1px rgb(var(--av-glow-color) / 0.45),
       0 0 8px -2px rgb(var(--av-glow-color) / 0.5);
@@ -265,6 +292,15 @@
     --av-accent-alt: 150 58 34;
     --av-accent-soft: 251 221 209;
     --av-accent-ink: 255 250 247;
+    --av-ok: 0 96 70;
+    --av-ok-soft: 199 243 228;
+    --av-ok-ink: 0 96 70;
+    --av-warn: 113 65 0;
+    --av-warn-soft: 250 229 195;
+    --av-warn-ink: 113 65 0;
+    --av-danger: 134 38 46;
+    --av-danger-soft: 255 219 218;
+    --av-danger-ink: 134 38 46;
     --av-radius-lg: 0.75rem;
     --av-radius-xl: 1rem;
     --av-radius-2xl: 1.25rem;
@@ -322,6 +358,17 @@
     --av-accent-alt: 190 196 206;
     --av-accent-soft: 38 42 49;
     --av-accent-ink: 10 11 13;
+    /* Achromatic on purpose: a monochrome theme that keeps a green Run button
+       is not monochrome. The controls are labelled, so luminance carries it. */
+    --av-ok: 200 208 220;
+    --av-ok-soft: 40 44 51;
+    --av-ok-ink: 196 203 214;
+    --av-warn: 150 158 171;
+    --av-warn-soft: 32 35 41;
+    --av-warn-ink: 168 176 189;
+    --av-danger: 255 255 255;
+    --av-danger-soft: 62 67 76;
+    --av-danger-ink: 255 255 255;
 
     --av-viz-stroke-w: 1.5px;
 
@@ -379,6 +426,15 @@
     --av-accent-alt: 232 172 74;
     --av-accent-soft: 48 34 10;
     --av-accent-ink: 10 8 4;
+    --av-ok: 255 176 0;
+    --av-ok-soft: 52 36 4;
+    --av-ok-ink: 255 196 62;
+    --av-warn: 255 208 122;
+    --av-warn-soft: 56 40 12;
+    --av-warn-ink: 255 219 150;
+    --av-danger: 255 122 84;
+    --av-danger-soft: 58 24 14;
+    --av-danger-ink: 255 158 128;
     --av-font-display: var(--av-font-mono);
     --av-font-sans: var(--av-font-mono);
     --av-radius-sm: 0px;
@@ -445,6 +501,15 @@
     --av-accent-alt: 44 64 106;
     --av-accent-soft: 219 227 242;
     --av-accent-ink: 253 251 245;
+    --av-ok: 0 100 76;
+    --av-ok-soft: 196 240 225;
+    --av-ok-ink: 0 100 76;
+    --av-warn: 116 72 0;
+    --av-warn-soft: 246 226 192;
+    --av-warn-ink: 116 72 0;
+    --av-danger: 138 35 94;
+    --av-danger-soft: 255 216 233;
+    --av-danger-ink: 138 35 94;
     --av-radius-sm: 0px;
     --av-radius: 0px;
     --av-radius-md: 0px;
@@ -509,6 +574,15 @@
     --av-accent-alt: 224 224 0;
     --av-accent-soft: 51 51 0;
     --av-accent-ink: 0 0 0;
+    --av-ok: 0 158 115;
+    --av-ok-soft: 0 41 30;
+    --av-ok-ink: 60 200 158;
+    --av-warn: 240 228 66;
+    --av-warn-soft: 51 48 12;
+    --av-warn-ink: 240 228 66;
+    --av-danger: 213 94 0;
+    --av-danger-soft: 51 23 0;
+    --av-danger-ink: 255 150 80;
     --av-viz-stroke-w: 2px;
 
     --av-tone-idle: 160 160 160;
@@ -543,30 +617,59 @@
     @apply antialiased;
   }
   body {
-    @apply bg-slate-100 text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100;
+    @apply bg-canvas text-ink transition-colors duration-300;
+  }
+
+  /* The textarea in the sandbox editor is transparent, so its caret and
+     selection are browser defaults driven only by `color-scheme`. On Terminal
+     and High Contrast those land unreadable against the token background, and
+     no utility class reaches them. */
+  ::selection {
+    background: rgb(var(--av-accent) / 0.3);
+    color: rgb(var(--av-ink));
   }
 }
 
 @layer components {
-  /* A consistent card surface used across panels. */
+  /* The card surface every panel shares.
+     No `backdrop-blur` and no translucent white: frosted glass over a gradient
+     is one of the most recognisable generic-template tells, and it also makes
+     the eight palettes bleed into each other. A solid surface and a hairline
+     read as deliberate and let each theme actually look like itself. */
   .av-card {
-    @apply rounded-2xl border border-slate-200 bg-white/80 shadow-sm backdrop-blur
-           dark:border-slate-800 dark:bg-slate-900/70;
+    @apply rounded-2xl border border-line bg-surface shadow-sm;
+  }
+
+  /* A data mark — bar, cell, node. Colour themes leave the pattern and stroke
+     channels off, so this is just a fill; Monochrome, Terminal, Paper and
+     forced-colors switch them on and the SAME markup starts carrying state as
+     texture and outline. Each mark sets `--tone-*` from its own tone class. */
+  .viz-mark {
+    background-image: var(--tone-pat, none);
+    /* Anchored to the element, not the viewport: a viewport-anchored texture
+       appears to crawl across a mark that moves every frame. */
+    background-origin: border-box;
+    background-clip: border-box;
+    border-width: var(--av-viz-stroke-w);
+    border-style: solid;
+    border-color: rgb(var(--av-ink) / 0.55);
   }
 }
 
-/* Range slider styling — Tailwind can't reach the pseudo-elements cleanly, so
-   we hand-style the track/thumb here for both themes. */
+/* Range slider — Tailwind cannot reach these pseudo-elements cleanly.
+   `theme()` on a semantic token emits `rgb(var(--av-line) / 1)`, i.e. a live
+   variable reference, so these follow the active theme with no per-theme
+   duplication. The `.DEFAULT` suffix is required: `theme()` does not collapse
+   a nested colour group to its default the way a utility class does. The old `.dark input[type='range']` override is gone: it was a
+   plain CSS selector rather than a Tailwind variant, so it would have survived
+   every migration grep and sat there inert forever. */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
   border-radius: 9999px;
-  background: theme('colors.slate.300');
+  background: theme('colors.line.DEFAULT');
   cursor: pointer;
-}
-.dark input[type='range'] {
-  background: theme('colors.slate.700');
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
@@ -574,9 +677,11 @@ input[type='range']::-webkit-slider-thumb {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: theme('colors.indigo.500');
-  border: 2px solid theme('colors.white');
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  background: theme('colors.accent.DEFAULT');
+  /* Was `colors.white`, which vanishes on Paper and Daylight. The surface
+     token keeps the thumb detached from its track in every theme. */
+  border: 2px solid theme('colors.surface.DEFAULT');
+  box-shadow: 0 1px 3px var(--av-shadow-strong);
   transition: transform 0.15s ease;
 }
 input[type='range']::-webkit-slider-thumb:hover {
@@ -586,8 +691,8 @@ input[type='range']::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: theme('colors.indigo.500');
-  border: 2px solid theme('colors.white');
+  background: theme('colors.accent.DEFAULT');
+  border: 2px solid theme('colors.surface.DEFAULT');
   cursor: pointer;
 }
 input[type='range']:disabled {

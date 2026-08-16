@@ -8,7 +8,7 @@ defineProps<{ items: { label: string; class: string }[] }>();
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+  <div class="flex flex-wrap items-center gap-3 text-xs text-ink-muted">
     <span v-for="item in items" :key="item.label" class="flex items-center gap-1.5"
       ><i class="h-3 w-3 rounded-sm" :class="item.class" />{{ item.label }}</span
     >

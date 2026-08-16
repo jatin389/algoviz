@@ -22,22 +22,22 @@ withDefaults(defineProps<{ title: string; summary?: string; startOpen?: boolean 
       class="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden"
     >
       <span class="min-w-0">
-        <span class="block text-xs font-semibold uppercase tracking-wider text-slate-400">
+        <span class="block text-xs font-semibold uppercase tracking-wider text-ink-faint">
           {{ title }}
         </span>
-        <span v-if="summary" class="mt-1 block text-sm text-slate-500 dark:text-slate-400">
+        <span v-if="summary" class="mt-1 block text-sm text-ink-muted">
           {{ summary }}
         </span>
       </span>
       <span
-        class="shrink-0 text-slate-400 transition-transform group-open:rotate-180"
+        class="shrink-0 text-ink-faint transition-transform group-open:rotate-180"
         aria-hidden="true"
       >
         ▾
       </span>
     </summary>
 
-    <div class="mt-4 border-t border-slate-200 pt-4 text-sm dark:border-slate-700">
+    <div class="mt-4 border-t border-line pt-4 text-sm">
       <slot />
     </div>
   </details>

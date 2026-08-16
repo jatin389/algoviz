@@ -46,6 +46,13 @@ export default {
           soft: token('accent-soft'),
           ink: token('accent-ink'),
         },
+        // Chrome action colours. Deliberately NOT the algorithm tones, even
+        // though the colour themes give them the same values: keeping them as
+        // separate names is what lets Monochrome render its data marks
+        // achromatically while a Reset button stays a Reset button.
+        ok: { DEFAULT: token('ok'), soft: token('ok-soft'), ink: token('ok-ink') },
+        warn: { DEFAULT: token('warn'), soft: token('warn-soft'), ink: token('warn-ink') },
+        danger: { DEFAULT: token('danger'), soft: token('danger-soft'), ink: token('danger-ink') },
         // The seven algorithm states. Three layers each, because the tables
         // being replaced use a saturated fill, a tinted surface, and a legible
         // text colour on that surface. Borders reuse the base at reduced alpha

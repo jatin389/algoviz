@@ -108,7 +108,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
     <button
       ref="trigger"
       type="button"
-      class="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white/70 px-3 text-slate-600 transition-colors hover:text-indigo-500 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-300 dark:hover:text-indigo-400"
+      class="flex h-10 items-center gap-2 rounded-xl border border-line bg-surface px-3 text-ink-muted transition-colors hover:text-accent"
       aria-haspopup="listbox"
       :aria-expanded="open"
       :title="`Theme: ${current.label}`"
@@ -128,12 +128,12 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
       ref="listbox"
       role="listbox"
       aria-label="Theme"
-      class="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+      class="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-line bg-surface-raised p-1.5 shadow-xl"
       @keydown="onListKeydown"
     >
       <template v-for="group in groups" :key="group.label">
         <p
-          class="px-2 pb-1 pt-2 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400"
+          class="px-2 pb-1 pt-2 text-[0.65rem] font-semibold uppercase tracking-wider text-ink-faint"
         >
           {{ group.label }}
         </p>
@@ -144,7 +144,7 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
           type="button"
           :aria-selected="item.name === theme"
           :tabindex="flat[activeIndex]?.name === item.name ? 0 : -1"
-          class="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-slate-100 focus:bg-slate-100 focus:outline-none dark:hover:bg-slate-800 dark:focus:bg-slate-800"
+          class="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-surface-alt focus:bg-surface-alt focus:outline-none"
           @click="choose(item.name)"
         >
           <!-- The swatch renders in ITS OWN theme: the token blocks are plain
@@ -161,17 +161,17 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', onDocumentPoin
             <i class="h-5 w-2 rounded-sm bg-tone-settled" />
           </span>
           <span class="min-w-0 flex-1">
-            <span class="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            <span class="block text-sm font-semibold text-ink">
               {{ item.label }}
             </span>
-            <span class="block truncate text-xs text-slate-500 dark:text-slate-400">
+            <span class="block truncate text-xs text-ink-muted">
               {{ item.blurb }}
             </span>
           </span>
           <span
             v-if="item.name === theme"
             aria-hidden="true"
-            class="shrink-0 text-indigo-500 dark:text-indigo-400"
+            class="shrink-0 text-accent"
             >&checkmark;</span
           >
         </button>
