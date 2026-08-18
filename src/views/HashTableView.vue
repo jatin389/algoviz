@@ -14,6 +14,7 @@
 
 import { computed, ref, watch } from 'vue';
 import { useHashTable } from '@/composables/useHashTable';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import { algorithms } from '@/algorithms/hashtable';
 import type { InspectorRow, InspectorTone } from '@/components/ui/AvStepInspector.vue';
 import type { HashPhase } from '@/types';
@@ -28,6 +29,7 @@ import PlaybackScrubber from '@/components/PlaybackScrubber.vue';
 import CodePanel from '@/components/CodePanel.vue';
 
 const hashTable = useHashTable();
+const isEmbed = useIsEmbed();
 
 // Switching strategies mid-view resets any finished run to a clean state, the
 // same rule SearchView applies to switching algorithms — a bucket grid left
@@ -128,7 +130,7 @@ const stepRows = computed<InspectorRow[]>(() => {
         :columns="2"
         :disabled="!hashTable.canEdit.value"
       />
-      <HashGuide />
+      <HashGuide v-if="!isEmbed" />
       <HashControls
         :capacity="hashTable.capacity.value"
         :effective-capacity="hashTable.startCapacity.value"

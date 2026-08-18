@@ -37,6 +37,32 @@ Plus, app-wide:
   Every palette is gated by `src/theme/contrast.test.ts`, which parses the tokens out of the
   stylesheet and asserts WCAG contrast plus deuteranope and protanope separation.
 - **Responsive** layout for desktop and tablet, with controls locked while an algorithm is actively running.
+- **Shareable URLs** — every category mirrors its configuration into the address bar, so any run is a link, and a seed replays the same dataset on any browser.
+- **Embeddable** — the same visualizers render without site chrome at `#/embed/<category>`, for dropping into a post or a slide deck.
+
+## Embedding
+
+Any category can be embedded as a live, interactive widget. It takes the same
+query params the category already uses in the main app:
+
+```html
+<iframe
+  src="https://<owner>.github.io/algoviz/#/embed/sorting?algo=quick&seed=42"
+  width="100%"
+  height="520"
+  style="border: 0; border-radius: 12px"
+  title="AlgoViz — quicksort"
+  loading="lazy"
+></iframe>
+```
+
+Two shell params apply to every embed: `brand=0` hides the corner link back to
+the app, and `theme=` picks the palette — any of the eight theme names, plus
+the original `light` and `dark`, which map onto Daylight and Midnight.
+
+See **[docs/embedding.md](docs/embedding.md)** for the per-category param table
+and the known limits (BST and Heap are not embeddable; hand-painted pathfinding
+walls do not survive a link).
 
 ## Getting started
 

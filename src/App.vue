@@ -1,7 +1,13 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router';
 import { navRoutes } from '@/router';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import ThemePicker from './components/ThemePicker.vue';
+
+// Embed routes drop the chrome entirely: an iframe on someone else's page has no
+// use for our header, tab bar or footer, and the host supplies the surrounding
+// layout.
+const isEmbed = useIsEmbed();
 
 // Each route is a fully self-contained view with its own composable/state —
 // switching tabs never mixes state between them, and a view is only mounted
@@ -15,11 +21,11 @@ import ThemePicker from './components/ThemePicker.vue';
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div :class="isEmbed ? '' : 'min-h-screen'">
     <!-- The header is a full-bleed band with a hairline under it, so the page
          has an actual masthead rather than a logo floating in the content
          column. -->
-    <header class="border-b border-line">
+    <header v-if="!isEmbed" class="border-b border-line">
       <div
         class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4"
       >
@@ -45,7 +51,7 @@ import ThemePicker from './components/ThemePicker.vue';
          element on the page: every destination shouted equally, so none of them
          read as current. A single scrollable row with a rule under the active
          tab gives the same information with one loud element instead of twelve. -->
-    <nav class="border-b border-line" aria-label="Categories">
+    <nav v-if="!isEmbed" class="border-b border-line" aria-label="Categories">
       <div class="mx-auto max-w-6xl px-4 sm:px-6">
         <ul class="-mb-px flex gap-1 overflow-x-auto">
           <li v-for="route in navRoutes" :key="route.path" class="shrink-0">
@@ -65,12 +71,14 @@ import ThemePicker from './components/ThemePicker.vue';
       </div>
     </nav>
 
-    <main class="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+    <!-- Embedded, the iframe sets the box: no centering, no max width, and only
+         enough padding to keep the visualizer off the frame edge. -->
+    <main :class="isEmbed ? 'p-3' : 'mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8'">
       <RouterView />
 
-      <footer class="mt-10 border-t border-line pt-5 text-xs text-ink-faint">
-        Every algorithm here is a generator that yields a snapshot after each
-        meaningful step — nothing is pre-rendered.
+      <footer v-if="!isEmbed" class="mt-10 border-t border-line pt-5 text-xs text-ink-faint">
+        Every algorithm here is a generator that yields a snapshot after each meaningful step —
+        nothing is pre-rendered.
       </footer>
     </main>
   </div>

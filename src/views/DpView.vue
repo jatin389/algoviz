@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useDp } from '@/composables/useDp';
+import { useIsEmbed } from '@/composables/useIsEmbed';
 import { algorithms, fmt } from '@/algorithms/dp';
 import type { DpCell, DpDep } from '@/algorithms/dp';
 import type { InspectorRow } from '@/components/ui/AvStepInspector.vue';
@@ -15,6 +16,7 @@ import DpStats from '@/components/dp/DpStats.vue';
 import DpTable from '@/components/dp/DpTable.vue';
 
 const dp = useDp();
+const isEmbed = useIsEmbed();
 
 /**
  * `dp[4]` for the one-row tables, `dp[3][4]` for the rest.
@@ -71,7 +73,7 @@ const headline = computed(() => {
         :columns="2"
         :disabled="!dp.canEdit.value"
       />
-      <DpGuide />
+      <DpGuide v-if="!isEmbed" />
       <DpInputPanel
         :algo-key="dp.algoKey.value"
         :input="dp.input.value"
