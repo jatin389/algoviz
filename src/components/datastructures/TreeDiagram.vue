@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { TONE_FILL, TONE_STROKE } from '@/theme/tones';
+
 // Generic binary-tree SVG renderer — knows nothing about BST or Heap
 // specifically. Consumers compute their own x/y layout and pass in a flat
 // node/edge list; this component only draws it.
@@ -41,11 +43,14 @@ const props = withDefaults(
   },
 );
 
+// default -> idle (untouched); visiting -> probe (being compared/considered);
+// removing -> active (the cursor: the node currently being written out);
+// inserted -> settled (accepted into the tree).
 const stateColors: Record<string, NodeColors> = {
-  default: { fill: '#6366f1', stroke: '#4338ca' }, // indigo
-  visiting: { fill: '#f59e0b', stroke: '#b45309' }, // amber
-  removing: { fill: '#f43f5e', stroke: '#be123c' }, // rose
-  inserted: { fill: '#10b981', stroke: '#047857' }, // emerald
+  default: { fill: TONE_FILL.idle, stroke: TONE_STROKE.idle },
+  visiting: { fill: TONE_FILL.probe, stroke: TONE_STROKE.probe },
+  removing: { fill: TONE_FILL.active, stroke: TONE_STROKE.active },
+  inserted: { fill: TONE_FILL.settled, stroke: TONE_STROKE.settled },
 };
 
 function colorsFor(state: string | undefined) {
@@ -70,7 +75,7 @@ function nodeById(id: number) {
       :y1="nodeById(edge.from)?.y"
       :x2="nodeById(edge.to)?.x"
       :y2="nodeById(edge.to)?.y"
-      class="stroke-slate-300 dark:stroke-slate-700"
+      class="stroke-line"
       stroke-width="2"
     />
 
@@ -79,17 +84,16 @@ function nodeById(id: number) {
         :cx="node.x"
         :cy="node.y"
         r="18"
-        :fill="colorsFor(node.state).fill"
-        :stroke="colorsFor(node.state).stroke"
         stroke-width="2"
         class="transition-all duration-300"
+        :class="[colorsFor(node.state).fill, colorsFor(node.state).stroke]"
       />
       <text
         :x="node.x"
         :y="node.y"
         text-anchor="middle"
         dominant-baseline="central"
-        class="select-none fill-white text-xs font-semibold"
+        class="select-none fill-ink-inverse text-xs font-semibold"
       >
         {{ node.value }}
       </text>

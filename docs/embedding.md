@@ -31,7 +31,7 @@ These two work on every embed route, in addition to the category's own params.
 | Param | Values | Default | Effect |
 |---|---|---|---|
 | `brand` | `0` to hide, anything else to show | shown | The "Powered by AlgoViz" corner link. It opens the full app in a new tab, carrying whatever state the reader has arrived at. |
-| `theme` | `light`, `dark` | `dark` | Overrides the app's dark default, which otherwise looks wrong on a light-background page. Anything else is ignored. The override is never persisted, so two embeds on one page can use different themes and neither touches the reader's own preference in the full app. |
+| `theme` | any theme name (`midnight`, `daylight`, `neon`, `pastel`, `mono`, `terminal`, `paper`, `contrast`), or `light` / `dark` | `midnight` | Picks the palette, so a widget can match the page framing it rather than always arriving dark. `light` and `dark` predate named themes and still work, mapping onto Daylight and Midnight. An unrecognised value is ignored and leaves the widget alone rather than resetting it. The override is never persisted, so two embeds on one page can use different themes and neither touches the reader's own preference in the full app. |
 
 ## Per-category params
 

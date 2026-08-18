@@ -42,7 +42,7 @@ const emit = defineEmits<{
       :model-value="cursor"
       @update:model-value="emit('seek', $event)"
     />
-    <p v-else class="text-sm text-slate-400 dark:text-slate-500">Press Run or Step to begin.</p>
+    <p v-else class="text-sm text-ink-faint">Press Run or Step to begin.</p>
 
     <div class="mt-3 grid grid-cols-3 gap-2">
       <AvButton variant="quiet" :disabled="!canStepBack" @click="emit('step-back')">

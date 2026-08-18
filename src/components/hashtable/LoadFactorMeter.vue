@@ -40,19 +40,17 @@ const over = computed(() => props.loadFactor > props.threshold);
 <template>
   <div>
     <div class="mb-1.5 flex items-baseline justify-between text-sm">
-      <span class="font-medium text-slate-600 dark:text-slate-300">
+      <span class="font-medium text-ink-muted">
         Load factor α
-        <span class="ml-1 font-mono text-xs text-slate-400">{{ size }} / {{ capacity }}</span>
+        <span class="nums ml-1 font-mono text-xs text-ink-faint">{{ size }} / {{ capacity }}</span>
       </span>
-      <span
-        class="font-mono font-semibold"
-        :class="over ? 'text-amber-500' : 'text-indigo-500 dark:text-indigo-400'"
+      <span class="nums font-mono font-semibold" :class="over ? 'text-warn' : 'text-accent'"
         >{{ loadFactor.toFixed(2) }}</span
       >
     </div>
 
     <div
-      class="relative h-2.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+      class="relative h-2.5 w-full overflow-hidden rounded-full bg-surface-alt"
       role="meter"
       :aria-valuenow="Number(loadFactor.toFixed(2))"
       :aria-valuemin="0"
@@ -61,20 +59,20 @@ const over = computed(() => props.loadFactor > props.threshold);
     >
       <div
         class="h-full rounded-full transition-all"
-        :class="over ? 'bg-amber-400' : 'bg-indigo-500'"
+        :class="over ? 'bg-warn' : 'bg-accent'"
         :style="{ width: percent(loadFactor) }"
       />
       <!-- The marker sits above the fill so it stays visible once the bar
            passes it, which is exactly the moment it matters most. -->
       <div
-        class="absolute inset-y-0 w-0.5 bg-rose-500"
+        class="absolute inset-y-0 w-0.5 bg-danger"
         :style="{ left: percent(threshold) }"
         aria-hidden="true"
       />
     </div>
 
-    <p class="mt-1 text-[11px] text-slate-400">
-      Grows past <span class="font-mono">{{ threshold.toFixed(2) }}</span
+    <p class="mt-1 text-[11px] text-ink-faint">
+      Grows past <span class="nums font-mono">{{ threshold.toFixed(2) }}</span
       >; open addressing also counts tombstones toward the fill.
     </p>
   </div>

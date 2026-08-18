@@ -70,18 +70,18 @@ function select(key: TKey) {
     </div>
 
     <!-- Description + complexity for the selected algorithm -->
-    <div v-if="selected" class="mt-4 rounded-xl bg-slate-50 p-4 dark:bg-slate-800/50">
-      <p class="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+    <div v-if="selected" class="mt-4 rounded-xl bg-surface-alt p-4">
+      <p class="text-sm leading-relaxed text-ink-muted">
         {{ selected.description }}
       </p>
       <div class="mt-3 flex flex-wrap gap-2">
         <span
           v-for="[label, value] in complexityRows"
           :key="label"
-          class="inline-flex items-center gap-1 rounded-lg bg-white px-2.5 py-1 text-xs font-medium text-slate-500 shadow-sm dark:bg-slate-900 dark:text-slate-400"
+          class="inline-flex items-center gap-1 rounded-lg bg-surface-raised px-2.5 py-1 text-xs font-medium text-ink-muted shadow-sm"
         >
-          <span class="uppercase tracking-wide text-[10px] text-slate-400">{{ label }}</span>
-          <span class="font-mono font-semibold text-indigo-500 dark:text-indigo-400">{{
+          <span class="uppercase tracking-wide text-[10px] text-ink-faint">{{ label }}</span>
+          <span class="font-mono font-semibold text-accent">{{
             value
           }}</span>
         </span>
@@ -90,8 +90,8 @@ function select(key: TKey) {
           class="inline-flex items-center rounded-lg px-2.5 py-1 text-xs font-medium shadow-sm"
           :class="
             selected.stable
-              ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400'
-              : 'bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+              ? 'bg-ok-soft text-ok-ink'
+              : 'bg-warn-soft text-warn-ink'
           "
         >
           {{ selected.stable ? 'Stable' : 'Unstable' }}

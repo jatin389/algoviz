@@ -6,11 +6,11 @@ defineProps<{ label: string; value: string }>();
 </script>
 
 <template>
-  <div class="rounded-xl bg-slate-50 p-3 text-center dark:bg-slate-800/50">
-    <div class="font-mono text-xl font-bold text-slate-800 dark:text-slate-100 sm:text-2xl">
+  <div class="rounded-xl bg-surface-alt p-3 text-center">
+    <div class="nums font-mono text-xl font-bold text-ink sm:text-2xl">
       {{ value }}
     </div>
-    <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-slate-400">
+    <div class="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-ink-faint">
       {{ label }}
     </div>
   </div>

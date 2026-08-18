@@ -54,7 +54,7 @@ function onSeedInput(value: string) {
       </AvButton>
     </div>
 
-    <p class="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">
+    <p class="mt-3 rounded-lg bg-warn-soft px-3 py-2 text-xs text-warn-ink">
       {{ scenarios[scenarioKey].bug }}
     </p>
 
@@ -76,7 +76,7 @@ function onSeedInput(value: string) {
         @update:model-value="onSeedInput"
       />
       <AvButton variant="quiet" :disabled="!canEdit" @click="emit('randomize')">New seed</AvButton>
-      <p class="text-[11px] text-slate-400 dark:text-slate-500">
+      <p class="text-[11px] text-ink-faint">
         The seed only matters once a scenario is too large to check exhaustively — then it picks
         which interleavings get sampled.
       </p>

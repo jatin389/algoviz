@@ -37,7 +37,7 @@ const href = computed(() => {
     target="_blank"
     rel="noopener"
     data-testid="embed-brand"
-    class="pointer-events-auto absolute bottom-2 right-2 rounded-lg bg-white/70 px-2 py-1 text-[11px] font-medium text-slate-500 shadow-sm backdrop-blur transition-colors hover:text-indigo-500 dark:bg-slate-900/70 dark:text-slate-400 dark:hover:text-indigo-400"
+    class="pointer-events-auto absolute bottom-2 right-2 rounded-lg border border-line bg-surface/90 px-2 py-1 text-2xs font-medium text-ink-muted shadow-sm transition-colors hover:text-accent"
   >
     Powered by AlgoViz ↗
   </a>

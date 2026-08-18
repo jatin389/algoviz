@@ -29,10 +29,10 @@ const tone = computed(() => {
 const toneClass = computed(
   () =>
     ({
-      idle: 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400',
-      ok: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-      warn: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-      error: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
+      idle: 'bg-surface-alt text-ink-muted',
+      ok: 'bg-ok-soft text-ok-ink',
+      warn: 'bg-warn-soft text-warn-ink',
+      error: 'bg-danger-soft text-danger-ink',
     })[tone.value],
 );
 </script>
@@ -59,29 +59,29 @@ const toneClass = computed(
          just works. -->
     <p
       v-if="fromSharedLink"
-      class="mb-3 rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+      class="mb-3 rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent"
     >
       This code came from a shared link. It runs in an isolated frame with no access to this
       page, but it is not code you wrote.
     </p>
 
-    <p v-if="error" class="text-sm text-rose-600 dark:text-rose-400">{{ error }}</p>
+    <p v-if="error" class="text-sm text-danger">{{ error }}</p>
 
     <template v-else>
-      <p v-if="stopLabel" class="mb-2 text-sm text-amber-600 dark:text-amber-400">
+      <p v-if="stopLabel" class="mb-2 text-sm text-warn">
         {{ stopLabel }}
       </p>
-      <p v-if="phase === 'ready'" class="text-sm text-slate-500 dark:text-slate-400">
+      <p v-if="phase === 'ready'" class="nums text-sm text-ink-muted">
         Collected {{ stepsCollected.toLocaleString() }} snapshots<span v-if="elapsedMs !== null">
           in {{ (elapsedMs / 1000).toFixed(2) }}s</span
         >.
       </p>
-      <p v-else-if="phase === 'idle'" class="text-sm text-slate-500 dark:text-slate-400">
+      <p v-else-if="phase === 'idle'" class="text-sm text-ink-muted">
         Your code runs in a sandboxed frame on its own thread. It can draw bars; it cannot reach
         this page.
       </p>
 
-      <p v-if="rejected > 0" class="mt-2 text-xs text-amber-600 dark:text-amber-400">
+      <p v-if="rejected > 0" class="nums mt-2 text-xs text-warn">
         {{ rejected.toLocaleString() }} snapshot{{ rejected === 1 ? '' : 's' }} rejected before
         rendering — {{ firstRejectReason }}
       </p>

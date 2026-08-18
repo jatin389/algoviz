@@ -133,15 +133,26 @@ describe('embed attribution link', () => {
 
 describe('embed theme override', () => {
   it('honors theme=light against the app-wide dark default', async () => {
+    // `light` and `dark` were the only two values when embeds shipped. They are
+    // still honoured now that themes have names, mapping onto the light and
+    // dark defaults, so embed URLs already out in the wild keep working.
     await mountAt('/embed/sorting', { theme: 'light' });
 
-    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('daylight');
   });
 
   it('honors theme=dark', async () => {
     await mountAt('/embed/sorting', { theme: 'dark' });
 
-    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('midnight');
+  });
+
+  it('honors a named theme', async () => {
+    // The param widened with the theme system: a host page can frame a widget
+    // in whichever palette suits its own design, not just light or dark.
+    await mountAt('/embed/sorting', { theme: 'terminal' });
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('terminal');
   });
 
   it('does not persist the override', async () => {
@@ -161,5 +172,8 @@ describe('embed theme override', () => {
     const { wrapper } = await mountAt('/embed/sorting', { theme: 'chartreuse' });
 
     expect(wrapper.find('[data-testid="embed-shell"]').exists()).toBe(true);
+    // Specifically it is left ALONE rather than reset to the default — a typo
+    // in someone else's iframe should not repaint a widget that was fine.
+    expect(document.documentElement.getAttribute('data-theme')).not.toBe('chartreuse');
   });
 });

@@ -4,6 +4,7 @@ import type { DpAxes, DpCell, DpDep, DpTableData } from '@/algorithms/dp';
 import { fmt } from '@/algorithms/dp';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvLegend from '@/components/ui/AvLegend.vue';
+import { toneLegend } from '@/theme/tones';
 import { dpLayout } from './dpLayout';
 import type { DpRect } from './dpLayout';
 
@@ -81,23 +82,43 @@ const emit = defineEmits<{
 // The fills are all light or translucent so one text colour reads on every one
 // of them. The alternative — a saturated fill per tone with white text — was
 // tried first and lost: a table is mostly *values*, and a wall of full-strength
-// colour drowns the numbers it is supposed to be annotating.
+// colour drowns the numbers it is supposed to be annotating. That washed-out
+// look is exactly what `-soft` is for, so every entry below is a soft fill
+// rather than `TONE_FILL`'s full-strength one.
+//
+// Tone choices: `empty` is untouched data (idle). `filled` already holds an
+// accepted value (settled). `filling` is the cursor — the cell being written
+// right now (active). `dep` and `path` both land on `trace`: the shared
+// vocabulary's own definition is "a dependency that was read, OR a
+// reconstructed path", which is `dep` and `path` verbatim — DP's fill-time
+// reads and its post-run traceback are the same kind of provenance, just at
+// different moments of the run, so unifying them is a fact about the
+// algorithm rather than a loss of information. `focus` stays its own thing:
+// it is a state of the *reader*, not of the algorithm (see its doc comment
+// above), so it deliberately does not borrow an AlgoTone at all — it reuses
+// `probe`'s amber family at reduced opacity, which keeps it visually related
+// to `filling` (same hue neighbourhood) while staying paler and unmistakably
+// a different, non-algorithmic signal.
 const TONE_CLASS: Record<DpTone, string> = {
-  empty: 'fill-slate-100 dark:fill-slate-800/60',
-  filled: 'fill-indigo-50 dark:fill-indigo-500/15',
-  path: 'fill-emerald-200 dark:fill-emerald-500/40',
-  dep: 'fill-sky-200 dark:fill-sky-500/40',
-  focus: 'fill-amber-200 dark:fill-amber-500/30',
-  filling: 'fill-amber-300 dark:fill-amber-500/60',
+  empty: 'fill-tone-idle-soft',
+  filled: 'fill-tone-settled-soft',
+  path: 'fill-tone-trace-soft',
+  dep: 'fill-tone-trace-soft',
+  focus: 'fill-tone-probe-soft/60',
+  filling: 'fill-tone-active-soft',
 };
 
-const LEGEND = [
-  { label: 'Not computed', class: 'bg-slate-100 dark:bg-slate-800/60' },
-  { label: 'Computed', class: 'bg-indigo-50 dark:bg-indigo-500/15' },
-  { label: 'Filling now', class: 'bg-amber-300 dark:bg-amber-500/60' },
-  { label: 'Read by this cell', class: 'bg-sky-200 dark:bg-sky-500/40' },
-  { label: 'Traceback', class: 'bg-emerald-200 dark:bg-emerald-500/40' },
-];
+// `Read by this cell` and `Traceback` share a swatch because they share a
+// tone (see TONE_CLASS above) — the legend is not disagreeing with itself,
+// it is reporting honestly that the table paints both relationships the
+// same way.
+const LEGEND = toneLegend([
+  { tone: 'idle', label: 'Not computed' },
+  { tone: 'settled', label: 'Computed' },
+  { tone: 'active', label: 'Filling now' },
+  { tone: 'trace', label: 'Read by this cell' },
+  { tone: 'trace', label: 'Traceback' },
+]);
 
 /** `"3,4"` — the key both the tone lookups and the arrow de-duplication use. */
 function keyOf(cell: { row: number; col: number }): string {
@@ -322,10 +343,10 @@ function onEnter(row: number, col: number) {
 <template>
   <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-faint">{{ title }}</h2>
       <code
         v-if="recurrence"
-        class="rounded-lg bg-slate-100 px-2 py-1 font-mono text-xs text-indigo-600 dark:bg-slate-800 dark:text-indigo-300"
+        class="rounded-lg bg-surface-alt px-2 py-1 font-mono text-xs text-accent"
         >{{ recurrence }}</code
       >
       <AvLegend :items="LEGEND" />
@@ -338,7 +359,7 @@ function onEnter(row: number, col: number) {
       legible table you scroll beats an illegible one you don't.
     -->
     <div
-      class="max-h-[60vh] flex-1 overflow-auto rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40"
+      class="max-h-[60vh] flex-1 overflow-auto rounded-xl bg-surface-alt p-3"
       @pointerleave="emit('hover-cell', null)"
     >
       <svg
@@ -362,7 +383,7 @@ function onEnter(row: number, col: number) {
             markerHeight="5"
             orient="auto-start-reverse"
           >
-            <path d="M0 0 L8 4 L0 8 z" class="fill-slate-400 dark:fill-slate-500" />
+            <path d="M0 0 L8 4 L0 8 z" class="fill-ink-muted" />
           </marker>
           <marker
             id="dp-arrowhead-chosen"
@@ -373,7 +394,7 @@ function onEnter(row: number, col: number) {
             markerHeight="5"
             orient="auto-start-reverse"
           >
-            <path d="M0 0 L8 4 L0 8 z" class="fill-rose-500" />
+            <path d="M0 0 L8 4 L0 8 z" class="fill-tone-active" />
           </marker>
         </defs>
 
@@ -385,7 +406,7 @@ function onEnter(row: number, col: number) {
           :y="header.y"
           text-anchor="middle"
           dominant-baseline="central"
-          class="fill-slate-500 text-[10px] font-semibold dark:fill-slate-400"
+          class="fill-ink-muted text-[10px] font-semibold"
         >
           <title>{{ header.full }}</title>
           {{ header.text }}
@@ -399,7 +420,7 @@ function onEnter(row: number, col: number) {
           :y="header.y"
           text-anchor="end"
           dominant-baseline="central"
-          class="fill-slate-500 text-[10px] font-semibold dark:fill-slate-400"
+          class="fill-ink-muted text-[10px] font-semibold"
         >
           <title>{{ header.full }}</title>
           {{ header.text }}
@@ -411,7 +432,7 @@ function onEnter(row: number, col: number) {
           v-if="axes.colTitle"
           :x="layout.pad + 4"
           :y="layout.pad + layout.header / 2 - 6"
-          class="fill-slate-400 text-[9px] font-semibold uppercase tracking-wide"
+          class="fill-ink-faint text-[9px] font-semibold uppercase tracking-wide"
         >
           {{ axes.colTitle }} →
         </text>
@@ -419,7 +440,7 @@ function onEnter(row: number, col: number) {
           v-if="axes.rowTitle"
           :x="layout.pad + 4"
           :y="layout.pad + layout.header / 2 + 8"
-          class="fill-slate-400 text-[9px] font-semibold uppercase tracking-wide"
+          class="fill-ink-faint text-[9px] font-semibold uppercase tracking-wide"
         >
           {{ axes.rowTitle }} ↓
         </text>
@@ -451,11 +472,7 @@ function onEnter(row: number, col: number) {
             text-anchor="middle"
             dominant-baseline="central"
             class="pointer-events-none font-semibold"
-            :class="
-              cell.tone === 'empty'
-                ? 'fill-slate-400 dark:fill-slate-600'
-                : 'fill-slate-800 dark:fill-slate-100'
-            "
+            :class="cell.tone === 'empty' ? 'fill-ink-faint' : 'fill-ink'"
           >
             {{ cell.text }}
           </text>
@@ -478,7 +495,7 @@ function onEnter(row: number, col: number) {
             stroke-width="1.5"
             stroke-dasharray="3 3"
             marker-end="url(#dp-arrowhead)"
-            class="stroke-slate-400 dark:stroke-slate-500"
+            class="stroke-ink-muted"
           />
           <line
             v-for="arrow in arrows"
@@ -489,7 +506,7 @@ function onEnter(row: number, col: number) {
             :y2="arrow.y2"
             :stroke-width="arrow.chosen ? 2.5 : 1.5"
             :marker-end="arrow.chosen ? 'url(#dp-arrowhead-chosen)' : 'url(#dp-arrowhead)'"
-            :class="arrow.chosen ? 'stroke-rose-500' : 'stroke-slate-400 dark:stroke-slate-500'"
+            :class="arrow.chosen ? 'stroke-tone-active' : 'stroke-ink-muted'"
           >
             <title>{{ arrow.label }}</title>
           </line>
@@ -497,7 +514,7 @@ function onEnter(row: number, col: number) {
       </svg>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Hover any cell to see which cells its value was read from.
     </p>
   </AvPanel>

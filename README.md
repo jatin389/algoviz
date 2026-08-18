@@ -22,7 +22,20 @@ Eleven independent categories, selectable from the top nav — each owns its own
 
 Plus, app-wide:
 
-- **Dark mode by default** with a light-mode toggle (persisted to `localStorage`).
+- **Eight themes** — Midnight, Daylight, Neon, Pastel, Monochrome, Terminal, Paper and High
+  Contrast — picked from the header and persisted to `localStorage`. They reskin the whole app,
+  visualizations included, and change geometry and typography as well as colour: Terminal squares
+  every corner and switches the UI to a mono face, Paper prints on off-white stock with a
+  zero-blur offset shadow.
+
+  Colour is a single layer of semantic tokens (`src/style.css`), surfaced through Tailwind and
+  consumed via one shared algorithm-state vocabulary (`src/theme/tones.ts`). A mark carries its
+  state in fill *and* in texture and outline, so the themes that give up hue — Monochrome,
+  Terminal, High Contrast — stay readable without any component branching on the theme. That same
+  encoding is what makes the app work under Windows High Contrast and in print.
+
+  Every palette is gated by `src/theme/contrast.test.ts`, which parses the tokens out of the
+  stylesheet and asserts WCAG contrast plus deuteranope and protanope separation.
 - **Responsive** layout for desktop and tablet, with controls locked while an algorithm is actively running.
 - **Shareable URLs** — every category mirrors its configuration into the address bar, so any run is a link, and a seed replays the same dataset on any browser.
 - **Embeddable** — the same visualizers render without site chrome at `#/embed/<category>`, for dropping into a post or a slide deck.
@@ -44,8 +57,8 @@ query params the category already uses in the main app:
 ```
 
 Two shell params apply to every embed: `brand=0` hides the corner link back to
-the app, and `theme=light` overrides the dark default for a light-background
-page.
+the app, and `theme=` picks the palette — any of the eight theme names, plus
+the original `light` and `dark`, which map onto Daylight and Midnight.
 
 See **[docs/embedding.md](docs/embedding.md)** for the per-category param table
 and the known limits (BST and Heap are not embeddable; hand-painted pathfinding

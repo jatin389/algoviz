@@ -12,6 +12,20 @@
 // pair covers both: a vertical that doesn't use a given tone (traversal never
 // emits 'accepted') simply never puts it in the map, and any id absent from
 // the map renders as 'idle'.
+//
+// The graph-facing names stay — they are what the algorithms actually mean —
+// but the colours now come from the app-wide AlgoTone vocabulary rather than
+// from literals held here. Two graph tones can share one AlgoTone: MST's
+// 'considering' IS a probe and its 'accepted' IS settled, which is a fact
+// about the algorithms, not a coincidence of palette.
+
+import {
+  TONE_FILL,
+  TONE_STROKE,
+  toneLegend,
+  type AlgoTone,
+  type LegendItem,
+} from '@/theme/tones';
 
 export type GraphTone =
   // Traversal (BFS/DFS/cycle-detection/bipartite-check)
@@ -24,58 +38,48 @@ export type GraphTone =
   | 'accepted'
   | 'rejected';
 
-/**
- * Node fill classes. The four traversal tones are pinned to the exact
- * classes GraphCanvas.vue used before this refactor — the Graph tab's
- * rendering must stay byte-identical, so these are not "reasonable
- * equivalents", they are the original literals moved here verbatim.
- *
- * The three MST tones are new: 'considering' reuses the 'frontier' amber
- * (both mean "under evaluation right now"), 'accepted' reuses the 'visited'
- * emerald (both mean "settled, part of the result"), and 'rejected' gets a
- * muted rose distinct from 'current's full-strength rose-500 — a rejected
- * edge is a past decision to look past, not something demanding attention
- * the way the traversal cursor does.
- */
+/** How each graph-facing tone maps onto the app-wide state vocabulary. */
+const AS_ALGO_TONE: Record<GraphTone, AlgoTone> = {
+  idle: 'idle',
+  frontier: 'probe',
+  current: 'active',
+  visited: 'settled',
+  considering: 'probe',
+  accepted: 'settled',
+  rejected: 'rejected',
+};
+
 export const NODE_TONE_CLASS: Record<GraphTone, string> = {
-  idle: 'fill-indigo-500/80 dark:fill-indigo-400/80',
-  frontier: 'fill-amber-400',
-  current: 'fill-rose-500',
-  visited: 'fill-emerald-500',
-  considering: 'fill-amber-400',
-  accepted: 'fill-emerald-500',
-  rejected: 'fill-rose-400/60 dark:fill-rose-500/50',
+  idle: TONE_FILL.idle,
+  frontier: TONE_FILL.probe,
+  current: TONE_FILL.active,
+  visited: TONE_FILL.settled,
+  considering: TONE_FILL.probe,
+  accepted: TONE_FILL.settled,
+  rejected: TONE_FILL.rejected,
 };
 
-/**
- * Edge stroke classes. 'idle' and 'visited' are pinned to GraphCanvas.vue's
- * original literals for the same reason as above. Edges never actually
- * carried a 'frontier' or 'current' tone in the traversal view (only
- * `edgeIsVisited` existed), so those two entries are filled in for type
- * completeness with the same hue family as the matching node tone, kept
- * ready for a caller that does want to paint an in-progress edge.
- */
 export const EDGE_TONE_CLASS: Record<GraphTone, string> = {
-  idle: 'stroke-slate-300 dark:stroke-slate-700',
-  frontier: 'stroke-amber-400/70',
-  current: 'stroke-rose-500',
-  visited: 'stroke-emerald-500',
-  considering: 'stroke-amber-400',
-  accepted: 'stroke-emerald-500',
-  rejected: 'stroke-rose-400/50 dark:stroke-rose-500/40',
+  idle: TONE_STROKE.idle,
+  frontier: TONE_STROKE.probe,
+  current: TONE_STROKE.active,
+  visited: TONE_STROKE.settled,
+  considering: TONE_STROKE.probe,
+  accepted: TONE_STROKE.settled,
+  rejected: TONE_STROKE.rejected,
 };
 
 /**
- * The legend GraphCanvas.vue rendered inline before this refactor, extracted
- * verbatim so it can be both the default `legend` prop (keeping the Graph tab
- * unchanged with zero caller-side wiring) and a value the MST view can start
- * from if it wants a similar look. Swatch classes are the `bg-*` counterpart
- * of each tone's `fill-*` class in NODE_TONE_CLASS, since a legend swatch is
- * a small filled square, not an SVG shape with its own `fill` attribute.
+ * The default legend for a traversal. Derived from the tone map rather than
+ * written out as a parallel list of swatch classes, so it cannot drift from
+ * what NODE_TONE_CLASS actually paints — which is what the old hand-mirrored
+ * version was already at risk of doing.
  */
-export const DEFAULT_TRAVERSAL_LEGEND: { label: string; class: string }[] = [
-  { label: 'Unvisited', class: 'bg-indigo-500/80 dark:bg-indigo-400/80' },
-  { label: 'Frontier', class: 'bg-amber-400' },
-  { label: 'Current', class: 'bg-rose-500' },
-  { label: 'Visited', class: 'bg-emerald-500' },
-];
+export const DEFAULT_TRAVERSAL_LEGEND: LegendItem[] = toneLegend([
+  { tone: AS_ALGO_TONE.idle, label: 'Unvisited' },
+  { tone: AS_ALGO_TONE.frontier, label: 'Frontier' },
+  { tone: AS_ALGO_TONE.current, label: 'Current' },
+  { tone: AS_ALGO_TONE.visited, label: 'Visited' },
+]);
+
+export { AS_ALGO_TONE };

@@ -16,12 +16,12 @@ defineProps<{ title?: string }>();
 <template>
   <div class="av-card p-4 sm:p-5">
     <div v-if="$slots.header" class="mb-3 flex items-center justify-between">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-faint">{{ title }}</h2>
       <slot name="header" />
     </div>
     <h2
       v-else-if="title"
-      class="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400"
+      class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-faint"
     >
       {{ title }}
     </h2>

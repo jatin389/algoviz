@@ -4,6 +4,7 @@ import { useBST } from '@/composables/useBST';
 import type { BSTNode, BSTPhase } from '@/types';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvStatCell from '@/components/ui/AvStatCell.vue';
+import AvStatusPill from '@/components/ui/AvStatusPill.vue';
 import BstControls from '../components/datastructures/BstControls.vue';
 import TreeDiagram from '../components/datastructures/TreeDiagram.vue';
 
@@ -120,25 +121,7 @@ const isEmpty = computed(() => bst.tree.value === null);
     <div class="flex flex-col gap-4">
       <AvPanel title="Stats">
         <template #header>
-          <span
-            class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-            :class="{
-              'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400':
-                bst.status.value === 'idle',
-              'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400':
-                bst.status.value === 'running',
-              'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400':
-                bst.status.value === 'done',
-            }"
-          >
-            {{
-              bst.status.value === 'running'
-                ? 'Running'
-                : bst.status.value === 'done'
-                  ? 'Done'
-                  : 'Idle'
-            }}
-          </span>
+          <AvStatusPill :status="bst.status.value" />
         </template>
         <div class="grid grid-cols-2 gap-2">
           <AvStatCell label="Comparisons" :value="String(bst.stats.comparisons)" />
@@ -147,7 +130,7 @@ const isEmpty = computed(() => bst.tree.value === null);
       </AvPanel>
 
       <AvPanel class="flex min-h-[320px] flex-1 items-center justify-center">
-        <p v-if="isEmpty" class="text-sm text-slate-400">
+        <p v-if="isEmpty" class="text-sm text-ink-faint">
           The tree is empty — insert a value to get started.
         </p>
         <TreeDiagram

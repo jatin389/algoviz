@@ -4,6 +4,7 @@ import type { Component } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { embeddableRoutes } from '@/router';
 import { useTheme } from '@/composables/useTheme';
+import { isThemeName, resolveStoredTheme } from '@/theme/themes';
 import EmbedBrand from '@/components/EmbedBrand.vue';
 
 /**
@@ -42,11 +43,21 @@ if (target.value === undefined) {
 // one would mean writing them back into the URL on every change. They survive
 // the categories' own write-back untouched, since it only ever rewrites keys it
 // owns.
-const theme = computed(() => route.query.theme);
-if (theme.value === 'light' || theme.value === 'dark') {
-  // Never persisted — see the note on `setDark`. Two embeds on one page share an
-  // origin, so a stored theme is a channel between them.
-  useTheme().setDark(theme.value === 'dark', { persist: false });
+// `?theme=` accepts any theme name, and still honours the original `light`
+// and `dark` — those were the only two values when embeds shipped, and
+// `resolveStoredTheme` already maps them onto Daylight and Midnight, so old
+// embed URLs in the wild keep working.
+//
+// An unrecognised value is ignored rather than reset to the default: a typo in
+// someone else's iframe should leave the widget alone, not repaint it.
+const isEmbedThemeParam = (value: string) =>
+  isThemeName(value) || value === 'light' || value === 'dark';
+
+const themeParam = computed(() => route.query.theme);
+if (typeof themeParam.value === 'string' && isEmbedThemeParam(themeParam.value)) {
+  // Never persisted — see the note on `setTheme`. Two embeds on one page share
+  // an origin, so a stored theme is a channel between them.
+  useTheme().setTheme(resolveStoredTheme(themeParam.value), { persist: false });
 }
 
 const showBrand = computed(() => route.query.brand !== '0');

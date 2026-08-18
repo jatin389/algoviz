@@ -71,8 +71,8 @@ describe('BucketArray', () => {
     expect(entries.map((e) => e.attributes('data-key'))).toEqual(['cat', 'dog']);
 
     // The link under the cursor ("dog") is called out; the other link is not.
-    expect(entries[1].classes()).toContain('border-amber-400');
-    expect(entries[0].classes()).not.toContain('border-amber-400');
+    expect(entries[1].attributes('data-link-state')).toBe('cursor');
+    expect(entries[0].attributes('data-link-state')).toBeUndefined();
 
     // Chaining counts links walked, not a slot index, so the badge carries the
     // "↓" prefix and reads the chain depth rather than a probe position.
@@ -116,13 +116,12 @@ describe('BucketArray', () => {
     expect(rows[0].attributes('data-home')).toBeUndefined();
     expect(rows[1].attributes('data-home')).toBe('true');
 
-    // The gutter number itself is the thing painted, not just a data
-    // attribute — the home slot's index reads bold-on-indigo, every other
-    // gutter number does not.
+    // The gutter number itself carries the highlight, not just the row — the
+    // home slot's own span is marked distinctly from every other gutter span.
     const homeGutter = rows[1].find('span');
     const otherGutter = rows[0].find('span');
-    expect(homeGutter.classes()).toContain('bg-indigo-500');
-    expect(otherGutter.classes()).not.toContain('bg-indigo-500');
+    expect(homeGutter.attributes('data-home')).toBe('true');
+    expect(otherGutter.attributes('data-home')).toBeUndefined();
   });
 
   it('highlights the live probe index and numbers every slot probed so far, in open addressing', () => {
@@ -147,8 +146,8 @@ describe('BucketArray', () => {
 
     // The slot under the cursor right now is rung, distinctly from a slot
     // that was merely probed earlier in the same operation.
-    expect(rows[3].classes()).toContain('ring-amber-400');
-    expect(rows[0].classes()).not.toContain('ring-amber-400');
+    expect(rows[3].attributes('data-probing')).toBe('true');
+    expect(rows[0].attributes('data-probing')).toBeUndefined();
 
     // Every probed slot carries its 1-based position in the probe sequence —
     // open addressing badges a slot index, not a chain depth, so no "↓".

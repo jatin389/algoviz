@@ -68,8 +68,8 @@ const thresholdAdjusted = computed(
           :disabled="!canEdit"
           @update:model-value="emit('update:capacity', $event)"
         />
-        <p v-if="capacityAdjusted" class="mt-1 text-[11px] text-slate-400">
-          Rounded up to <span class="font-mono">{{ effectiveCapacity }}</span> — every capacity here
+        <p v-if="capacityAdjusted" class="mt-1 text-[11px] text-ink-faint">
+          Rounded up to <span class="nums font-mono">{{ effectiveCapacity }}</span> — every capacity here
           is a power of two.
         </p>
       </div>
@@ -85,8 +85,8 @@ const thresholdAdjusted = computed(
           :disabled="!canEdit"
           @update:model-value="emit('update:threshold', $event / 100)"
         />
-        <p v-if="thresholdAdjusted" class="mt-1 text-[11px] text-slate-400">
-          Capped at <span class="font-mono">{{ Math.round(activeThreshold * 100) }}%</span> — open
+        <p v-if="thresholdAdjusted" class="mt-1 text-[11px] text-ink-faint">
+          Capped at <span class="nums font-mono">{{ Math.round(activeThreshold * 100) }}%</span> — open
           addressing stores one key per slot, so it can never reach α = 1.
         </p>
       </div>
@@ -103,7 +103,7 @@ const thresholdAdjusted = computed(
 
     <!-- Hash function -->
     <div class="mt-4">
-      <div class="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300">Hash function</div>
+      <div class="mb-1.5 text-sm font-medium text-ink-muted">Hash function</div>
       <div class="grid grid-cols-2 gap-2">
         <AvButton
           v-for="key in fnKeys"
@@ -116,7 +116,7 @@ const thresholdAdjusted = computed(
           {{ hashFns[key].name }}
         </AvButton>
       </div>
-      <p class="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+      <p class="mt-2 text-xs leading-relaxed text-ink-muted">
         {{ hashFns[hashFnKey].description }}
       </p>
     </div>
@@ -157,7 +157,7 @@ const thresholdAdjusted = computed(
       <AvButton variant="neutral" :disabled="isRunning" @click="emit('step')"> Step ▶ </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Strategy, capacity, threshold &amp; hash function lock while a script is running.
     </p>
   </AvPanel>

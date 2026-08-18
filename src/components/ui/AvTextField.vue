@@ -28,7 +28,7 @@ function onInput(e: Event) {
 <template>
   <label class="block">
     <div class="mb-1.5 flex items-center justify-between text-sm">
-      <span class="font-medium text-slate-600 dark:text-slate-300">{{ label }}</span>
+      <span class="font-medium text-ink-muted">{{ label }}</span>
     </div>
     <input
       type="text"
@@ -36,15 +36,15 @@ function onInput(e: Event) {
       :placeholder="placeholder"
       :disabled="disabled"
       :aria-invalid="!!error"
-      class="w-full rounded-xl border bg-white px-3 py-2 text-sm text-slate-800 transition-colors disabled:cursor-not-allowed disabled:opacity-50 dark:bg-slate-800 dark:text-slate-100"
+      class="w-full rounded-xl border bg-surface-raised px-3 py-2 text-sm text-ink transition-colors disabled:cursor-not-allowed disabled:opacity-50"
       :class="[
         monospace ? 'font-mono' : '',
         error
-          ? 'border-rose-500 ring-1 ring-rose-500 dark:border-rose-400 dark:ring-rose-400'
-          : 'border-slate-200 dark:border-slate-700',
+          ? 'border-danger ring-1 ring-danger'
+          : 'border-line',
       ]"
       @input="onInput"
     />
-    <p v-if="error" class="mt-1.5 text-xs text-rose-500 dark:text-rose-400">{{ error }}</p>
+    <p v-if="error" class="mt-1.5 text-xs text-danger-ink">{{ error }}</p>
   </label>
 </template>

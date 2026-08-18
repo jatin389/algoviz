@@ -43,13 +43,13 @@ function submitRemove() {
 <template>
   <AvPanel title="BST Controls">
     <label class="block">
-      <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">Value</span>
+      <span class="mb-1.5 block text-sm font-medium text-ink-muted">Value</span>
       <input
         v-model="inputValue"
         type="number"
         placeholder="e.g. 42"
         :disabled="!canEdit"
-        class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none transition-colors focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+        class="w-full rounded-xl border border-line bg-surface-raised px-3 py-2 text-sm text-ink outline-none transition-colors focus:border-accent disabled:cursor-not-allowed disabled:opacity-50"
         @keyup.enter="submitInsert"
       />
     </label>
@@ -80,7 +80,7 @@ function submitRemove() {
       <AvButton variant="neutral" :disabled="!canEdit" @click="emit('reset')"> Reset </AvButton>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       Controls lock while an insert/delete animation is playing.
     </p>
   </AvPanel>

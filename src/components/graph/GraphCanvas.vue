@@ -5,6 +5,7 @@ import AvPanel from '@/components/ui/AvPanel.vue';
 import AvLegend from '@/components/ui/AvLegend.vue';
 import { NODE_TONE_CLASS, EDGE_TONE_CLASS, DEFAULT_TRAVERSAL_LEGEND } from './tones';
 import type { GraphTone } from './tones';
+import type { LegendItem } from '@/theme/tones';
 
 // Dumb renderer, deliberately: this component knows how to draw a node-link
 // graph and nothing about what BFS, DFS, cycle-detection, bipartite-check, or
@@ -26,7 +27,7 @@ const props = withDefaults(
     nodeBadge?: Map<NodeId, string>;
     /** Render edge.weight as a label at the edge midpoint. */
     showWeights?: boolean;
-    legend?: { label: string; class: string }[];
+    legend?: LegendItem[];
     title?: string;
     hint?: string;
     startId?: NodeId | null;
@@ -96,12 +97,12 @@ function onNodeClick(id: NodeId) {
 <template>
   <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">{{ title }}</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-faint">{{ title }}</h2>
       <AvLegend :items="legend" />
     </div>
 
     <div
-      class="flex min-h-[320px] flex-1 items-center justify-center rounded-xl bg-slate-50 p-3 dark:bg-slate-950/40"
+      class="flex min-h-[320px] flex-1 items-center justify-center rounded-xl bg-surface-alt p-3"
     >
       <svg viewBox="0 0 400 400" class="h-full max-h-[480px] w-full max-w-[480px]">
         <line
@@ -129,14 +130,14 @@ function onNodeClick(id: NodeId) {
                 width="20"
                 height="14"
                 rx="3"
-                class="fill-slate-50 dark:fill-slate-950/80"
+                class="fill-surface-alt"
               />
               <text
                 :x="edgeMidpoints.get(edge.id)!.x"
                 :y="edgeMidpoints.get(edge.id)!.y"
                 text-anchor="middle"
                 dominant-baseline="central"
-                class="pointer-events-none select-none fill-slate-500 text-[9px] font-semibold dark:fill-slate-400"
+                class="pointer-events-none select-none fill-ink-muted text-[9px] font-semibold"
               >
                 {{ edge.weight }}
               </text>
@@ -158,7 +159,7 @@ function onNodeClick(id: NodeId) {
             class="transition-colors duration-150 ease-out"
             :class="[
               nodeColorClass(node.id),
-              node.id === startId ? 'stroke-white dark:stroke-slate-100' : 'stroke-transparent',
+              node.id === startId ? 'stroke-accent' : 'stroke-transparent',
             ]"
           />
           <text
@@ -166,7 +167,7 @@ function onNodeClick(id: NodeId) {
             :y="node.y"
             text-anchor="middle"
             dominant-baseline="central"
-            class="pointer-events-none select-none fill-white text-[10px] font-semibold"
+            class="pointer-events-none select-none fill-ink-inverse text-[10px] font-semibold"
           >
             {{ node.label }}
           </text>
@@ -175,7 +176,7 @@ function onNodeClick(id: NodeId) {
             :x="node.x"
             :y="node.y + 27"
             text-anchor="middle"
-            class="pointer-events-none select-none fill-slate-400 text-[9px] font-medium dark:fill-slate-500"
+            class="pointer-events-none select-none fill-ink-faint text-[9px] font-medium"
           >
             {{ nodeBadge.get(node.id) }}
           </text>
@@ -183,7 +184,7 @@ function onNodeClick(id: NodeId) {
       </svg>
     </div>
 
-    <p class="mt-3 text-center text-xs text-slate-400">
+    <p class="mt-3 text-center text-xs text-ink-faint">
       {{ hint }}
     </p>
   </AvPanel>

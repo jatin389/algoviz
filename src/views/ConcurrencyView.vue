@@ -9,6 +9,7 @@ import ThreadLanes from '@/components/concurrency/ThreadLanes.vue';
 import PlaybackScrubber from '@/components/PlaybackScrubber.vue';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvStatCell from '@/components/ui/AvStatCell.vue';
+import AvStatusPill from '@/components/ui/AvStatusPill.vue';
 
 const concurrency = useConcurrency();
 const isEmbed = useIsEmbed();
@@ -21,6 +22,13 @@ const verdict = computed(() => {
   if (!outcome.violates) return 'This ordering is safe — the invariant holds at every step.';
   return `This ordering breaks the invariant, first at step ${outcome.firstViolationIndex + 1}.`;
 });
+
+// Not a run-status pill — a two-way search verdict — but it shares the same
+// pill shape, so it borrows AvStatusPill rather than re-declaring its own
+// class record. `running`/`error` are picked only for their colour (green vs
+// rose, matching the original emerald/rose), with the wording overridden.
+const verdictStatus = computed(() => (selected.value?.violates ? 'error' : 'running'));
+const verdictLabel = computed(() => (selected.value?.violates ? 'Buggy ordering' : 'Safe ordering'));
 
 const cells = computed(() => [
   { label: 'Step', value: `${concurrency.stats.executed} / ${concurrency.stats.total}` },
@@ -70,16 +78,7 @@ const cells = computed(() => [
     <div class="flex flex-col gap-4">
       <AvPanel title="Search">
         <template #header>
-          <span
-            class="rounded-full px-2.5 py-0.5 text-xs font-semibold"
-            :class="
-              selected?.violates
-                ? 'bg-rose-100 text-rose-600 dark:bg-rose-900/40 dark:text-rose-300'
-                : 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400'
-            "
-          >
-            {{ selected?.violates ? 'Buggy ordering' : 'Safe ordering' }}
-          </span>
+          <AvStatusPill :status="verdictStatus" :label="verdictLabel" />
         </template>
         <div class="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <AvStatCell
@@ -89,7 +88,7 @@ const cells = computed(() => [
             :value="cell.value"
           />
         </div>
-        <p class="text-sm text-slate-500 dark:text-slate-400">{{ verdict }}</p>
+        <p class="text-sm text-ink-muted">{{ verdict }}</p>
       </AvPanel>
 
       <ScheduleList

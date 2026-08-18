@@ -33,8 +33,8 @@ function onInput(e: Event) {
 <template>
   <label class="block">
     <div class="mb-1.5 flex items-center justify-between text-sm">
-      <span class="font-medium text-slate-600 dark:text-slate-300">{{ label }}</span>
-      <span class="font-mono text-indigo-500 dark:text-indigo-400">{{ valueText }}</span>
+      <span class="font-medium text-ink-muted">{{ label }}</span>
+      <span class="font-mono text-accent">{{ valueText }}</span>
     </div>
     <input
       type="range"

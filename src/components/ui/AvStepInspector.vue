@@ -44,10 +44,10 @@ const props = withDefaults(
 // never reaches Tailwind's scanner, so only literal keys guarantee the rule
 // ships in the build.
 const TONE_CLASS: Record<InspectorTone, string> = {
-  neutral: 'text-slate-700 dark:text-slate-200',
-  good: 'text-emerald-600 dark:text-emerald-400',
-  warn: 'text-amber-600 dark:text-amber-400',
-  bad: 'text-rose-600 dark:text-rose-400',
+  neutral: 'text-ink',
+  good: 'text-ok-ink',
+  warn: 'text-warn-ink',
+  bad: 'text-danger-ink',
 };
 
 function toneClass(tone?: InspectorTone) {
@@ -59,24 +59,24 @@ const isEmpty = computed(() => !props.headline && !props.formula && props.rows.l
 
 <template>
   <AvPanel :title="title">
-    <p v-if="isEmpty" class="text-sm text-slate-500 dark:text-slate-400">{{ empty }}</p>
+    <p v-if="isEmpty" class="text-sm text-ink-muted">{{ empty }}</p>
 
     <!-- space-y rather than per-block margins: any of the three pieces can be
          the first one present, so a fixed top margin on each would either
          double up or go missing depending on which are supplied. -->
     <div v-else class="space-y-3">
-      <p v-if="headline" class="text-sm text-slate-600 dark:text-slate-300">{{ headline }}</p>
+      <p v-if="headline" class="text-sm text-ink-muted">{{ headline }}</p>
 
       <div
         v-if="formula"
-        class="break-words rounded-xl bg-slate-50 p-3 font-mono text-sm text-slate-800 dark:bg-slate-800/50 dark:text-slate-100 sm:text-base"
+        class="break-words rounded-xl bg-surface-alt p-3 font-mono text-sm text-ink sm:text-base"
       >
         {{ formula }}
       </div>
 
       <dl v-if="rows.length" class="space-y-1.5 text-sm">
         <div v-for="row in rows" :key="row.label" class="flex items-center justify-between gap-3">
-          <dt class="text-slate-500 dark:text-slate-400">{{ row.label }}</dt>
+          <dt class="text-ink-muted">{{ row.label }}</dt>
           <dd class="break-words text-right font-mono" :class="toneClass(row.tone)">
             {{ row.value }}
           </dd>

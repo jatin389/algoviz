@@ -15,9 +15,9 @@ import AvExplainer from '@/components/ui/AvExplainer.vue';
 
 const fields: { name: string; type: string; note: string }[] = [
   { name: 'array', type: 'number[]', note: 'Required. The values as they stand right now.' },
-  { name: 'comparing', type: 'number[]', note: 'Indices to paint amber. Defaults to none.' },
-  { name: 'swapping', type: 'number[]', note: 'Indices to paint rose.' },
-  { name: 'sorted', type: 'number[]', note: 'Indices to paint emerald — settled for good.' },
+  { name: 'comparing', type: 'number[]', note: 'Indices to mark as being compared. Defaults to none.' },
+  { name: 'swapping', type: 'number[]', note: 'Indices to mark as swapping.' },
+  { name: 'sorted', type: 'number[]', note: 'Indices to mark as sorted — settled for good.' },
   { name: 'comparisons', type: 'number', note: 'Shown in Stats. Your own running count.' },
   { name: 'swaps', type: 'number', note: 'Shown in Stats.' },
   { name: 'done', type: 'boolean', note: 'true on the final snapshot only. Ends the run.' },
@@ -30,18 +30,18 @@ const fields: { name: string; type: string; note: string }[] = [
     summary="Write a generator, yield a snapshot per frame. Read this first — the shape is strict."
     start-open
   >
-    <p class="mb-3 text-slate-600 dark:text-slate-300">
+    <p class="mb-3 text-ink-muted">
       Your code runs in a sandboxed frame on its own thread, and everything it
       <code class="font-mono text-xs">yield</code>s is drawn on the chart to the right. It is the
       same contract every built-in algorithm here uses, so anything you write plays back with the
       same scrubber, speed control and step history.
     </p>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Required shape
     </h3>
     <pre
-      class="mb-4 overflow-x-auto rounded-xl bg-slate-50 p-3 font-mono text-[11px] leading-5 text-slate-700 dark:bg-slate-950/40 dark:text-slate-300"
+      class="mb-4 overflow-x-auto rounded-xl bg-surface-alt p-3 font-mono text-[11px] leading-5 text-ink"
     ><code>// name and function* are both required
 function* run(input) {
   // copy it — mutating input breaks Reset
@@ -59,7 +59,7 @@ function* run(input) {
   };
 }</code></pre>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Snapshot fields
     </h3>
     <div class="mb-4 overflow-x-auto">
@@ -68,22 +68,22 @@ function* run(input) {
           <tr
             v-for="field in fields"
             :key="field.name"
-            class="border-b border-slate-200 last:border-0 dark:border-slate-700"
+            class="border-b border-line last:border-0"
           >
-            <td class="py-1.5 pr-3 font-mono font-semibold text-slate-700 dark:text-slate-200">
+            <td class="py-1.5 pr-3 font-mono font-semibold text-ink">
               {{ field.name }}
             </td>
-            <td class="py-1.5 pr-3 font-mono text-slate-400">{{ field.type }}</td>
-            <td class="py-1.5 text-slate-500 dark:text-slate-400">{{ field.note }}</td>
+            <td class="py-1.5 pr-3 font-mono text-ink-faint">{{ field.type }}</td>
+            <td class="py-1.5 text-ink-muted">{{ field.note }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Rules worth knowing
     </h3>
-    <ul class="mb-4 list-disc space-y-1.5 pl-5 text-slate-600 dark:text-slate-300">
+    <ul class="mb-4 list-disc space-y-1.5 pl-5 text-ink-muted">
       <li>
         <b>JavaScript only.</b> The runner evaluates JS — other languages and WebAssembly are not
         supported.
@@ -105,15 +105,15 @@ function* run(input) {
       </li>
     </ul>
 
-    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-400">
+    <h3 class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-faint">
       Why it is safe to run a link someone sent you
     </h3>
-    <p class="mb-2 text-slate-600 dark:text-slate-300">
+    <p class="mb-2 text-ink-muted">
       Code executes inside an isolated frame with no access to this page — not its DOM, its
       storage, or its cookies — and on a separate thread, so even an infinite loop cannot freeze
       the tab. A run that stops responding is terminated automatically.
     </p>
-    <p class="text-slate-500 dark:text-slate-400">
+    <p class="text-ink-faint">
       One honest limitation: isolation stops shared code touching <em>this app</em>, but it can
       still make network requests, the same as any script on any page you open. Treat a shared
       snippet the way you would treat any link.

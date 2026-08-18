@@ -58,6 +58,6 @@ function onSeedInput(value: string) {
       <AvButton variant="quiet" :disabled="!canEdit" @click="emit('randomize')">New seed</AvButton>
     </div>
 
-    <p class="mt-3 text-xs text-slate-400">The same seed always reproduces the same data.</p>
+    <p class="mt-3 text-xs text-ink-faint">The same seed always reproduces the same data.</p>
   </AvPanel>
 </template>

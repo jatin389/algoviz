@@ -67,26 +67,28 @@ function onInput(event: Event) {
 <template>
   <AvPanel title="Your algorithm">
     <template #header>
-      <span class="text-[11px] text-slate-400 dark:text-slate-500">
+      <span class="text-[11px] text-ink-faint">
         Tab indents · Esc then Tab to leave
       </span>
     </template>
 
     <div
-      class="relative flex max-h-[420px] min-h-[260px] overflow-hidden rounded-xl bg-slate-50 font-mono text-xs dark:bg-slate-950/40"
+      class="relative flex max-h-[420px] min-h-[260px] overflow-hidden rounded-xl bg-surface-alt font-mono text-xs"
     >
       <!-- Gutter. aria-hidden: the line numbers are decoration, and a screen
            reader announcing 60 bare integers before the code is pure noise. -->
       <div
         aria-hidden="true"
-        class="select-none overflow-hidden border-r border-slate-200 bg-slate-100/60 py-3 text-right dark:border-slate-800 dark:bg-slate-900/40"
+        class="select-none overflow-hidden border-r border-line bg-surface-alt py-3 text-right"
         :style="{ minWidth: '2.75rem' }"
       >
+        <!-- 2.75rem is tuned to fit two digits in the current mono face at
+             text-xs; revisit this value if the mono face ever changes. -->
         <div :style="{ transform: `translateY(${-scrollTop}px)` }">
           <div
             v-for="n in lineNumbers"
             :key="n"
-            class="px-2 leading-5 text-slate-400 dark:text-slate-600"
+            class="px-2 leading-5 text-ink-faint"
           >
             {{ n }}
           </div>
@@ -102,7 +104,7 @@ function onInput(event: Event) {
         autocorrect="off"
         autocapitalize="off"
         aria-label="Algorithm source code"
-        class="flex-1 resize-none bg-transparent p-3 leading-5 text-slate-800 outline-none disabled:opacity-60 dark:text-slate-200"
+        class="flex-1 resize-none bg-transparent p-3 leading-5 text-ink outline-none disabled:opacity-60"
         @input="onInput"
         @keydown="onKeydown"
         @scroll="onScroll"

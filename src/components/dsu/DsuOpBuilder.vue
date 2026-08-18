@@ -100,13 +100,13 @@ function clearOps() {
     <!-- Compose row -->
     <div class="flex flex-wrap items-end gap-2">
       <label class="block">
-        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300">
+        <span class="mb-1.5 block text-sm font-medium text-ink-muted">
           Op
         </span>
         <select
           v-model="kindDraft"
           :disabled="!canEdit"
-          class="rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          class="rounded-xl border border-line bg-surface-raised px-2.5 py-2 text-sm text-ink disabled:cursor-not-allowed disabled:opacity-50"
         >
           <option value="union">union</option>
           <option value="find">find</option>
@@ -114,53 +114,53 @@ function clearOps() {
       </label>
 
       <label class="block w-16">
-        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300"> a </span>
+        <span class="mb-1.5 block text-sm font-medium text-ink-muted"> a </span>
         <input
           v-model="aDraft"
           type="number"
           :min="0"
           :max="maxIndex"
           :disabled="!canEdit"
-          class="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          class="w-full rounded-xl border border-line bg-surface-raised px-2.5 py-2 text-sm text-ink disabled:cursor-not-allowed disabled:opacity-50"
         />
       </label>
 
       <label v-if="kindDraft === 'union'" class="block w-16">
-        <span class="mb-1.5 block text-sm font-medium text-slate-600 dark:text-slate-300"> b </span>
+        <span class="mb-1.5 block text-sm font-medium text-ink-muted"> b </span>
         <input
           v-model="bDraft"
           type="number"
           :min="0"
           :max="maxIndex"
           :disabled="!canEdit"
-          class="w-full rounded-xl border border-slate-200 bg-white px-2.5 py-2 text-sm text-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+          class="w-full rounded-xl border border-line bg-surface-raised px-2.5 py-2 text-sm text-ink disabled:cursor-not-allowed disabled:opacity-50"
         />
       </label>
 
       <AvButton variant="quiet" :disabled="!canEdit" @click="addOp">Add</AvButton>
     </div>
 
-    <p v-if="error" class="mt-1.5 text-xs text-rose-500 dark:text-rose-400">{{ error }}</p>
-    <p class="mt-1.5 text-xs text-slate-400">Valid nodes for this forest: 0 to {{ maxIndex }}.</p>
+    <p v-if="error" class="mt-1.5 text-xs text-danger">{{ error }}</p>
+    <p class="mt-1.5 text-xs text-ink-faint">Valid nodes for this forest: 0 to {{ maxIndex }}.</p>
 
     <!-- The composed script -->
     <div class="mt-4">
-      <p v-if="ops.length === 0" class="text-sm text-slate-400">
+      <p v-if="ops.length === 0" class="text-sm text-ink-faint">
         No operations yet — add one above, or generate a random script.
       </p>
       <ol v-else class="max-h-48 space-y-1 overflow-y-auto pr-1">
         <li
           v-for="(op, index) in ops"
           :key="index"
-          class="flex items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs dark:border-slate-700 dark:bg-slate-800/50"
+          class="flex items-center justify-between gap-2 rounded-lg border border-line bg-surface-alt px-2.5 py-1.5 text-xs"
         >
-          <span class="font-mono font-semibold text-slate-700 dark:text-slate-200">
+          <span class="font-mono font-semibold text-ink">
             {{ index + 1 }}. {{ opLabel(op) }}
           </span>
           <button
             type="button"
             :disabled="!canEdit"
-            class="rounded px-1.5 py-0.5 text-slate-400 transition-colors hover:bg-rose-100 hover:text-rose-600 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-rose-900/30 dark:hover:text-rose-300"
+            class="rounded px-1.5 py-0.5 text-ink-faint transition-colors hover:bg-danger-soft hover:text-danger disabled:cursor-not-allowed disabled:opacity-50"
             :aria-label="`Remove ${opLabel(op)}`"
             @click="removeOp(index)"
           >
@@ -179,7 +179,7 @@ function clearOps() {
       </AvButton>
     </div>
 
-    <p class="mt-3 text-xs text-slate-400">
+    <p class="mt-3 text-xs text-ink-faint">
       Compose the whole script, then press Run — see the guide above for why one continuous history
       is the point.
     </p>

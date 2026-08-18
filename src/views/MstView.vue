@@ -15,6 +15,7 @@ import { computed, watch } from 'vue';
 import { useMst } from '@/composables/useMst';
 import { useIsEmbed } from '@/composables/useIsEmbed';
 import { algorithms } from '@/algorithms/dsu';
+import { toneLegend } from '@/theme/tones';
 import type { InspectorRow } from '@/components/ui/AvStepInspector.vue';
 import AvAlgorithmSelector from '@/components/ui/AvAlgorithmSelector.vue';
 import AvStepInspector from '@/components/ui/AvStepInspector.vue';
@@ -57,15 +58,16 @@ watch(mst.algoKey, () => {
 // traversal category's tones (Unvisited/Frontier/Current/Visited). This
 // category paints a different three tones — considering/accepted/rejected —
 // on top of the same idle color, so it needs its own legend rather than one
-// that describes tones this view never emits. Swatch classes are the `bg-*`
-// counterpart of tones.ts's NODE_TONE_CLASS fill classes, same conversion
-// DEFAULT_TRAVERSAL_LEGEND itself already does for the traversal tones.
-const GRAPH_LEGEND = [
-  { label: 'Idle', class: 'bg-indigo-500/80 dark:bg-indigo-400/80' },
-  { label: 'Considering', class: 'bg-amber-400' },
-  { label: 'Accepted', class: 'bg-emerald-500' },
-  { label: 'Rejected', class: 'bg-rose-400/60 dark:bg-rose-500/50' },
-];
+// that describes tones this view never emits. Built with `toneLegend`, the
+// same helper `DEFAULT_TRAVERSAL_LEGEND` itself uses, so this swatch list
+// cannot drift from `NODE_TONE_CLASS`'s fills the way a hand-mirrored `bg-*`
+// list could.
+const GRAPH_LEGEND = toneLegend([
+  { tone: 'idle', label: 'Idle' },
+  { tone: 'probe', label: 'Considering' },
+  { tone: 'settled', label: 'Accepted' },
+  { tone: 'rejected', label: 'Rejected' },
+]);
 
 // DsuForest defaults to plain numeric indices when `labels` is empty, and
 // that default is deliberately what standalone DSU mode gets: there is no

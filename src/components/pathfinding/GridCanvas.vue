@@ -3,6 +3,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import type { Coord } from '@/types';
 import AvPanel from '@/components/ui/AvPanel.vue';
 import AvButton from '@/components/ui/AvButton.vue';
+import AvLegend from '@/components/ui/AvLegend.vue';
+import { TONE_MARK, toneLegend } from '@/theme/tones';
 
 /** One square of the rendered grid, precomputed once per rows×cols change. */
 interface GridCell {
@@ -83,15 +85,31 @@ function isEndCell(row: number, col: number) {
   return props.end.row === row && props.end.col === col;
 }
 
+// Wall -> blocked (impassable). Path -> trace (the reconstructed route, same
+// as a DP traceback). Frontier -> probe (the cells under evaluation right
+// now). Visited -> settled (already-visited cells, a done deal by the time
+// the run moves on).
+const LEGEND = toneLegend([
+  { tone: 'blocked', label: 'Wall' },
+  { tone: 'probe', label: 'Frontier' },
+  { tone: 'settled', label: 'Visited' },
+  { tone: 'trace', label: 'Path' },
+]);
+
 // Color precedence: wall > path > frontier > visited > empty. Start/end are
 // drawn as a separate marker layered on top, independent of this background.
 function cellClass(cell: GridCell) {
   const k = cell.key;
-  if (props.walls.has(k)) return 'bg-slate-900 dark:bg-black';
-  if (pathSet.value.has(k)) return 'bg-emerald-500';
-  if (frontierSet.value.has(k)) return 'bg-amber-400';
-  if (visitedSet.value.has(k)) return 'bg-sky-400/80';
-  return 'bg-slate-100 dark:bg-slate-800/50';
+  if (props.walls.has(k)) return TONE_MARK.blocked;
+  if (pathSet.value.has(k)) return TONE_MARK.trace;
+  if (frontierSet.value.has(k)) return TONE_MARK.probe;
+  if (visitedSet.value.has(k)) return TONE_MARK.settled;
+  // An untouched cell is background, not a mark. `tone-idle` is sized to be a
+  // legible data mark (3:1 against the surface), which on a grid of hundreds of
+  // empty cells reads as a wall of grey and drowns the few cells that matter.
+  // The bar chart is the opposite case — there an untouched bar IS the data, so
+  // it keeps `tone-idle`.
+  return 'bg-surface-alt';
 }
 
 // The spoken twin of cellClass — same checks, with the start/end marker layer
@@ -207,23 +225,10 @@ function onPointerEnter(cell: GridCell) {
 <template>
   <AvPanel class="flex h-full flex-col">
     <div class="mb-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Grid</h2>
+      <h2 class="text-xs font-semibold uppercase tracking-wider text-ink-faint">Grid</h2>
 
       <!-- Legend -->
-      <div class="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-slate-900 dark:bg-black" />Wall</span
-        >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-amber-400" />Frontier</span
-        >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-sky-400/80" />Visited</span
-        >
-        <span class="flex items-center gap-1.5"
-          ><i class="h-3 w-3 rounded-sm bg-emerald-500" />Path</span
-        >
-      </div>
+      <AvLegend :items="LEGEND" />
     </div>
 
     <!-- Mode toggle -->
@@ -248,7 +253,7 @@ function onPointerEnter(cell: GridCell) {
       role="grid"
       :aria-label="gridLabel"
       aria-describedby="grid-help"
-      class="grid flex-1 select-none gap-px rounded-xl bg-slate-200 p-1 dark:bg-slate-800"
+      class="grid flex-1 select-none gap-px rounded-xl bg-line p-1"
       :class="canEdit ? 'touch-none' : ''"
       :style="{
         gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`,
@@ -267,7 +272,7 @@ function onPointerEnter(cell: GridCell) {
           :data-key="cell.key"
           :tabindex="focused.row === cell.row && focused.col === cell.col ? 0 : -1"
           :aria-label="cellLabel(cell)"
-          class="relative flex items-center justify-center rounded-[2px] transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-indigo-500"
+          class="relative flex items-center justify-center rounded-mark transition-colors duration-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
           :class="[cellClass(cell), canEdit ? 'cursor-pointer' : 'cursor-default']"
           @pointerdown.prevent="onPointerDown($event, cell)"
           @pointerenter="onPointerEnter(cell)"
@@ -282,19 +287,19 @@ function onPointerEnter(cell: GridCell) {
         >
           <span
             v-if="isStartCell(cell.row, cell.col)"
-            class="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-green-500 text-[8px] font-bold text-white shadow"
+            class="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-ok text-[8px] font-bold text-ink-inverse shadow"
             >S</span
           >
           <span
             v-else-if="isEndCell(cell.row, cell.col)"
-            class="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-rose-600 text-[8px] font-bold text-white shadow"
+            class="flex h-[70%] w-[70%] items-center justify-center rounded-full bg-danger text-[8px] font-bold text-ink-inverse shadow"
             >E</span
           >
         </div>
       </div>
     </div>
 
-    <p id="grid-help" class="mt-3 text-center text-xs text-slate-400">
+    <p id="grid-help" class="mt-3 text-center text-xs text-ink-faint">
       Drag or press Space to draw walls. Arrow keys move, Enter places. Switch mode to relocate
       start/end.
     </p>
