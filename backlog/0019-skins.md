@@ -34,7 +34,7 @@ The same generator renders as book spines, race cars, a hand of cards, or people
 - All five skins use index-keyed `v-for`; no element-identity scheme, `TransitionGroup`, or FLIP motion is introduced (see the lab's Verdict for why this is deliberate, not deferred-by-oversight).
 - Skins with a declared `maxComfortableN` (Cars: 40, Cards: 30) show an inline crowding note above that count and still render without horizontal overflow at n=100.
 - The stage carries a `role` and a step-describing `aria-label` in every skin — `BarChart` has neither today, and this is the one pass that fixes it for all five at once.
-- No regression in the 494 existing test cases across 33 test files (baseline taken after merging `main`'s design-system update, commit `55ef028`).
+- No regression in the 1005 existing test cases across 33 test files (baseline confirmed via `npx vitest run` after merging `main`'s design-system update, commit `55ef028`).
 **Open questions:** Acceptance criteria and which skins ship first not yet scoped.
 
 ## Notes

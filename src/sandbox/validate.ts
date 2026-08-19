@@ -7,10 +7,10 @@
 // replace `self.postMessage`, so anything arriving here is attacker-controlled
 // in the general case.
 //
-// What we are protecting is the renderer: `BarChart.vue` divides by
-// `maxValue`, indexes `array` by highlight index, and renders one element per
-// entry. NaN, a negative index, or a 10-million-entry array would each break
-// it in a different way.
+// What we are protecting is the renderer: every sorting skin (see
+// `src/components/sorting/`) divides by `maxValue`, indexes `array` by
+// highlight index, and renders one element per entry. NaN, a negative index,
+// or a 10-million-entry array would each break it in a different way.
 
 import type { SortStep } from '@/types';
 import { MAX_SANDBOX_ARRAY_LENGTH } from './contract';
