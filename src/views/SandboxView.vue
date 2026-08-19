@@ -7,7 +7,7 @@ import SandboxGuide from '@/components/sandbox/SandboxGuide.vue';
 import SandboxControls from '@/components/sandbox/SandboxControls.vue';
 import SandboxStatus from '@/components/sandbox/SandboxStatus.vue';
 import PlaybackScrubber from '@/components/PlaybackScrubber.vue';
-import BarChart from '@/components/BarChart.vue';
+import SortStage from '@/components/sorting/SortStage.vue';
 import StatsDisplay from '@/components/StatsDisplay.vue';
 
 const sandbox = useSandbox();
@@ -41,10 +41,7 @@ const firstRejectReason = computed(() => sandbox.lastRun.value?.firstRejectReaso
     <!-- Left column -->
     <div class="flex flex-col gap-4">
       <SandboxGuide v-if="!isEmbed" />
-      <CodeEditor
-        v-model="sandbox.source.value"
-        :disabled="sandbox.phase.value === 'executing'"
-      />
+      <CodeEditor v-model="sandbox.source.value" :disabled="sandbox.phase.value === 'executing'" />
       <SandboxControls
         v-model:size="sandbox.size.value"
         v-model:speed="sandbox.speed.value"
@@ -96,7 +93,7 @@ const firstRejectReason = computed(() => sandbox.lastRun.value?.firstRejectReaso
         :elapsed-ms="sandbox.elapsedMs.value"
         :status="sandbox.status.value"
       />
-      <BarChart
+      <SortStage
         class="flex-1"
         title="Your algorithm"
         :array="sandbox.array.value"

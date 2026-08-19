@@ -3,8 +3,9 @@
 // A sandbox snippet is an ordinary `function* run(input)` that yields the same
 // `SortStep` shape every built-in sorting algorithm yields. That choice is the
 // whole reason this feature is cheap: the snapshot already has a renderer
-// (`BarChart.vue`) and a player (`useStepPlayer`), so the only genuinely new
-// thing is getting the snapshots out of an untrusted realm safely.
+// (`SortStage`, defaulted to the Bars skin) and a player (`useStepPlayer`), so
+// the only genuinely new thing is getting the snapshots out of an untrusted
+// realm safely.
 
 /** Hard ceiling on how many steps a snippet may produce before it is cut off. */
 export const MAX_SANDBOX_STEPS = 20_000;

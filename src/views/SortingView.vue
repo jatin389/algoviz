@@ -12,7 +12,10 @@ import ControlsPanel from '../components/ControlsPanel.vue';
 import PlaybackScrubber from '../components/PlaybackScrubber.vue';
 import CodePanel from '../components/CodePanel.vue';
 import DatasetPanel from '../components/DatasetPanel.vue';
-import BarChart from '../components/BarChart.vue';
+import SortStage from '@/components/sorting/SortStage.vue';
+import SkinPicker from '@/components/sorting/SkinPicker.vue';
+import { DEFAULT_SKIN, sortSkins } from '@/components/sorting/skins';
+import type { SortSkinKey } from '@/components/sorting/skins';
 import StatsDisplay from '../components/StatsDisplay.vue';
 
 const sorter = useSorter();
@@ -25,6 +28,11 @@ const audio = useAudioCues();
 const rival = useSorter({ syncUrl: false, audio: false });
 const compare = ref(false);
 
+// View-owned, like `cmp`/`algo2` above: skin is a rendering preference, not a
+// property useSorter or its rival owns, and a race is only meaningful when
+// both charts share one presentation, so one ref drives both.
+const skin = ref<SortSkinKey>(DEFAULT_SKIN);
+
 useUrlState({
   cmp: {
     ref: compare,
@@ -35,6 +43,11 @@ useUrlState({
     ref: rival.algoKey,
     encode: (key) => key,
     decode: (raw) => decodeKey(algorithms, raw),
+  },
+  skin: {
+    ref: skin,
+    encode: (key) => (key === DEFAULT_SKIN ? null : key),
+    decode: (raw) => decodeKey(sortSkins, raw),
   },
 });
 
@@ -112,6 +125,7 @@ watch(sorter.algoKey, () => {
         :columns="3"
         :disabled="!sorter.canEdit.value"
       />
+      <SkinPicker v-model="skin" :count="sorter.array.value.length" />
       <!-- @update:sound calls audio.toggle() rather than binding v-model:sound,
            so the click handler that satisfies the autoplay unlock stays an
            explicit call site instead of hiding behind two-way binding sugar. -->
@@ -180,7 +194,7 @@ watch(sorter.algoKey, () => {
           :elapsed-ms="sorter.elapsedMs.value"
           :status="sorter.status.value"
         />
-        <BarChart
+        <SortStage
           class="flex-1"
           :title="sorter.currentAlgo.value.name"
           :array="sorter.array.value"
@@ -188,6 +202,7 @@ watch(sorter.algoKey, () => {
           :swapping="sorter.highlights.swapping"
           :sorted="sorter.highlights.sorted"
           :max-value="sorter.maxValue.value"
+          :skin="skin"
         />
       </div>
       <div class="flex flex-col gap-4">
@@ -199,7 +214,7 @@ watch(sorter.algoKey, () => {
           :status="rival.status.value"
         />
         <!-- The legend is identical for both charts, so it renders once. -->
-        <BarChart
+        <SortStage
           class="flex-1"
           :title="rival.currentAlgo.value.name"
           :show-legend="false"
@@ -208,6 +223,7 @@ watch(sorter.algoKey, () => {
           :swapping="rival.highlights.swapping"
           :sorted="rival.highlights.sorted"
           :max-value="rival.maxValue.value"
+          :skin="skin"
         />
       </div>
     </div>
@@ -220,13 +236,14 @@ watch(sorter.algoKey, () => {
         :elapsed-ms="sorter.elapsedMs.value"
         :status="sorter.status.value"
       />
-      <BarChart
+      <SortStage
         class="flex-1"
         :array="sorter.array.value"
         :comparing="sorter.highlights.comparing"
         :swapping="sorter.highlights.swapping"
         :sorted="sorter.highlights.sorted"
         :max-value="sorter.maxValue.value"
+        :skin="skin"
       />
     </div>
   </div>
