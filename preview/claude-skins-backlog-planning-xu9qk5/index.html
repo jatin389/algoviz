@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="AlgoViz — watch sorting, searching, pathfinding, graph, DP, hashing and concurrency algorithms run step by step."
+    />
+    <title>AlgoViz — Algorithm Visualizer</title>
+    <!--
+      Apply the theme before first paint. `main.ts` also applies it, but that
+      runs once the module graph has loaded, which is far too late: the themes
+      differ enough (Paper vs Terminal) that the flash would be a visibly
+      different application rather than a slightly wrong shade.
+
+      This deliberately does NOT validate the stored name. An unknown value
+      falls through as-is and simply matches no `[data-theme]` block, so the
+      `:root` defaults render; the theme module then corrects storage a moment
+      later. Duplicating the registry here would only create a second list to
+      keep in sync.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('algoviz-theme');
+          // The key used to hold 'dark'/'light' before themes had names.
+          var name =
+            stored === 'dark' || !stored
+              ? 'midnight'
+              : stored === 'light'
+                ? 'daylight'
+                : stored;
+          document.documentElement.setAttribute('data-theme', name);
+        } catch (e) {
+          /* localStorage unavailable — :root defaults are already correct. */
+        }
+      })();
+    </script>
+    <script type="module" crossorigin src="/algoviz/preview/claude-skins-backlog-planning-xu9qk5/assets/index-DOhD0z-H.js"></script>
+    <link rel="stylesheet" crossorigin href="/algoviz/preview/claude-skins-backlog-planning-xu9qk5/assets/index-CqkAfPUo.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
